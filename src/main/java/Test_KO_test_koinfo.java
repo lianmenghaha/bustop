@@ -17,18 +17,12 @@ public class Test_KO_test_koinfo {
 
 
         ArrayList<Keepout> uni_keepouts = new ArrayList<>();
-        Keepout o1 = new Keepout(0, 1, 7, 12);
-        o1.setName("o1");
-        Keepout o2 = new Keepout(3, 4, 0, 5);
-        o2.setName("o2");
-        Keepout o3 = new Keepout(6, 7, 3, 9);
-        o3.setName("o3");
-        Keepout o4 = new Keepout(8, 9, 7, 12);
-        o4.setName("o4");
-        Keepout o5 = new Keepout(3, 4, 8, 10);
-        o5.setName("o5");
-        Keepout o6 = new Keepout(3, 4, 11, 12);
-        o6.setName("o6");
+        Keepout o1 = new Keepout("o1",0, 1, 7, 12);
+        Keepout o2 = new Keepout("o2", 3, 4, 0, 5);
+        Keepout o3 = new Keepout("o3", 6, 7, 3, 9);
+        Keepout o4 = new Keepout("o4", 8, 9, 7, 12);
+        Keepout o5 = new Keepout("o5", 3, 4, 8, 10);
+        Keepout o6 = new Keepout("o6", 3, 4, 11, 12);
 
         uni_keepouts.add(o1);
         uni_keepouts.add(o2);

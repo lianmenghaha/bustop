@@ -21,12 +21,9 @@ public class Test_KO_test {
 
 
         ArrayList<Keepout> uni_keepouts = new ArrayList<>();
-        Keepout o1 = new Keepout(2,3,3,7);
-        o1.setName("o1");
-        Keepout o2 = new Keepout(5,6,5,9);
-        o2.setName("o2");
-        Keepout o3 = new Keepout(8,9,1,5);
-        o3.setName("o3");
+        Keepout o1 = new Keepout("o1", 2,3,3,7);
+        Keepout o2 = new Keepout("o2", 5,6,5,9);
+        Keepout o3 = new Keepout("o3", 8,9,1,5);
 
         uni_keepouts.add(o1);
         uni_keepouts.add(o2);

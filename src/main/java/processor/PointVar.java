@@ -153,11 +153,5 @@ public class PointVar {
         exe.addVariable(v);
     }
 
-    @Override
-    public String toString() {
-        return "PointVar{" +
-                "x_Var=" + x +
-                ", y_Var=" + y +
-                '}';
-    }
+
 }

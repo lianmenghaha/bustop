@@ -123,7 +123,7 @@ public class Processor {
         ArrayList<Keepout> all_keepouts = new ArrayList<>();
         all_keepouts.addAll(uni_keepouts);
         all_keepouts.addAll(poly_keepouts);
-        integrated_information_keepouts(uni_keepouts);
+        update_LRAB_keepouts(uni_keepouts);
         System.out.println(all_keepouts);
 
 
@@ -294,24 +294,28 @@ public class Processor {
 
     }
 
-    private void integrated_information_keepouts(ArrayList<Keepout> uni_keepouts) {
+    private void update_LRAB_keepouts(ArrayList<Keepout> uni_keepouts) {
+
+        /*
+        initialize oL, oR, oA, oB
+         */
         for (Keepout current_k : uni_keepouts) {
             for (Keepout other_k : uni_keepouts) {
                 if (uni_keepouts.indexOf(current_k) != uni_keepouts.indexOf(other_k)) {
-                    //o^L
+                    //oL
                     if (other_k.getMaxX() <= current_k.getMinX() && ((other_k.getMinY() < current_k.getMinY() && current_k.getMinY() < other_k.getMaxY()) || (other_k.getMinY() < current_k.getMaxY() && current_k.getMaxY() < other_k.getMaxY()))) {
                         current_k.addToLeft_os(other_k);
                     }
-                    //o^R
+                    //oR
                     if (other_k.getMinX() >= current_k.getMaxX() && ((other_k.getMinY() < current_k.getMinY() && current_k.getMinY() < other_k.getMaxY()) || (other_k.getMinY() < current_k.getMaxY() && current_k.getMaxY() < other_k.getMaxY()))) {
                         current_k.addToRight_os(other_k);
                     }
 
-                    //o^A
+                    //oA
                     if (other_k.getMinY() >= current_k.getMaxY() && ((other_k.getMinX() < current_k.getMinX() && current_k.getMinX() < other_k.getMaxX()) || (other_k.getMinX() < current_k.getMaxX() && current_k.getMaxX() < other_k.getMaxX()))) {
                         current_k.addToAbove_os(other_k);
                     }
-                    //o^B
+                    //oB
                     if (other_k.getMaxY() <= current_k.getMinY() && ((other_k.getMinX() < current_k.getMinX() && current_k.getMinX() < other_k.getMaxX()) || (other_k.getMinX() < current_k.getMaxX() && current_k.getMaxX() < other_k.getMaxX()))) {
                         current_k.addToBelow_os(other_k);
                     }
@@ -320,108 +324,98 @@ public class Processor {
                 }
             }
         }
-        for (Keepout k : uni_keepouts) {
-            k.dist = new int[8];
-            //L
-            if (k.getLeft_os().size() != 0) {
-                int left_maxX = Integer.MIN_VALUE;
-                for (Keepout lk : k.getLeft_os()) {
-                    if (lk.getMaxX() >= left_maxX) {
-                        left_maxX = lk.getMaxX();
-                        if (k.getMinY() < lk.getMaxY() && k.getMinY() > lk.getMinY()) {
-                            k.setLeft_miny_o(lk);
-                        }
-                        if (k.getMaxY() < lk.getMaxY() && k.getMaxY() > lk.getMinY()) {
-                            k.setLeft_maxy_o(lk);
-                        }
 
-                    }
-                }
-
-                if (k.getLeft_miny_o() != null) {
-                    k.dist[0] = Math.min(k.getLeft_miny_o().getMaxY() - k.getMinY(), k.getMinY() - k.getLeft_miny_o().getMinY());
-                }
-                if (k.getLeft_maxy_o() != null) {
-                    k.dist[1] = Math.min(k.getLeft_maxy_o().getMaxY() - k.getMaxY(), k.getMaxY() - k.getLeft_maxy_o().getMinY());
-                }
-
-            }
-            //R
-            if (k.getRight_os().size() != 0) {
-                int right_minX = Integer.MAX_VALUE;
-                for (Keepout rk : k.getRight_os()) {
-                    if (rk.getMinX() <= right_minX) {
-                        right_minX = rk.getMinX();
-                        if (k.getMinY() < rk.getMaxY() && k.getMinY() > rk.getMinY()) {
-                            k.setRight_miny_o(rk);
-                        }
-                        if (k.getMaxY() < rk.getMaxY() && k.getMaxY() > rk.getMinY()) {
-                            k.setRight_maxy_o(rk);
-                        }
-
-                    }
-                }
-
-                if (k.getRight_miny_o() != null) {
-                    k.dist[2] = Math.min(k.getRight_miny_o().getMaxY() - k.getMinY(), k.getMinY() - k.getRight_miny_o().getMinY());
-                }
-
-                if (k.getRight_maxy_o() != null) {
-                    k.dist[3] = Math.min(k.getRight_maxy_o().getMaxY() - k.getMaxY(), k.getMaxY() - k.getRight_maxy_o().getMinY());
-                }
-
-
-            }
-            //A
-            if (k.getAbove_os().size() != 0) {
-                int above_minY = Integer.MAX_VALUE;
-                for (Keepout ak : k.getAbove_os()) {
-                    if (ak.getMinY() <= above_minY) {
-                        above_minY = ak.getMinY();
-                        if (k.getMinX() < ak.getMaxX() && k.getMinX() > ak.getMinX()) {
-                            k.setAbove_minx_o(ak);
-                        }
-                        if (k.getMaxX() < ak.getMaxX() && k.getMaxX() > ak.getMinX()) {
-                            k.setAbove_maxx_o(ak);
+        /*
+        update oL, oR, oA, oB
+         */
+        for (Keepout current_k : uni_keepouts){
+            //update oL
+            if (current_k.getLeft_os().size() != 0){
+                Boolean flag = true;
+                while (flag) {
+                    int cnt_k_oL = current_k.getLeft_os().size();
+                    for (Keepout oL_k : current_k.getLeft_os()) {
+                        if (!current_k.getLeft_os().containsAll(oL_k.getLeft_os())) {
+                            current_k.getLeft_os().removeAll(oL_k.getLeft_os());
+                            current_k.getLeft_os().addAll(oL_k.getLeft_os());
+                            break;
                         }
                     }
-                }
-
-                if (k.getAbove_minx_o() != null) {
-                    k.dist[4] = Math.min(k.getMinX() - k.getAbove_minx_o().getMinX(), k.getAbove_minx_o().getMaxX() - k.getMinX());
-                }
-                if (k.getAbove_maxx_o() != null) {
-                    k.dist[5] = Math.min(k.getMaxX() - k.getAbove_maxx_o().getMinX(), k.getAbove_maxx_o().getMaxX() - k.getMaxX());
-                }
-
-            }
-
-            //B
-            if (k.getBelow_os().size() != 0) {
-                int below_maxY = Integer.MIN_VALUE;
-                for (Keepout bk : k.getBelow_os()) {
-                    if (bk.getMaxY() >= below_maxY) {
-                        below_maxY = bk.getMaxY();
-                        if (k.getMinX() < bk.getMaxX() && k.getMinX() > bk.getMinX()) {
-                            k.setBelow_minx_o(bk);
-                        }
-                        if (k.getMaxX() < bk.getMaxX() && k.getMaxX() > bk.getMinX()) {
-                            k.setBelow_maxx_o(bk);
-                        }
+                    if (cnt_k_oL == current_k.getLeft_os().size()){
+                        flag = false;
                     }
                 }
-
-                if (k.getBelow_minx_o() != null) {
-                    k.dist[6] = Math.min(k.getMinX() - k.getBelow_minx_o().getMinX(), k.getBelow_minx_o().getMaxX() - k.getMinX());
-                }
-                if (k.getBelow_maxx_o() != null) {
-                    k.dist[7] = Math.min(k.getMaxX() - k.getBelow_maxx_o().getMinX(), k.getBelow_maxx_o().getMaxX() - k.getMaxX());
-                }
-
             }
+
+            //update oR
+            if (current_k.getRight_os().size() != 0){
+                Boolean flag = true;
+                while (flag) {
+                    int cnt_k_oR = current_k.getRight_os().size();
+                    for (Keepout oL_k : current_k.getRight_os()) {
+                        if (!current_k.getRight_os().containsAll(oL_k.getRight_os())) {
+                            current_k.getRight_os().removeAll(oL_k.getRight_os());
+                            current_k.getRight_os().addAll(oL_k.getRight_os());
+                            break;
+                        }
+                    }
+                    if (cnt_k_oR == current_k.getRight_os().size()){
+                        flag = false;
+                    }
+                }
+            }
+
+            //update oA
+            if (current_k.getAbove_os().size() != 0){
+                Boolean flag = true;
+                while (flag) {
+                    int cnt_k_oA = current_k.getAbove_os().size();
+                    for (Keepout oL_k : current_k.getAbove_os()) {
+                        if (!current_k.getAbove_os().containsAll(oL_k.getAbove_os())) {
+                            current_k.getAbove_os().removeAll(oL_k.getAbove_os());
+                            current_k.getAbove_os().addAll(oL_k.getAbove_os());
+                            break;
+                        }
+                    }
+                    if (cnt_k_oA == current_k.getAbove_os().size()){
+                        flag = false;
+                    }
+                }
+            }
+
+            //update oB
+            if (current_k.getBelow_os().size() != 0){
+                Boolean flag = true;
+                while (flag) {
+                    int cnt_k_oB = current_k.getBelow_os().size();
+                    for (Keepout oL_k : current_k.getBelow_os()) {
+                        if (!current_k.getBelow_os().containsAll(oL_k.getBelow_os())) {
+                            current_k.getBelow_os().removeAll(oL_k.getBelow_os());
+                            current_k.getBelow_os().addAll(oL_k.getBelow_os());
+                            break;
+                        }
+                    }
+                    if (cnt_k_oB == current_k.getBelow_os().size()){
+                        flag = false;
+                    }
+                }
+            }
+
 
 
         }
+
+        /*
+        add itself
+         */
+        for (Keepout current_k : uni_keepouts){
+            current_k.addToLeft_os(current_k);
+            current_k.addToRight_os(current_k);
+            current_k.addToAbove_os(current_k);
+            current_k.addToBelow_os(current_k);
+        }
+
+
     }
 
     /**
@@ -1588,12 +1582,7 @@ public class Processor {
         GurobiVariable[] ms_ko_sp_q;
         GurobiVariable[] ms_ko_sp_iq;
 
-        //indirect right-left opposite relation
-        GurobiVariable[] in_ko_sp_L1R_q;
-        GurobiVariable[] in_sp_L1_q;
-        GurobiVariable[] in_sp_L1_iq;
-        GurobiVariable[] in_ko_sp_RL_E_q;
-        GurobiVariable[] in_sp_RL_E_iq;
+
 
         int[] sv_q;
         int[] sv_iq;
@@ -1601,9 +1590,7 @@ public class Processor {
         int[] ms_iq;
 
 
-        GurobiConstraint d3_c;
-        GurobiConstraint in_oppo_less_c;
-        GurobiConstraint in_oppo_greater_c;
+
         GurobiConstraint dq_i_j_greater_c;
         GurobiConstraint dq_i_sj_greater_c;
         GurobiConstraint dq_1_ms_greater_c;
@@ -2048,92 +2035,6 @@ public class Processor {
             c.addToRHS(pvNext_ko.y, 1.0);
             executor.addConstraint(c);
 
-            /*
-             * Orientation with next steiner point:
-             * VVVV
-             */
-            {
-                /*
-                v_i+1 is on the LEFT to v_i
-                v_i+1.x <= v_i.x - eps + (1 - qL_ij) * M
-                v_i+1.x >= v_i.x - qL_ij * M
-                 */
-                c = new GurobiConstraint();
-                c.addToLHS(pvNext_ko.x, 1.0);
-                c.setSense('<');
-                c.addToRHS(pv_ko.x, 1.0);
-                c.addToRHS(sp_q[0], -M);
-                c.setRHSConstant(-eps + M);
-                executor.addConstraint(c);
-                c = new GurobiConstraint();
-                c.addToLHS(pvNext_ko.x, 1.0);
-                c.setSense('>');
-                c.addToRHS(pv_ko.x, 1.0);
-                c.addToRHS(sp_q[0], -M);
-                executor.addConstraint(c);
-
-                /*
-                v_i+1 is on the RIGHT to v_i
-                v_i+1.x >= v_i.x + eps - (1 - qR_ij) * M
-                v_i+1.x <= v_i.x + qR_ij * M
-                 */
-                c = new GurobiConstraint();
-                c.addToLHS(pvNext_ko.x, 1.0);
-                c.setSense('>');
-                c.addToRHS(pv_ko.x, 1.0);
-                c.addToRHS(sp_q[1], M);
-                c.setRHSConstant(eps - M);
-                executor.addConstraint(c);
-                c = new GurobiConstraint();
-                c.addToLHS(pvNext_ko.x, 1.0);
-                c.setSense('<');
-                c.addToRHS(pv_ko.x, 1.0);
-                c.addToRHS(sp_q[1], M);
-                executor.addConstraint(c);
-
-                /*
-                v_i+1 is on the ABOVE to v_i
-                v_i+1.y >= v_i.y + eps - (1 - qA_ij) * M
-                v_i+1.y <= v_i.y + qA_ij * M
-                 */
-                c = new GurobiConstraint();
-                c.addToLHS(pvNext_ko.y, 1.0);
-                c.setSense('>');
-                c.addToRHS(pv_ko.y, 1.0);
-                c.addToRHS(sp_q[2], M);
-                c.setRHSConstant(eps - M);
-                executor.addConstraint(c);
-                c = new GurobiConstraint();
-                c.addToLHS(pvNext_ko.y, 1.0);
-                c.setSense('<');
-                c.addToRHS(pv_ko.y, 1.0);
-                c.addToRHS(sp_q[2], M);
-                executor.addConstraint(c);
-
-                /*
-                v_i+1 is on the BELOW to v_i
-                v_i+1.y <= v_i.x - eps + (1 - qB_ij) * M
-                v_i+1.y >= v_i.x - qB_ij * M
-                 */
-                c = new GurobiConstraint();
-                c.addToLHS(pvNext_ko.y, 1.0);
-                c.setSense('<');
-                c.addToRHS(pv_ko.y, 1.0);
-                c.addToRHS(sp_q[3], -M);
-                c.setRHSConstant(-eps + M);
-                executor.addConstraint(c);
-                c = new GurobiConstraint();
-                c.addToLHS(pvNext_ko.y, 1.0);
-                c.setSense('>');
-                c.addToRHS(pv_ko.y, 1.0);
-                c.addToRHS(sp_q[3], -M);
-                executor.addConstraint(c);
-
-            }
-            /*
-             * AAAA
-             * orientation with next steiner point
-             */
 
             /*
              * detour trigger with next steiner point w.r.t. uni_keepout
@@ -2380,543 +2281,6 @@ public class Processor {
              * detour trigger with next steiner point w.r.t. uni_keepout
              */
 
-            /*
-             * todo:detour trigger with next steiner point w.r.t. MULTI uni_keepout
-             * VVVV
-             */
-
-            {
-                in_sp_L1_q = pv_ko.in_sp_L1_bVars;
-                in_sp_L1_iq = pv_ko.in_sp_L1_iVars;
-                in_sp_RL_E_iq = pv_ko.in_sp_RL_E_iVars;
-
-                /*
-                q(L1)_ij: indicate if v_i, v_j has the indirectly opposite relation (vj->L; vi->R)
-                [L1:C4:RHS]
-                sum_o oq(L1)_ij <= (1 - q(L1)_ij) * M
-                sum_o oq(L1)_ij >= 1 - q(L1)_ij
-                 */
-                in_oppo_less_c = new GurobiConstraint();
-                executor.addConstraint(in_oppo_less_c);
-                in_oppo_less_c.setSense('<');
-                in_oppo_less_c.addToRHS(in_sp_L1_q[0], -M);
-                in_oppo_less_c.setRHSConstant(M);
-                in_oppo_greater_c = new GurobiConstraint();
-                executor.addConstraint(in_oppo_greater_c);
-                in_oppo_greater_c.setSense('>');
-                in_oppo_greater_c.addToRHS(in_sp_L1_q[0], -1);
-                in_oppo_greater_c.setRHSConstant(1);
-
-                //todo
-                /*
-                [L1:C13:(1/2)]
-                d3 = dY_maxyR + dY_minyL + v_i.x - v_j.x **
-                    + sum_o k.dist[2] * oq^(RL)1^Bi_ij
-                    + sum_o k.dist[3] * oq^(RL)1^Aj_ij
-                 */
-                d3_c = new GurobiConstraint();
-                executor.addConstraint(d3_c);
-                d3_c.addToLHS(in_sp_L1_iq[2], 1.0);
-                d3_c.setSense('=');
-                d3_c.addToRHS(in_sp_L1_iq[0], 1.0);
-                d3_c.addToRHS(in_sp_L1_iq[1], 1.0);
-                d3_c.addToRHS(pv_ko.x, 1.0);
-                d3_c.addToRHS(pvNext_ko.x, -1.0);
-
-
-                for (Keepout current_rect_k : all_keepouts) {
-                    in_ko_sp_L1R_q = pv_ko.in_ko_sp_L1R_bVars.get(current_rect_k);
-                    in_ko_sp_RL_E_q = pv_ko.in_ko_sp_RL_E_bVars.get(current_rect_k);
-                    ko_sp_q = pv_ko.ko_sp_bVars.get(current_rect_k);
-                    ko_sp_qNext = pvNext_ko.ko_sp_bVars.get(current_rect_k);
-
-                    /*
-                    in_ko_sp_L1_bVars[0]
-                    0.1.2.3: L.R.A.B
-                    oqR(L1)_ij : indicate if o \hat_belongs to the rectangle R^L1_ij
-                    [L1:C1]
-                    oq^B_i + oq^A_j + oq^L_i + oq^R_j + q^R_ij + q^A_ij <= (1 - oq^R(RL)1_ij) * M
-                    oq^B_i + oq^A_j + oq^L_i + oq^R_j + q^R_ij + q^A_ij >= 1 - oq^R(RL)1_ij
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_sp_q[3], 1.0);
-                    c.addToLHS(ko_sp_qNext[2], 1.0);
-                    c.addToLHS(ko_sp_q[0], 1.0);
-                    c.addToLHS(ko_sp_qNext[1], 1.0);
-                    c.addToLHS(sp_q[1], 1.0);
-                    c.addToLHS(sp_q[2], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(in_ko_sp_L1R_q[0], -M);
-                    c.setRHSConstant(M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_sp_q[3], 1.0);
-                    c.addToLHS(ko_sp_qNext[2], 1.0);
-                    c.addToLHS(ko_sp_q[0], 1.0);
-                    c.addToLHS(ko_sp_qNext[1], 1.0);
-                    c.addToLHS(sp_q[1], 1.0);
-                    c.addToLHS(sp_q[2], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(in_ko_sp_L1R_q[0], -1);
-                    c.setRHSConstant(1);
-                    executor.addConstraint(c);
-
-                    /*
-                    in_ko_sp_RL1_bVars[1]
-                    o_qR(L1)_ij: indicate if there is an element in oL\cup oR \hat_belongs to the rectangle R^L1_ij
-                    [L1:C2]
-                    sum_{k=1}^#oL {oL}q^R(RL)1_ij + sum_{k=1}^#oR {oR}q^R(RL)1_ij <= o(lr)q^R(RL)1_ij * M
-                    sum_{k=1}^#oL {oL}q^R(RL)1_ij + sum_{k=1}^#oR {oR}q^R(RL)1_ij >= o(lr)q^R(RL)1_ij
-                     */
-                    c = new GurobiConstraint();
-                    if (current_rect_k.getLeft_os().size() != 0) {
-                        for (Keepout oL : current_rect_k.getLeft_os()) {
-                            c.addToLHS(pv_ko.in_ko_sp_L1R_bVars.get(oL)[0], 1.0);
-                        }
-                    }
-                    if (current_rect_k.getRight_os().size() != 0) {
-                        for (Keepout oR : current_rect_k.getRight_os()) {
-                            c.addToLHS(pv_ko.in_ko_sp_L1R_bVars.get(oR)[0], 1.0);
-                        }
-                    }
-                    c.setLHSConstant(0);
-                    c.setSense('<');
-                    c.addToRHS(in_ko_sp_L1R_q[1], M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    if (current_rect_k.getLeft_os().size() != 0) {
-                        for (Keepout oL : current_rect_k.getLeft_os()) {
-                            c.addToLHS(pv_ko.in_ko_sp_L1R_bVars.get(oL)[0], 1.0);
-                        }
-                    }
-                    if (current_rect_k.getRight_os().size() != 0) {
-                        for (Keepout oR : current_rect_k.getRight_os()) {
-                            c.addToLHS(pv_ko.in_ko_sp_L1R_bVars.get(oR)[0], 1.0);
-                        }
-                    }
-                    c.setLHSConstant(0);
-                    c.setSense('>');
-                    c.addToRHS(in_ko_sp_L1R_q[1], 1);
-                    executor.addConstraint(c);
-
-                    /*
-                    (oR)q(L1)_ij: indicate if o belongs to \hatR^L1_ij: (oR)q(L1)_ij = oqR(L1)_ij * o_qR(L1)_ij
-                    [L1:C3]
-                    oq^(RL)1_ij <= oq^R(RL)1_ij)
-                    oq^(RL)1_ij <= o(lr)q^R(RL)1_ij
-                    oq^(RL)1_ij >= oq^R(RL)1_ij) + o(lr)q^R(RL)1_ij - 1
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[2], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(in_ko_sp_L1R_q[0], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[2], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(in_ko_sp_L1R_q[1], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[2], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(in_ko_sp_L1R_q[0], 1.0);
-                    c.addToRHS(in_ko_sp_L1R_q[1], 1.0);
-                    c.setRHSConstant(-1.0);
-                    executor.addConstraint(c);
-
-
-                    /*
-                    [L1:C4:LHS]
-                    sum_o oq^(RL)1_ij <= (1 - in_q^RL1_ij) * M
-                    sum_o oq^(RL)1_ij >= 1 - in_q^RL1_ij
-                     */
-                    in_oppo_less_c.addToLHS(in_ko_sp_L1R_q[2], 1.0);
-                    in_oppo_greater_c.addToLHS(in_ko_sp_L1R_q[2], 1.0);
-
-                    /*
-                    ovoL_q^(RL)1_ij: = oq^(RL)1_ij * (voL)q^(RL)1_ij
-                    [L1:C5]
-                    ovoL_q^(RL)1_ij <= oq^(RL)1_ij
-                    ovoL_q^(RL)1_ij <= (voL)q^(RL)1_ij
-                    ovoL_q^(RL)1_ij >= oq^(RL)1_ij + (voL)q^(RL)1_ij - 1
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[3], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(in_ko_sp_L1R_q[2], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[3], 1.0);
-                    c.setSense('<');
-                    if (current_rect_k.getLeft_maxy_o() != null) {
-                        c.addToRHS(pv_ko.in_ko_sp_L1R_bVars.get(current_rect_k.getLeft_maxy_o())[2], 1.0);
-                    }
-                    c.setRHSConstant(0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[3], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(in_ko_sp_L1R_q[2], 1.0);
-                    if (current_rect_k.getLeft_maxy_o() != null) {
-                        c.addToRHS(pv_ko.in_ko_sp_L1R_bVars.get(current_rect_k.getLeft_maxy_o())[2], 1.0);
-                    }
-                    c.setRHSConstant(-1.0);
-                    executor.addConstraint(c);
-                    /*
-                    4: oqR(L1)j_ij: indicate if o belongs to R^L1_ij but the nearest oL does not____1 - oqR(L1)j_ij = oqR(L1)_ij * (1 - (maxoL)qR(L1)_ij)
-                    [L1:C6]
-                    1 - oq^(RL)1^j_ij = oq^(RL)1_ij - ovoL_q^(RL)1_ij
-                     */
-                    c = new GurobiConstraint();
-                    c.setLHSConstant(1.0);
-                    c.addToLHS(in_ko_sp_L1R_q[4], -1.0);
-                    c.setSense('=');
-                    c.addToRHS(in_ko_sp_L1R_q[2], 1.0);
-                    c.addToRHS(in_ko_sp_L1R_q[3], -1.0);
-                    executor.addConstraint(c);
-
-                    /*
-                    o^oR_q^(RL)1_ij: = oq^(RL)1_ij * (^oR)q^(RL)1_ij
-                    [L1:C7]
-                    o^oR_q^(RL)1_ij <= oq^(RL)1_ij
-                    o^oR_q^(RL)1_ij <= (^oR)q^(RL)1_ij
-                    o^oR_q^(RL)1_ij >= oq^(RL)1_ij + (^oR)q^(RL)1_ij - 1
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[5], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(in_ko_sp_L1R_q[2], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[5], 1.0);
-                    c.setSense('<');
-                    if (current_rect_k.getRight_miny_o() != null) {
-                        c.addToRHS(pv_ko.in_ko_sp_L1R_bVars.get(current_rect_k.getRight_miny_o())[2], 1.0);
-                    }
-                    c.setRHSConstant(0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[5], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(in_ko_sp_L1R_q[2], 1.0);
-                    if (current_rect_k.getRight_miny_o() != null) {
-                        c.addToRHS(pv_ko.in_ko_sp_L1R_bVars.get(current_rect_k.getRight_miny_o())[2], 1.0);
-                    }
-                    c.setRHSConstant(-1.0);
-                    executor.addConstraint(c);
-
-
-                    /*
-                    oqR(L1)i_ij: indicate if o belongs to R^L1_ij but the nearest oR does not____1 - oqR(L1)i_ij = oqR(L1)_ij * (1 - (minoR)qR(L1)_ij)
-                    [L1:C8]
-                    1 - oq^(RL)1^i_ij = oq^(RL)1_ij - o^oR_q^(RL)1_ij
-                     */
-                    c = new GurobiConstraint();
-                    c.setLHSConstant(1.0);
-                    c.addToLHS(in_ko_sp_L1R_q[6], -1.0);
-                    c.setSense('=');
-                    c.addToRHS(in_ko_sp_L1R_q[2], 1.0);
-                    c.addToRHS(in_ko_sp_L1R_q[5], -1.0);
-                    executor.addConstraint(c);
-
-                    /*
-                    oq^(RL)1^Ai_ij: = oq^A_i * oq^(RL)1_ij
-                    [L1:C9]
-                    oq^(RL)1^Ai_ij <= oq^A_i
-                    oq^(RL)1^Ai_ij <= oq^(RL)1_ij
-                    oq^(RL)1^Ai_ij >= oq^A_i + oq^(RL)1_ij - 1
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[7], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_sp_q[2], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[7], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(in_ko_sp_L1R_q[2], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[7], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(ko_sp_q[2], 1.0);
-                    c.addToRHS(in_ko_sp_L1R_q[2], 1.0);
-                    c.setRHSConstant(-1.0);
-                    executor.addConstraint(c);
-
-                    /*
-                    oq^(RL)1^Bj_ij: = oq^B_j * oq^(RL)1_ij
-                    [L1:C10]
-                    oq^(RL)1^Bj_ij >= oq^B_j
-                    oq^(RL)1^Bj_ij >= oq^(RL)1_ij
-                    oq^(RL)1^Bj_ij <= oq^B_j + oq^(RL)1_ij - 1
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[8], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_sp_qNext[3], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[8], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(in_ko_sp_L1R_q[2], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_L1R_q[8], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(ko_sp_qNext[3], 1.0);
-                    c.addToRHS(in_ko_sp_L1R_q[2], 1.0);
-                    c.setRHSConstant(-1.0);
-                    executor.addConstraint(c);
-
-                    /*
-                    in_sp_RL1_iVars:
-                    \delta_y(v_j, v_jR.maxy):
-                    [L1:C11]
-                    \delta_y(v_j, v_jR.maxy) >= v_j.y - o.maxy - oqR(L1)j_ij * M
-                    \delta_y(v_j, v_jR.maxy) >= o.maxy - v_j.y - oqR(L1)j_ij * M
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_sp_L1_iq[0], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(pvNext_ko.y, 1.0);
-                    c.addToRHS(in_ko_sp_L1R_q[4], -M);
-                    c.setRHSConstant(-current_rect_k.getMaxY());
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_sp_L1_iq[0], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(pvNext_ko.y, -1.0);
-                    c.addToRHS(in_ko_sp_L1R_q[4], -M);
-                    c.setRHSConstant(current_rect_k.getMaxY());
-                    executor.addConstraint(c);
-
-                    /*
-                    in_sp_RL1_iVars:
-                    \delta_y(v_i^L.miny, v_i)
-                    [L1:C12]
-                    \delta_y(v_i^L.miny, v_i) >= v_i.y - o.miny - oqR(L1)i_ij * M
-                    \delta_y(v_i^L.miny, v_i) >= o.miny - v_i.y - oqR(L1)i_ij * M
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_sp_L1_iq[1], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(pv_ko.y, 1.0);
-                    c.addToRHS(in_ko_sp_L1R_q[6], -M);
-                    c.setRHSConstant(-current_rect_k.getMinY());
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_sp_L1_iq[1], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(pv_ko.y, -1.0);
-                    c.addToRHS(in_ko_sp_L1R_q[6], -M);
-                    c.setRHSConstant(current_rect_k.getMinY());
-                    executor.addConstraint(c);
-
-                    /*
-                    [L1:C13:(2/2)]
-                    d3 = dY_maxyR + dY_minyL + v_i.x - v_j.x
-                        + sum_o k.dist[2] * oq^(RL)1^Bi_ij **
-                        + sum_o k.dist[3] * oq^(RL)1^Aj_ij **
-                     */
-                    d3_c.addToRHS(in_ko_sp_L1R_q[7], current_rect_k.dist[2]);
-                    d3_c.addToRHS(in_ko_sp_L1R_q[8], current_rect_k.dist[3]);
-
-                    /*
-                    [RL:C1]
-                    oq^E(RL)1_ij: = oq^L_j * oq^R_i * q^L_ij
-                    oq^E(RL)1_ij <= oq^L_j
-                    oq^E(RL)1_ij <= oq^R_i
-                    oq^E(RL)1_ij <= q^L_ij
-                    oq^E(RL)1_ij >= oq^L_j + oq^R_i + q^L_ij - 2
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_RL_E_q[0], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_sp_qNext[0], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_RL_E_q[0], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_sp_q[1], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_RL_E_q[0], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(sp_q[0], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_RL_E_q[0], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(ko_sp_qNext[0], 1.0);
-                    c.addToRHS(ko_sp_q[1], 1.0);
-                    c.addToRHS(sp_q[0], 1.0);
-                    c.setRHSConstant(-2);
-                    executor.addConstraint(c);
-
-                    /*
-                    o_qE(RL)_ij: indicate if there is an element in oL\cup oR belongs to the rectangle E^L_ij
-                    [RL:C2]
-                    sum_{k=1}^#oL {oL}q^E(RL)1_ij + sum_{k=1}^#oR {oR}q^E(RL)1_ij <= o_qE(RL)_ij * M
-                    sum_{k=1}^#oL {oL}q^E(RL)1_ij + sum_{k=1}^#oR {oR}q^E(RL)1_ij >= o_qE(RL)_ij
-                     */
-                    c = new GurobiConstraint();
-                    if (current_rect_k.getLeft_os().size() != 0) {
-                        for (Keepout oL : current_rect_k.getLeft_os()) {
-                            c.addToLHS(pv_ko.in_ko_sp_RL_E_bVars.get(oL)[0], 1.0);
-                        }
-                    }
-                    if (current_rect_k.getRight_os().size() != 0) {
-                        for (Keepout oR : current_rect_k.getRight_os()) {
-                            c.addToLHS(pv_ko.in_ko_sp_RL_E_bVars.get(oR)[0], 1.0);
-                        }
-                    }
-                    c.setLHSConstant(0);
-                    c.setSense('<');
-                    c.addToRHS(in_ko_sp_RL_E_q[1], M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    if (current_rect_k.getLeft_os().size() != 0) {
-                        for (Keepout oL : current_rect_k.getLeft_os()) {
-                            c.addToLHS(pv_ko.in_ko_sp_RL_E_bVars.get(oL)[0], 1.0);
-                        }
-                    }
-                    if (current_rect_k.getRight_os().size() != 0) {
-                        for (Keepout oR : current_rect_k.getRight_os()) {
-                            c.addToLHS(pv_ko.in_ko_sp_RL_E_bVars.get(oR)[0], 1.0);
-                        }
-                    }
-                    c.setLHSConstant(0);
-                    c.setSense('>');
-                    c.addToRHS(in_ko_sp_RL_E_q[1], 1.0);
-                    executor.addConstraint(c);
-
-                    /*
-                    (oE)q(RL)_ij: indicate if o belongs to \hatE^L_ij: (oE)q(RL)_ij = oqE(RL)_ij * o_qE(RL)_ij
-                    [RL:C3]
-                    (oE)q(RL)_ij <= oqE(RL)_ij
-                    (oE)q(RL)_ij <= o_qE(RL)_ij
-                    (oE)q(RL)_ij >= oqE(RL)_ij + o_qE(RL)_ij - 1
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_RL_E_q[2], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(in_ko_sp_RL_E_q[0], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_RL_E_q[2], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(in_ko_sp_RL_E_q[1], 1.0);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_ko_sp_RL_E_q[2], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(in_ko_sp_RL_E_q[0], 1.0);
-                    c.addToRHS(in_ko_sp_RL_E_q[1], 1.0);
-                    c.setRHSConstant(-1.0);
-                    executor.addConstraint(c);
-
-                    /*
-                    [RL:C4]
-                    D^RL,1_miny: <= o.miny + (1 - (oE)q(RL)_ij) * M
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_sp_RL_E_iq[0], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(in_ko_sp_RL_E_q[2], -M);
-                    c.setRHSConstant(current_rect_k.getMinY() + M);
-                    executor.addConstraint(c);
-
-                    /*
-                    [RL:C5]
-                    D^RL,1_maxy >= o.maxy - (1 - oE_q^E(RL)1_ij) * M
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(in_sp_RL_E_iq[1], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(in_ko_sp_RL_E_q[2], M);
-                    c.setRHSConstant(current_rect_k.getMaxY() - M);
-                    executor.addConstraint(c);
-
-                }
-
-
-                /*
-                [RL:C6]
-                d1(v_i,v_j) = (v_i.x - v_j.x) + (v_j.y - D^RL,1_miny) + (v_i.y - D^RL,1_miny)
-                 */
-                c = new GurobiConstraint();
-                c.addToLHS(in_sp_RL_E_iq[2], 1.0);
-                c.setSense('=');
-                c.addToRHS(pv_ko.x, 1.0);
-                c.addToRHS(pvNext_ko.x, -1.0);
-                c.addToRHS(pvNext_ko.y, 1.0);
-                c.addToRHS(pv_ko.y, 1.0);
-                c.addToRHS(in_sp_RL_E_iq[0], -2.0);
-                executor.addConstraint(c);
-
-                /*
-                [RL:C6]
-                d2(v_i,v_j) = (v_i.x - v_j.x) + (D^RL,1_maxy - v_j.y) + (D^RL,1_maxy - v_i.y)
-                 */
-                c = new GurobiConstraint();
-                c.addToLHS(in_sp_RL_E_iq[3], 1.0);
-                c.setSense('=');
-                c.addToRHS(pv_ko.x, 1.0);
-                c.addToRHS(pvNext_ko.x, -1.0);
-                c.addToRHS(in_sp_RL_E_iq[1], 2.0);
-                c.addToRHS(pvNext_ko.y, -1.0);
-                c.addToRHS(pv_ko.y, -1.0);
-                executor.addConstraint(c);
-
-                /*
-                [L1:C13]
-                d(v_i,v_i+1) >= d1(v_i,v_i+1) - (1 - aux_qL1_1) * M
-                d(v_i,v_i+1) >= d2(v_i,v_i+1) - (1 - aux_qL1_2) * M
-                d(v_i,v_i+1) >= d3(v_i,v_i+1) - (1 - aux_qL1_3) * M
-                 */
-                c = new GurobiConstraint();
-                c.addToLHS(sp_iq[0], 1.0);
-                c.setSense('>');
-                c.addToRHS(in_sp_RL_E_iq[2], 1.0);
-                c.addToRHS(in_sp_L1_q[1], M);
-                c.setRHSConstant(-M);
-                executor.addConstraint(c);
-
-                c = new GurobiConstraint();
-                c.addToLHS(sp_iq[0], 1.0);
-                c.setSense('>');
-                c.addToRHS(in_sp_RL_E_iq[3], 1.0);
-                c.addToRHS(in_sp_L1_q[2], M);
-                c.setRHSConstant(-M);
-                executor.addConstraint(c);
-
-                c = new GurobiConstraint();
-                c.addToLHS(sp_iq[0], 1.0);
-                c.setSense('>');
-                c.addToRHS(in_sp_L1_iq[2], 1.0);
-                c.addToRHS(in_sp_L1_q[3], M);
-                c.setRHSConstant(-M);
-                executor.addConstraint(c);
-
-                /*
-                aux_qL1_1 + aux_qL1_2 + aux_qL1_3 = 1 - q(L1)_ij
-                 */
-                c = new GurobiConstraint();
-                c.addToLHS(in_sp_L1_q[1], 1.0);
-                c.addToLHS(in_sp_L1_q[2], 1.0);
-                c.addToLHS(in_sp_L1_q[3], 1.0);
-                c.setSense('=');
-                c.setRHSConstant(1);
-                c.addToRHS(in_sp_L1_q[0], -1.0);
-                executor.addConstraint(c);
-
-
-            }
-            /*
-             * AAAA
-             * todo: detour trigger with next steiner point w.r.t. MULTI uni_keepoutdq_ij >= sum_o oq^d_ij - (#o - 1)
-             */
 
 
         }
@@ -3913,51 +3277,9 @@ public class Processor {
             }
             pv_ko.sp_iVars = sp_iVars;
 
-            /*
-             * in_sp_RL1_iVars:
-             * 0: \delta_y(v_j, v_jR.maxy)
-             * 1: \delta_y(v_i^L.miny, v_i)
-             * 2: d3(v_i,v_j)
-             *
-             */
-            GurobiVariable[] in_sp_L1_iVars = new GurobiVariable[3];
-            for (int var_cnt = 0; var_cnt < 3; ++var_cnt) {
-                in_sp_L1_iVars[var_cnt] = new GurobiVariable(GRB.INTEGER, -ub, ub, i + "_in_sp_iVars_" + var_cnt);
-                executor.addVariable(in_sp_L1_iVars[var_cnt]);
-            }
-            pv_ko.in_sp_L1_iVars = in_sp_L1_iVars;
-
-            /*
-             * in_sp_RL_E_iVars:
-             * 0: D^L1_miny
-             * 1: D^L1_maxy
-             * 2: d1(v_i,v_j)
-             * 3: d2(v_i,v_j)
-             */
-
-            GurobiVariable[] in_sp_RL_E_iVars = new GurobiVariable[4];
-            for (int var_cnt = 0; var_cnt < 4; ++var_cnt) {
-                in_sp_RL_E_iVars[var_cnt] = new GurobiVariable(GRB.INTEGER, -ub, ub, i + "_in_sp_RL_E_iVars_" + var_cnt);
-                executor.addVariable(in_sp_RL_E_iVars[var_cnt]);
-            }
-            pv_ko.in_sp_RL_E_iVars = in_sp_RL_E_iVars;
 
 
 
-            /*
-             * in_sp_L1_bVars:
-             * 0: indirect right-left opposite with next steiner point (in_q^RL1_ij)
-             * 1: aux_q^(RL)1_1
-             * 2: aux_q^(RL)1_2
-             * 3: aux_q^(RL)1_3
-             *
-             */
-            GurobiVariable[] in_sp_bVars = new GurobiVariable[4];
-            for (int var_cnt = 0; var_cnt < 4; ++var_cnt) {
-                in_sp_bVars[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, i + "_in_sp_bVars_" + var_cnt);
-                executor.addVariable(in_sp_bVars[var_cnt]);
-            }
-            pv_ko.in_sp_L1_bVars = in_sp_bVars;
 
 
             /*
@@ -3992,39 +3314,7 @@ public class Processor {
                 }
                 pv_ko.ko_sp_bVars.put(k, ko_sp_bVars);
 
-                /*
-                 * L1 (Path1: innerPath):
-                 * in_ko_sp_RL1_bVars:
-                 * 0: oqR(L1)_ij : indicate if o \hat_belongs to the rectangle R^L1_ij
-                 * 1: o_qR(L1)_ij: indicate if there is an element in oL\cup oR \hat_belongs to the rectangle R^L1_ij
-                 * 2: (oR)q(L1)_ij: indicate if o belongs to \hatR^L1_ij: (oR)q(L1)_ij = oqR(L1)_ij * o_qR(L1)_ij
-                 * 3: oqR(L1)_ij * (maxoL)q^R(L1)_ij
-                 * 4: oqR(L1)j_ij: indicate if o belongs to R^L1_ij but the nearest oL does not____1 - oqR(L1)j_ij = oqR(L1)_ij * (1 - (maxoL)qR(L1)_ij)
-                 * 5: oqR(L1)_ij * (minoR)qR(L1)_ij
-                 * 6: oqR(L1)i_ij: indicate if o belongs to R^L1_ij but the nearest oR does not____1 - oqR(L1)i_ij = oqR(L1)_ij * (1 - (minoR)qR(L1)_ij)
-                 * 7: oq(L1)^Ai_ij: = oq^A_i * oq^(L1)_ij
-                 * 8: oq(L1)^Bj_ij: = oq^B_j * oq^(L1)_ij
-                 *
-                 */
-                GurobiVariable[] in_ko_spR_bVars = new GurobiVariable[9];
-                for (int var_cnt = 0; var_cnt < 9; ++var_cnt) {
-                    in_ko_spR_bVars[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + k.getName() + "_in_ko_sp_RL1_bVars_" + var_cnt);
-                    executor.addVariable(in_ko_spR_bVars[var_cnt]);
-                }
-                pv_ko.in_ko_sp_L1R_bVars.put(k, in_ko_spR_bVars);
 
-                /*
-                 * LR (Path2/3)
-                 * 0: oqE(RL)_ij: indicate if o belongs to the rectangle E^L_ij
-                 * 1: o_qE(RL)_ij: indicate if there is an element in oL\cup oR belongs to the rectangle E^L_ij
-                 * 2: (oE)q(RL)_ij: indicate if o belongs to \hatE^L_ij: (oE)q(L)_ij = oqE(L)_ij * o_qE(L)_ij
-                 */
-                GurobiVariable[] in_ko_spE_bVars = new GurobiVariable[3];
-                for (int var_cnt = 0; var_cnt < 3; ++var_cnt) {
-                    in_ko_spE_bVars[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + k.getName() + "_in_ko_sp_EL1_bVars_" + var_cnt);
-                    executor.addVariable(in_ko_spE_bVars[var_cnt]);
-                }
-                pv_ko.in_ko_sp_RL_E_bVars.put(k, in_ko_spE_bVars);
 
 
                 /*
@@ -4193,158 +3483,5 @@ public class Processor {
     }
 
 
-    private void prepareKeepouts(ArrayList<Keepout> keepouts, ArrayList<Keepout> unifiedKeepouts, Map<Keepout, OverlappedKeepout> ko_OverlappedKO_Map) {
-
-        List<List<Keepout>> partitions = new ArrayList<>();
-        Map<Keepout, MiniVertex> vertices = new HashMap<>();
-        for (Keepout k : keepouts) {
-            vertices.put(k, new MiniVertex(k, new ArrayList<>()));
-        }
-        for (int i = 0; i < keepouts.size(); i++) {
-            for (int j = i + 1; j < keepouts.size(); j++) {
-                if (keepouts.get(i).getMinX() < keepouts.get(j).getMaxX() && keepouts.get(i).getMaxX() > keepouts.get(j).getMinX() &&
-                        keepouts.get(i).getMinY() < keepouts.get(j).getMaxY() && keepouts.get(i).getMaxY() > keepouts.get(j).getMinY()) {
-                    vertices.get(keepouts.get(i)).connected().add(vertices.get(keepouts.get(j)));
-                    vertices.get(keepouts.get(j)).connected().add(vertices.get(keepouts.get(i)));
-                }
-            }
-        }
-        ArrayList<MiniVertex> traversed = new ArrayList<>();
-        for (MiniVertex mv : vertices.values()) {
-            if (traversed.contains(mv)) continue;
-            traversed.add(mv);
-            ArrayList<Keepout> part = new ArrayList<>();
-            part.add(mv.content());
-            partitions.add(part);
-            findVtx(mv, part, traversed);
-        }
-        for (List<Keepout> kp : partitions) {
-            if (kp.size() == 1) {
-                unifiedKeepouts.add(kp.get(0));
-                continue;
-            }
-            int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE;
-            OverlappedKeepout ok = new OverlappedKeepout(minX, maxX, minY, maxY);
-            for (Keepout k : kp) {
-                if (ok.getMinX() > k.getMinX()) ok.setMinX(k.getMinX());
-                if (ok.getMinY() > k.getMinY()) ok.setMinY(k.getMinY());
-                if (ok.getMaxX() < k.getMaxX()) ok.setMaxX(k.getMaxX());
-                if (ok.getMaxY() < k.getMaxY()) ok.setMaxY(k.getMaxY());
-                ko_OverlappedKO_Map.put(k, ok);
-            }
-            ok.originalKeepouts.addAll(kp);
-            unifiedKeepouts.add(ok);
-            for (int i = 0; i < kp.size(); i++) {
-                for (int j = i + 1; j < kp.size(); j++) {
-                    //Case1
-                    if (kp.get(i).getMinY() <= kp.get(j).getMinY() && kp.get(j).getMaxY() <= kp.get(i).getMaxY() && kp.get(i).getMinX() <= kp.get(j).getMinX() && kp.get(i).getMaxX() <= kp.get(j).getMaxX()) {
-                        kp.get(j).setMinX(kp.get(i).getMinX());
-                    }
-                    //Case2
-                    else if (kp.get(i).getMinX() <= kp.get(j).getMinX() && kp.get(j).getMaxX() <= kp.get(i).getMaxX() && kp.get(i).getMinY() <= kp.get(j).getMinY() && kp.get(i).getMaxY() <= kp.get(j).getMaxY()) {
-                        kp.get(j).setMinY(kp.get(i).getMinY());
-                    }
-                    //Case3
-                    else if (kp.get(i).getMinY() <= kp.get(j).getMinY() && kp.get(j).getMaxY() <= kp.get(i).getMaxY() && kp.get(j).getMinX() <= kp.get(i).getMinX() && kp.get(j).getMaxX() <= kp.get(i).getMaxX()) {
-                        kp.get(j).setMaxX(kp.get(i).getMaxX());
-                    }
-                    //Case4
-                    else if (kp.get(i).getMinX() <= kp.get(j).getMinX() && kp.get(j).getMaxX() <= kp.get(i).getMaxX() && kp.get(j).getMinY() <= kp.get(i).getMinY() && kp.get(j).getMaxY() <= kp.get(i).getMaxY()) {
-                        kp.get(j).setMaxY(kp.get(i).getMaxY());
-                    }
-                    //Case5
-                    else if (kp.get(j).getMinY() <= kp.get(i).getMinY() && kp.get(i).getMaxY() <= kp.get(j).getMaxY() && kp.get(j).getMinX() <= kp.get(i).getMinX() && kp.get(j).getMaxX() <= kp.get(i).getMaxX()) {
-                        kp.get(i).setMinX(kp.get(j).getMinX());
-                    }
-                    //Case6
-                    else if (kp.get(j).getMinX() <= kp.get(i).getMinX() && kp.get(i).getMaxX() <= kp.get(j).getMaxX() && kp.get(j).getMinY() <= kp.get(i).getMinY() && kp.get(j).getMaxY() <= kp.get(i).getMaxY()) {
-                        kp.get(i).setMinY(kp.get(j).getMinY());
-                    }
-                    //Case7
-                    else if (kp.get(j).getMinY() <= kp.get(i).getMinY() && kp.get(i).getMaxY() <= kp.get(j).getMaxY() && kp.get(i).getMinX() <= kp.get(j).getMinX() && kp.get(i).getMaxX() <= kp.get(j).getMaxX()) {
-                        kp.get(i).setMaxX(kp.get(j).getMaxX());
-                    }
-                    //Case8
-                    else if (kp.get(j).getMinX() <= kp.get(i).getMinX() && kp.get(i).getMaxX() <= kp.get(j).getMaxX() && kp.get(i).getMinY() <= kp.get(j).getMinY() && kp.get(i).getMaxY() <= kp.get(j).getMaxY()) {
-                        kp.get(i).setMaxY(kp.get(j).getMaxY());
-                    }
-
-                }
-            }
-        }
-
-        //prepare for distance calculation
-        for (Keepout k : keepouts) {
-            int[] p1 = new int[2], p2 = new int[2];
-            OverlappedKeepout ok = ko_OverlappedKO_Map.get(k);
-            if (ok == null) {
-                p1[0] = k.getMinX();
-                p1[1] = k.getMinY();
-
-                p2[0] = k.getMaxX();
-                p2[1] = k.getMaxY();
-
-            }
-            //OK ex.
-            else {
-                int LLtmp = 0, LRtmp = 0, ULtmp = 0, URtmp = 0;
-                for (Keepout oriK : ok.originalKeepouts) {
-                    if (oriK.getMinX() == ok.getMinX() && oriK.getMinY() == ok.getMinY()) {
-                        LLtmp++;
-                    }
-                    if (oriK.getMaxX() == ok.getMaxX() && oriK.getMinY() == ok.getMinY()) {
-                        LRtmp++;
-                    }
-                    if (oriK.getMinX() == ok.getMinX() && oriK.getMaxY() == ok.getMaxY()) {
-                        ULtmp++;
-                    }
-                    if (oriK.getMaxX() == ok.getMaxX() && oriK.getMaxY() == ok.getMaxY()) {
-                        URtmp++;
-                    }
-                }
-                if (LLtmp != 0 && URtmp != 0) {
-                    p1[0] = ok.getMinX();
-                    p1[1] = ok.getMinY();
-
-                    p2[0] = ok.getMaxX();
-                    p2[1] = ok.getMaxY();
-                } else if (ULtmp != 0 && LRtmp != 0) {
-                    p1[0] = ok.getMinX();
-                    p1[1] = ok.getMaxY();
-
-                    p2[0] = ok.getMaxX();
-                    p2[1] = ok.getMinY();
-                }
-            }
-
-            k.setInter_x1(p1[0]);
-            k.setInter_y1(p1[1]);
-            k.setInter_x2(p2[0]);
-            k.setInter_y2(p2[1]);
-        }
-
-    }
-
-    private void findVtx(MiniVertex mv, ArrayList<Keepout> part, ArrayList<MiniVertex> traversed) {
-        for (MiniVertex mvv : mv.connected()) {
-            if (traversed.contains(mvv)) continue;
-            traversed.add(mvv);
-            part.add(mvv.content());
-            this.findVtx(mvv, part, traversed);
-        }
-    }
-
 }
 
-/**
- * A class representing overlapped keepout area.
- */
-class OverlappedKeepout extends Keepout {
-    List<Keepout> originalKeepouts;
-    int imPx1, imPx2, imPy1, imPy2;
-
-    public OverlappedKeepout(int minX, int maxX, int minY, int maxY) {
-        super(minX, maxX, minY, maxY);
-        originalKeepouts = new ArrayList<>();
-    }
-}

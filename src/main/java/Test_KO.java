@@ -53,15 +53,15 @@ public class Test_KO {
         poly_keepouts.add(poly_KO);
 
 
-        Keepout v_ko1 = new Keepout(-451,-20,1455,1992);
-        Keepout v_ko2 = new Keepout(-39,461,1455,2352);
+        Keepout v_ko1 = new Keepout("", -451,-20,1455,1992);
+        Keepout v_ko2 = new Keepout("", -39,461,1455,2352);
         ArrayList<Keepout> keepouts = new ArrayList<>();
         keepouts.add(v_ko1);
         keepouts.add(v_ko2);
         poly_KO.setInner_Keepouts_V(keepouts);
 
-        Keepout h_ko1 = new Keepout(-451, 461, 1455, 1992);
-        Keepout h_ko2 = new Keepout(-39, 461, 1992, 2352);
+        Keepout h_ko1 = new Keepout("", -451, 461, 1455, 1992);
+        Keepout h_ko2 = new Keepout("", -39, 461, 1992, 2352);
         keepouts = new ArrayList<>();
         keepouts.add(h_ko1);
         keepouts.add(h_ko2);

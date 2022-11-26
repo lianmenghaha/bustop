@@ -157,63 +157,6 @@ public class PointVar_ko extends PointVar {
 
 
 
-    /*
-    INDIRECT OPPOSITE RELATIONS
-     */
-    /*
-     * L1 (Path1: innerPath):
-     * in_ko_sp_RL1_bVars:
-     * 0: oqR(L1)_ij : indicate if o \hat_belongs to the rectangle R^L1_ij
-     * 1: o_qR(L1)_ij: indicate if there is an element in oL\cup oR \hat_belongs to the rectangle R^L1_ij
-     * 2: (oR)q(L1)_ij: indicate if o belongs to \hatR^L1_ij: (oR)q(L1)_ij = oqR(L1)_ij * o_qR(L1)_ij
-     * 3: oqR(L1)_ij * (maxoL)q^R(L1)_ij
-     * 4: oqR(L1)j_ij: indicate if o belongs to R^L1_ij but the nearest oL does not____1 - oqR(L1)j_ij = oqR(L1)_ij * (1 - (maxoL)qR(L1)_ij)
-     * 5: oqR(L1)_ij * (minoR)qR(L1)_ij
-     * 6: oqR(L1)i_ij: indicate if o belongs to R^L1_ij but the nearest oR does not____1 - oqR(L1)i_ij = oqR(L1)_ij * (1 - (minoR)qR(L1)_ij)
-     * 7: oq(L1)^Ai_ij: = oq^A_i * oq^(L1)_ij
-     * 8: oq(L1)^Bj_ij: = oq^B_j * oq^(L1)_ij
-     *
-     */
-    public Map<Keepout, GurobiVariable[]> in_ko_sp_L1R_bVars;
-    /*
-     * L1 (Path2/3)
-     * 0: oqE(RL)_ij: indicate if o belongs to the rectangle E^L_ij
-     * 1: o_qE(RL)_ij: indicate if there is an element in oL\cup oR belongs to the rectangle E^L_ij
-     * 2: (oE)q(RL)_ij: indicate if o belongs to \hatE^L_ij: (oE)q(L)_ij = oqE(L)_ij * o_qE(L)_ij
-     *
-     */
-    public Map<Keepout, GurobiVariable[]> in_ko_sp_RL_E_bVars;
-
-
-    /*
-     * in_sp_L1_bVars:
-     * 0: indirect right-left opposite with next steiner point
-     *    q(L1)_ij: indicate if v_i, v_j has the indirectly opposite relation (LR)
-     * 1: aux_qL1_1
-     * 2: aux_qL1_2
-     * 3: aux_qL1_3
-     *
-     */
-    public GurobiVariable[] in_sp_L1_bVars;
-    /*
-     * in_sp_RL1_iVars:
-     * 0: \delta_y(v_j, v_jR.maxy)
-     * 1: \delta_y(v_i^L.miny, v_i)
-     * 2: d3(v_i,v_j)
-     *
-     */
-    public GurobiVariable[] in_sp_L1_iVars;
-
-
-    /*
-     * in_sp_RL_E_iVars:
-     * 0: D^L1_miny
-     * 1: D^L1_maxy
-     * 2: d1(v_i,v_j)
-     * 3: d2(v_i,v_j)
-     */
-    public GurobiVariable[] in_sp_RL_E_iVars;
-
 
     public PointVar_ko() {
         this.ms_ko_sp_bVars = new HashMap<>();
@@ -229,9 +172,7 @@ public class PointVar_ko extends PointVar {
         this.sl_bVars = new HashMap<>();
         this.sl_iVars = new HashMap<>();
 
-        //indirect opposite relations
-        this.in_ko_sp_L1R_bVars = new HashMap<>();
-        this.in_ko_sp_RL_E_bVars = new HashMap<>();
+
 
 
     }

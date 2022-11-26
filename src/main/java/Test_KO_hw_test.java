@@ -52,10 +52,8 @@ public class Test_KO_hw_test {
 
 
 
-        Keepout v_ko1 = new Keepout(-451,-39,1455,1992);
-        v_ko1.setName("o1");
-        Keepout v_ko2 = new Keepout(-39,461,1455,2352);
-        v_ko2.setName("o2");
+        Keepout v_ko1 = new Keepout("o1",-451,-39,1455,1992);
+        Keepout v_ko2 = new Keepout("o2", -39,461,1455,2352);
         ArrayList<Keepout> keepouts = new ArrayList<>();
         keepouts.add(v_ko1);
         keepouts.add(v_ko2);
