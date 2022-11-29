@@ -6,7 +6,7 @@ import shapes.Slave;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Slave_ko_pseudoVar extends Slave {
+public class Slave_var extends Slave {
 
 
     /*
@@ -27,9 +27,13 @@ public class Slave_ko_pseudoVar extends Slave {
      */
     public Map<Keepout, int[]> pseudo_iVars;
 
+    /*
+     *
+     */
 
 
-    public Slave_ko_pseudoVar(double x_ct, double y_ct) {
+
+    public Slave_var(double x_ct, double y_ct) {
         super(x_ct, y_ct);
         this.pseudo_bVars = new HashMap<>();
         this.pseudo_iVars = new HashMap<>();
@@ -49,21 +53,14 @@ public class Slave_ko_pseudoVar extends Slave {
         return pseudo_bVars;
     }
 
-    public void setPseudo_bVars(Map<Keepout, int[]> pseudo_bVars) {
-        this.pseudo_bVars = pseudo_bVars;
-    }
-
     public Map<Keepout, int[]> getPseudo_iVars() {
         return pseudo_iVars;
     }
 
-    public void setPseudo_iVars(Map<Keepout, int[]> pseudo_iVars) {
-        this.pseudo_iVars = pseudo_iVars;
-    }
 
     @Override
     public String toString() {
-        return "Slave_ko_pseudoVar{" +
+        return "Slave_var{" +
                 "pseudo_bVars=" + pseudo_bVars.size() +
                 ", pseudo_iVars=" + pseudo_iVars +
                 ", x_ct=" + x_ct +

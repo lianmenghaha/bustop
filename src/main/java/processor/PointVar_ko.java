@@ -119,7 +119,7 @@ public class PointVar_ko extends PointVar {
      * 4: for fixed slave, detour trigger with all keepouts (dq_i_sj)
      * 5: connection binary var (q_i_sj)
      */
-    public Map<Slave_ko_pseudoVar, GurobiVariable[]> sl_bVars;
+    public Map<Slave_var, GurobiVariable[]> sl_bVars;
 
     /*
      * sl_iVars
@@ -130,7 +130,7 @@ public class PointVar_ko extends PointVar {
      * 3: v_i.x - s_j.x
      * 4: v_i.y - s_j.y
      */
-    public Map<Slave_ko_pseudoVar, GurobiVariable[]> sl_iVars;
+    public Map<Slave_var, GurobiVariable[]> sl_iVars;
 
     /*
      * ko_sl_bVars
@@ -142,7 +142,7 @@ public class PointVar_ko extends PointVar {
      * 4: detour trigger with each slave with each ko (oq^d_i_sj)
      * 5: choose path for d(v_i, o, s_j) (aux_oq_i_sj)
      */
-    public Map<Keepout, Map<Slave_ko_pseudoVar, GurobiVariable[]>> ko_sl_bVars;
+    public Map<Keepout, Map<Slave_var, GurobiVariable[]>> ko_sl_bVars;
 
     /*
      * ko_sl_iVars
@@ -151,7 +151,7 @@ public class PointVar_ko extends PointVar {
      * 1 : d(v_i, o.LL, s_j)
      * 2: d(v_i, o.UR, s_j)
      */
-    public Map<Keepout, Map<Slave_ko_pseudoVar, GurobiVariable[]>> ko_sl_iVars;
+    public Map<Keepout, Map<Slave_var, GurobiVariable[]>> ko_sl_iVars;
 
 
 

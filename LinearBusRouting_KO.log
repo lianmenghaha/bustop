@@ -1,0 +1,84 @@
+
+Gurobi 9.5.0 (mac64[arm]) logging started Sat Nov 26 22:45:13 2022
+
+Set parameter LogFile to value "LinearBusRouting_KO.log"
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0
+Gurobi Optimizer version 9.5.0 build v9.5.0rc5 (mac64[arm])
+Thread count: 8 physical cores, 8 logical processors, using up to 8 threads
+Optimize a model with 680 rows, 410 columns and 2174 nonzeros
+Model fingerprint: 0x3daba976
+Model has 42 general constraints
+Variable types: 0 continuous, 410 integer (239 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+06]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+06]
+  RHS range        [1e+00, 1e+06]
+Presolve removed 429 rows and 245 columns
+Presolve time: 0.01s
+Presolved: 251 rows, 165 columns, 788 nonzeros
+Variable types: 0 continuous, 165 integer (66 binary)
+Found heuristic solution: objective 23.0000000
+
+Root relaxation: objective 2.000000e+00, 100 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0    2.00000    0    3   23.00000    2.00000  91.3%     -    0s
+
+Cutting planes:
+  MIR: 3
+  RLT: 1
+
+Explored 1 nodes (127 simplex iterations) in 0.02 seconds (0.01 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 1: 23 
+
+Optimal solution found (tolerance 0.00e+00)
+Best objective 2.300000000000e+01, best bound 2.300000000000e+01, gap 0.0000%
+Warning: general constraint name "_abs_v_1.x - ms.x" has a space
+
+Gurobi 9.5.0 (mac64[arm]) logging started Sat Nov 26 22:47:57 2022
+
+Set parameter LogFile to value "LinearBusRouting_KO.log"
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0
+Gurobi Optimizer version 9.5.0 build v9.5.0rc5 (mac64[arm])
+Thread count: 8 physical cores, 8 logical processors, using up to 8 threads
+Optimize a model with 680 rows, 410 columns and 2174 nonzeros
+Model fingerprint: 0x3daba976
+Model has 42 general constraints
+Variable types: 0 continuous, 410 integer (239 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+06]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+06]
+  RHS range        [1e+00, 1e+06]
+Presolve removed 429 rows and 245 columns
+Presolve time: 0.01s
+Presolved: 251 rows, 165 columns, 788 nonzeros
+Variable types: 0 continuous, 165 integer (66 binary)
+Found heuristic solution: objective 23.0000000
+
+Root relaxation: objective 2.000000e+00, 100 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0    2.00000    0    3   23.00000    2.00000  91.3%     -    0s
+
+Cutting planes:
+  MIR: 3
+  RLT: 1
+
+Explored 1 nodes (127 simplex iterations) in 0.02 seconds (0.01 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 1: 23 
+
+Optimal solution found (tolerance 0.00e+00)
+Best objective 2.300000000000e+01, best bound 2.300000000000e+01, gap 0.0000%
+Warning: general constraint name "_abs_v_1.x - ms.x" has a space

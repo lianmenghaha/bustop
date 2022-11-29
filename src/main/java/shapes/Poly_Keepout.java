@@ -7,8 +7,8 @@ public class Poly_Keepout extends Keepout{
     ArrayList<Keepout> inner_Keepouts_V;
     ArrayList<Keepout> inner_Keepouts_H;
 
-    public Poly_Keepout(int minX, int maxX, int minY, int maxY) {
-        super("", minX, maxX, minY, maxY);//外框
+    public Poly_Keepout(String name, int minX, int maxX, int minY, int maxY) {
+        super(name, minX, maxX, minY, maxY);//外框
         this.inner_Keepouts_V = new ArrayList<>();
         this.inner_Keepouts_H = new ArrayList<>();
 

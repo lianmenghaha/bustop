@@ -6,7 +6,7 @@ import shapes.Master;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Master_ko_pseudoVar extends Master {
+public class Master_var extends Master {
 
 
 
@@ -32,7 +32,7 @@ public class Master_ko_pseudoVar extends Master {
      * @param x_ct center x
      * @param y_ct center y
      */
-    public Master_ko_pseudoVar(double x_ct, double y_ct) {
+    public Master_var(double x_ct, double y_ct) {
         super(x_ct, y_ct);
         this.pseudo_bVars = new HashMap<>();
         this.pseudo_iVars = new HashMap<>();

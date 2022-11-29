@@ -11,7 +11,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class Test_KO_test_Indirect_relation {
+public class Test_KO_test_NewModel {
 
     public static void main(String[] args) {
         LocalDateTime start = LocalDateTime.now();
@@ -52,7 +52,7 @@ public class Test_KO_test_Indirect_relation {
 
 
         try {
-            processor.processToOutput_w_KO(master, slaves, uni_keepouts, poly_keepouts,1, 1);
+            processor.processToOutput_w_multiKO(master, slaves, uni_keepouts, poly_keepouts,1, 1);
             LocalDateTime end = LocalDateTime.now();
             Duration duration = Duration.between(start,end);
             LocalDateTime duration_formated = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(duration.toMillis()), ZoneId.of("UTC"));
