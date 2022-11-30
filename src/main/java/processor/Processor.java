@@ -2903,6 +2903,7 @@ public class Processor {
         GurobiVariable[] vp_iq_abs;
         GurobiVariable[] vp_iq;
 
+
         GurobiVariable[] ko_vp_q;
         GurobiVariable[] ko_vp_iq_abs;
         GurobiVariable[] ko_vp_iq;
@@ -3022,6 +3023,8 @@ public class Processor {
             vp_iq_abs = vp.vp_iVars_abs;
 
 
+
+
             //add d(v_i, v_i+1) to busLength
             c_busLength.addToRHS(vp_iq_abs[0], 1.0);
 
@@ -3055,6 +3058,39 @@ public class Processor {
             /*
             vp <-> vp
              */
+            //(DT.1)
+            c = new GurobiConstraint();
+            c.addToLHS(vp_q[4], 1.0);
+            c.setSense('<');
+            c.addToRHS(vp_q[0], 1.0);
+            executor.addConstraint(c);
+            c = new GurobiConstraint();
+            c.addToLHS(vp_q[4], 1.0);
+            c.setSense('<');
+            c.addToRHS(vp_q[1], 1.0);
+            executor.addConstraint(c);
+            c = new GurobiConstraint();
+            c.addToLHS(vp_q[4], 1.0);
+            c.setSense('<');
+            c.addToRHS(vp_q[2], 1.0);
+            executor.addConstraint(c);
+            c = new GurobiConstraint();
+            c.addToLHS(vp_q[4], 1.0);
+            c.setSense('<');
+            c.addToRHS(vp_q[3], 1.0);
+            executor.addConstraint(c);
+            c = new GurobiConstraint();
+            c.addToLHS(vp_q[4], 1.0);
+            c.setSense('>');
+            c.addToRHS(vp_q[0], 1.0);
+            c.addToRHS(vp_q[1], 1.0);
+            c.addToRHS(vp_q[2], 1.0);
+            c.addToRHS(vp_q[3], 1.0);
+            c.setRHSConstant(-3.0);
+            executor.addConstraint(c);
+
+
+
             //(RL.3)
             GurobiConstraint cRL_leq = new GurobiConstraint();
             cRL_leq.setSense('<');
@@ -3062,33 +3098,40 @@ public class Processor {
             cRL_leq.setRHSConstant(M);
             executor.addConstraint(cRL_leq);
             GurobiConstraint cRL_geq = new GurobiConstraint();
+            cRL_geq.setSense('>');
             cRL_geq.addToRHS(vp_q[0], -1.0);
             cRL_geq.setRHSConstant(1.0);
             executor.addConstraint(cRL_geq);
             //(LR.3)
             GurobiConstraint cLR_leq = new GurobiConstraint();
+            cLR_leq.setSense('<');
             cLR_leq.addToRHS(vp_q[1], -M);
             cLR_leq.setRHSConstant(M);
             executor.addConstraint(cLR_leq);
             GurobiConstraint cLR_geq = new GurobiConstraint();
+            cLR_geq.setSense('>');
             cLR_geq.addToRHS(vp_q[1], -1.0);
             cLR_geq.setRHSConstant(1.0);
             executor.addConstraint(cLR_geq);
             //(AB.3)
             GurobiConstraint cAB_leq = new GurobiConstraint();
+            cAB_leq.setSense('<');
             cAB_leq.addToRHS(vp_q[2], -M);
             cAB_leq.setRHSConstant(M);
             executor.addConstraint(cAB_leq);
             GurobiConstraint cAB_geq = new GurobiConstraint();
+            cAB_geq.setSense('>');
             cAB_geq.addToRHS(vp_q[2], -1.0);
             cAB_geq.setRHSConstant(1.0);
             executor.addConstraint(cAB_geq);
             //(BA.3)
             GurobiConstraint cBA_leq = new GurobiConstraint();
+            cBA_leq.setSense('<');
             cBA_leq.addToRHS(vp_q[2], -M);
             cBA_leq.setRHSConstant(M);
             executor.addConstraint(cBA_leq);
             GurobiConstraint cBA_geq = new GurobiConstraint();
+            cBA_geq.setSense('>');
             cBA_geq.addToRHS(vp_q[2], -1.0);
             cBA_geq.setRHSConstant(1.0);
             executor.addConstraint(cBA_geq);
@@ -3307,6 +3350,62 @@ public class Processor {
                     c.setRHSConstant(0.0);
                     executor.addConstraint(c);
                 }
+
+                /*
+                DT.2
+                 */
+                c = new GurobiConstraint();
+                c.addToLHS(ko_vp_q[12], 1.0);
+                c.addToLHS(ko_vp_q[13], 1.0);
+                c.addToLHS(ko_vp_q[14], 1.0);
+                c.addToLHS(ko_vp_q[15], 1.0);
+                c.setSense('<');
+                c.addToRHS(ko_vp_q[16], M);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(ko_vp_q[12], 1.0);
+                c.addToLHS(ko_vp_q[13], 1.0);
+                c.addToLHS(ko_vp_q[14], 1.0);
+                c.addToLHS(ko_vp_q[15], 1.0);
+                c.setSense('>');
+                c.addToRHS(ko_vp_q[16], 1.0);
+                executor.addConstraint(c);
+
+                /*
+                DT.3
+                 */
+                c = new GurobiConstraint();
+                c.addToLHS(ko_vp_q[16], 1.0);
+                c.setSense('=');
+                c.addToRHS(ko_vp_q[17], 1.0);
+                c.addToRHS(ko_vp_q[18], 1.0);
+                executor.addConstraint(c);
+
+                /*
+                DT.4/5/6 connect rules
+                o->other_o
+                 */
+
+                for (Keepout other_o : uni_keepouts){
+                    GurobiVariable[] oo_vp_q = vp.oo_vp_bVars.get(o).get(other_o);
+
+                    /*
+                    DT.4
+                     */
+                    c = new GurobiConstraint();
+                    c.addToLHS(oo_vp_q[0], 1.0);
+                    c.setSense('=');
+                    c.addToRHS(oo_vp_q[1], 1.0);
+                    c.addToRHS(oo_vp_q[2], 1.0);
+                    c.addToRHS(oo_vp_q[3], 1.0);
+                    c.addToRHS(oo_vp_q[4], 1.0);
+                    executor.addConstraint(c);
+
+
+
+                }
+
+
 
             }
 
