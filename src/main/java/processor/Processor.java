@@ -3020,8 +3020,6 @@ public class Processor {
             vp_iq_abs = vp.vp_iVars_abs;
 
 
-
-
             //add d(v_i, v_i+1) to busLength
             c_busLength.addToRHS(vp_iq_abs[0], 1.0);
 
@@ -3102,7 +3100,6 @@ public class Processor {
             c.addToRHS(vp_q[3], 1.0);
             c.setRHSConstant(-3.0);
             executor.addConstraint(c);
-
 
 
             //(RL.3)
@@ -3433,7 +3430,7 @@ public class Processor {
                 dt_rule_in.addToLHS(vpNext.ko_vp_bVars.get(o)[21], ko_vp_q[16], 1.0);
                 dt_rule_in.addToLHS(vpNext.ko_vp_bVars.get(o)[22], ko_vp_q[16], 1.0);
 
-                for (Keepout other_o : uni_keepouts){
+                for (Keepout other_o : uni_keepouts) {
                     GurobiVariable[] oo_vp_q = vp.oo_vp_bVars.get(o).get(other_o);
                     GurobiVariable other_oq_d_ll_in = vpNext.ko_vp_bVars.get(other_o)[17];
                     GurobiVariable other_oq_d_ur_in = vpNext.ko_vp_bVars.get(other_o)[18];
@@ -3452,7 +3449,7 @@ public class Processor {
                         c.addToRHS(oo_vp_q[3], 1.0);
                         c.addToRHS(oo_vp_q[4], 1.0);
                         executor.addConstraint(c);
-                    }else {
+                    } else {
                         c = new GurobiConstraint();
                         c.addToLHS(oo_vp_q[0], 1.0);
                         c.addToLHS(oo_vp_q[1], 1.0);
@@ -3512,8 +3509,6 @@ public class Processor {
             }
 
 
-
-
         }
         /*
          * AAAA
@@ -3556,175 +3551,169 @@ public class Processor {
                  * Non-overlapping and dSet
                  * VVVV
                  */
-                {
-                    //oqL + oqR + oqA + oqB >= 1
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.addToLHS(ko_vp_q[3], 1.0);
-                    c.setSense('>');
-                    c.setRHSConstant(1.0);
-                    executor.addConstraint(c);
+
+                //oqL + oqR + oqA + oqB >= 1
+                c = new GurobiConstraint();
+                c.addToLHS(ko_vp_q[0], 1.0);
+                c.addToLHS(ko_vp_q[1], 1.0);
+                c.addToLHS(ko_vp_q[2], 1.0);
+                c.addToLHS(ko_vp_q[3], 1.0);
+                c.setSense('>');
+                c.setRHSConstant(1.0);
+                executor.addConstraint(c);
 
 
-                    /*
-                    LEFT:
-                    v_i.x <= o.minX - eps + (1 - oqL) * M
-                          <= -M * oqL + (o.minx - eps + M)
-                    v_i.x >= o.minX - oqL * M
+                /*
+                LEFT:
+                v_i.x <= o.minX - eps + (1 - oqL) * M
+                      <= -M * oqL + (o.minx - eps + M)
+                v_i.x >= o.minX - oqL * M
+                Ld:
+                oqA + oqB + oqR <= M - M * oqLd
+                oqA + oqB + oqR >= 1 - oqLd
+                 */
+                c = new GurobiConstraint();
+                c.addToLHS(vp.x, 1.0);
+                c.setSense('<');
+                c.addToRHS(ko_vp_q[0], -M);
+                c.setRHSConstant(o.getMinX() - eps + M);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(vp.x, 1.0);
+                c.setSense('>');
+                c.addToRHS(ko_vp_q[0], -M);
+                c.setRHSConstant(o.getMinX());
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(ko_vp_q[2], 1.0);
+                c.addToLHS(ko_vp_q[3], 1.0);
+                c.addToLHS(ko_vp_q[1], 1.0);
+                c.setSense('<');
+                c.addToRHS(ko_vp_q[4], -M);
+                c.setRHSConstant(M);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(ko_vp_q[2], 1.0);
+                c.addToLHS(ko_vp_q[3], 1.0);
+                c.addToLHS(ko_vp_q[1], 1.0);
+                c.setSense('>');
+                c.addToRHS(ko_vp_q[4], -1.0);
+                c.setRHSConstant(1.0);
+                executor.addConstraint(c);
 
-                    Ld:
-                    oqA + oqB + oqR <= M - M * oqLd
-                    oqA + oqB + oqR >= 1 - oqLd
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(vp.x, 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_vp_q[0], -M);
-                    c.setRHSConstant(o.getMinX() - eps + M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(vp.x, 1.0);
-                    c.setSense('>');
-                    c.addToRHS(ko_vp_q[0], -M);
-                    c.setRHSConstant(o.getMinX());
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.addToLHS(ko_vp_q[3], 1.0);
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_vp_q[4], -M);
-                    c.setRHSConstant(M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.addToLHS(ko_vp_q[3], 1.0);
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(ko_vp_q[4], -1.0);
-                    c.setRHSConstant(1.0);
-                    executor.addConstraint(c);
-
-                    /*
-                    Right:
-                    v_i.x >= o.maxX + eps - (1 - oqR) * M
-                    v_i.x <= o.maxX + oqR * M
-
-                    Rd:
-                    oqA + oqB + oqL <= M - M * oqRd
-                    oqA + oqB + oqL >= 1 - oqRd
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(vp.x, 1.0);
-                    c.setSense('>');
-                    c.addToRHS(ko_vp_q[1], M);
-                    c.setRHSConstant(o.getMaxX() + eps - M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(vp.x, 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_vp_q[1], M);
-                    c.setRHSConstant(o.getMaxX());
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_vp_q[5], -M);
-                    c.setRHSConstant(M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(ko_vp_q[5], -1);
-                    c.setRHSConstant(1);
-                    executor.addConstraint(c);
+                /*
+                Right:
+                v_i.x >= o.maxX + eps - (1 - oqR) * M
+                v_i.x <= o.maxX + oqR * M
+                Rd:
+                oqA + oqB + oqL <= M - M * oqRd
+                oqA + oqB + oqL >= 1 - oqRd
+                 */
+                c = new GurobiConstraint();
+                c.addToLHS(vp.x, 1.0);
+                c.setSense('>');
+                c.addToRHS(ko_vp_q[1], M);
+                c.setRHSConstant(o.getMaxX() + eps - M);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(vp.x, 1.0);
+                c.setSense('<');
+                c.addToRHS(ko_vp_q[1], M);
+                c.setRHSConstant(o.getMaxX());
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(ko_vp_q[1], 1.0);
+                c.addToLHS(ko_vp_q[2], 1.0);
+                c.addToLHS(ko_vp_q[0], 1.0);
+                c.setSense('<');
+                c.addToRHS(ko_vp_q[5], -M);
+                c.setRHSConstant(M);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(ko_vp_q[1], 1.0);
+                c.addToLHS(ko_vp_q[2], 1.0);
+                c.addToLHS(ko_vp_q[0], 1.0);
+                c.setSense('>');
+                c.addToRHS(ko_vp_q[5], -1);
+                c.setRHSConstant(1);
+                executor.addConstraint(c);
 
 
+                /*
+                Above:
+                v_i.y >= o.maxY + eps - (1 - oqA) * M
+                      >= M * nonA + (o.maxY + eps - M)
+                v_i.y <= o.maxY + oqA * M
+                Ad:
+                oqL + oqR + oqB <= M - M * oqAd
+                oqL + oqR + oqB >= 1 - oqAd
+                 */
+                c = new GurobiConstraint();
+                c.addToLHS(vp.y, 1);
+                c.setSense('>');
+                c.addToRHS(ko_vp_q[2], M);
+                c.setRHSConstant(o.getMaxY() + eps - M);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(vp.y, 1);
+                c.setSense('<');
+                c.addToRHS(ko_vp_q[2], M);
+                c.setRHSConstant(o.getMaxY());
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(ko_vp_q[0], 1.0);
+                c.addToLHS(ko_vp_q[1], 1.0);
+                c.addToLHS(ko_vp_q[3], 1.0);
+                c.setSense('<');
+                c.addToRHS(ko_vp_q[6], -M);
+                c.setRHSConstant(M);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(ko_vp_q[0], 1.0);
+                c.addToLHS(ko_vp_q[1], 1.0);
+                c.addToLHS(ko_vp_q[3], 1.0);
+                c.setSense('>');
+                c.addToRHS(ko_vp_q[6], -1.0);
+                c.setRHSConstant(1.0);
+                executor.addConstraint(c);
 
-                    /*
-                    Above:
-                    v_i.y >= o.maxY + eps - (1 - oqA) * M
-                          >= M * nonA + (o.maxY + eps - M)
-                    v_i.y <= o.maxY + oqA * M
-
-                    Ad:
-                    oqL + oqR + oqB <= M - M * oqAd
-                    oqL + oqR + oqB >= 1 - oqAd
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(vp.y, 1);
-                    c.setSense('>');
-                    c.addToRHS(ko_vp_q[2], M);
-                    c.setRHSConstant(o.getMaxY() + eps - M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(vp.y, 1);
-                    c.setSense('<');
-                    c.addToRHS(ko_vp_q[2], M);
-                    c.setRHSConstant(o.getMaxY());
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.addToLHS(ko_vp_q[3], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_vp_q[6], -M);
-                    c.setRHSConstant(M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.addToLHS(ko_vp_q[3], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(ko_vp_q[6], -1.0);
-                    c.setRHSConstant(1.0);
-                    executor.addConstraint(c);
-
-                    /*
-                    Below:
-                    v_i.y <= o.minY - eps + (1 - oqB)M
-                          <= -M * nonB + o.minY - eps + M
-                    v_i.y >= o.minY - oqB * M
-
-                    Bd:
-                    oqL + oqR + oqA <= M - M * oqBd
-                    oqL + oqR + oqA >= 1 - oqBd
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(vp.y, 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_vp_q[3], -M);
-                    c.setRHSConstant(o.getMinY() - eps + M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(vp.y, 1.0);
-                    c.setSense('>');
-                    c.addToRHS(ko_vp_q[3], -M);
-                    c.setRHSConstant(o.getMinY());
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_vp_q[7], -M);
-                    c.setRHSConstant(M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(ko_vp_q[7], -1.0);
-                    c.setRHSConstant(1.0);
-                    executor.addConstraint(c);
-                }
+                /*
+                Below:
+                v_i.y <= o.minY - eps + (1 - oqB)M
+                      <= -M * nonB + o.minY - eps + M
+                v_i.y >= o.minY - oqB * M
+                Bd:
+                oqL + oqR + oqA <= M - M * oqBd
+                oqL + oqR + oqA >= 1 - oqBd
+                 */
+                c = new GurobiConstraint();
+                c.addToLHS(vp.y, 1.0);
+                c.setSense('<');
+                c.addToRHS(ko_vp_q[3], -M);
+                c.setRHSConstant(o.getMinY() - eps + M);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(vp.y, 1.0);
+                c.setSense('>');
+                c.addToRHS(ko_vp_q[3], -M);
+                c.setRHSConstant(o.getMinY());
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(ko_vp_q[0], 1.0);
+                c.addToLHS(ko_vp_q[1], 1.0);
+                c.addToLHS(ko_vp_q[2], 1.0);
+                c.setSense('<');
+                c.addToRHS(ko_vp_q[7], -M);
+                c.setRHSConstant(M);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(ko_vp_q[0], 1.0);
+                c.addToLHS(ko_vp_q[1], 1.0);
+                c.addToLHS(ko_vp_q[2], 1.0);
+                c.setSense('>');
+                c.addToRHS(ko_vp_q[7], -1.0);
+                c.setRHSConstant(1.0);
+                executor.addConstraint(c);
                 /*
                  * AAAA
                  * Non-overlapping and dSet
@@ -3846,137 +3835,7 @@ public class Processor {
                     sv_iq = sv.pseudo_iVars.get(o);
 
 
-                    /*
-                    (vs: LR.1) i_nonR + i_nonA + i_nonB + [(s_j)_nonL + (s_j)_nonA + (s_j)_nonB] <= oq^LR_i_sj * M
-                    (vs: LR.2) i_nonR + i_nonA + i_nonB + [(s_j)_nonL + (s_j)_nonA + (s_j)_nonB] >= oq^LR_i_sj
-                     */
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.addToLHS(ko_vp_q[3], 1.0);
-                    c.setLHSConstant(sv_q[0] + sv_q[2] + sv_q[3]);
-                    c.setSense('<');
-                    c.addToRHS(ko_sl_q[0], M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.addToLHS(ko_vp_q[3], 1.0);
-                    c.setLHSConstant(sv_q[0] + sv_q[2] + sv_q[3]);
-                    c.setSense('>');
-                    c.addToRHS(ko_sl_q[0], 1.0);
-                    executor.addConstraint(c);
 
-                    /*
-                    (vs: RL.1) i_nonL + i_nonA + i_nonB + (s_j)_nonR + (s_j)_nonA + (s_j)_nonB <= oq^RL_i_sj * M
-                    (vs: RL.2) i_nonL + i_nonA + i_nonB + (s_j)_nonR + (s_j)_nonA + (s_j)_nonB >= oq^RL_i_sj
-                    */
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.addToLHS(ko_vp_q[3], 1.0);
-                    c.setLHSConstant(sv_q[1] + sv_q[2] + sv_q[3]);
-                    c.setSense('<');
-                    c.addToRHS(ko_sl_q[1], M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.addToLHS(ko_vp_q[3], 1.0);
-                    c.setLHSConstant(sv_q[1] + sv_q[2] + sv_q[3]);
-                    c.setSense('>');
-                    c.addToRHS(ko_sl_q[1], 1.0);
-                    executor.addConstraint(c);
-
-                    /*
-                    (vs: AB.1) i_nonB + i_nonL + i_nonR + (s_j)_nonA + (s_j)_nonL + (s_j)_nonR <= oq^AB_i_sj * M
-                    (vs: AB.2) i_nonB + i_nonL + i_nonR + (s_j)_nonA + (s_j)_nonL + (s_j)_nonR >= oq^AB_i_sj
-                    */
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[3], 1.0);
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.setLHSConstant(sv_q[2] + sv_q[0] + sv_q[1]);
-                    c.setSense('<');
-                    c.addToRHS(ko_sl_q[2], M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[3], 1.0);
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.setLHSConstant(sv_q[2] + sv_q[0] + sv_q[1]);
-                    c.setSense('>');
-                    c.addToRHS(ko_sl_q[2], 1.0);
-                    executor.addConstraint(c);
-
-                    /*
-                    (vs: BA.1) i_nonA + i_nonL + i_nonR + (s_j)_nonB + (s_j)_nonL + (s_j)_nonR <= oq^BA_i_sj * M
-                    (vs: BA.2) i_nonA + i_nonL + i_nonR + (s_j)_nonB + (s_j)_nonL + (s_j)_nonR >= oq^BA_i_sj
-                    */
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.setLHSConstant(sv_q[3] + sv_q[0] + sv_q[1]);
-                    c.setSense('<');
-                    c.addToRHS(ko_sl_q[3], M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_vp_q[2], 1.0);
-                    c.addToLHS(ko_vp_q[0], 1.0);
-                    c.addToLHS(ko_vp_q[1], 1.0);
-                    c.setLHSConstant(sv_q[3] + sv_q[0] + sv_q[1]);
-                    c.setSense('>');
-                    c.addToRHS(ko_sl_q[3], 1.0);
-                    executor.addConstraint(c);
-
-                    /*
-                    vs: detour trigger for each keepout oq^d_i_sj
-                    oq^d_i_sj <= oq^LR_i_sj
-                    oq^d_i_sj <= oq^RL_i_sj
-                    oq^d_i_sj <= oq^AB_i_sj
-                    oq^d_i_sj <= oq^BA_i_sj
-                    oq^d_i_sj >= oq^LR_i_sj + oq^RL_i_sj + oq^AB_i_sj + oq^BA_i_sj - 3
-                    */
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_sl_q[4], 1);
-                    c.setSense('<');
-                    c.addToRHS(ko_sl_q[0], 1);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_sl_q[4], 1);
-                    c.setSense('<');
-                    c.addToRHS(ko_sl_q[1], 1);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_sl_q[4], 1);
-                    c.setSense('<');
-                    c.addToRHS(ko_sl_q[2], 1);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_sl_q[4], 1);
-                    c.setSense('<');
-                    c.addToRHS(ko_sl_q[3], 1);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_sl_q[4], 1);
-                    c.setSense('>');
-                    c.addToRHS(ko_sl_q[0], 1);
-                    c.addToRHS(ko_sl_q[1], 1);
-                    c.addToRHS(ko_sl_q[2], 1);
-                    c.addToRHS(ko_sl_q[3], 1);
-                    c.setRHSConstant(-3);
-                    executor.addConstraint(c);
-
-
-                    /*
-                    dq_ij <= oq^d_i_sj
-                    */
-                    c = new GurobiConstraint();
-                    c.addToLHS(sl_q[4], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_sl_q[4], 1.0);
-                    executor.addConstraint(c);
 
 
                 }
