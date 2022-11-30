@@ -124,8 +124,7 @@ public class Processor {
         ArrayList<Keepout> all_keepouts = new ArrayList<>();
         all_keepouts.addAll(uni_keepouts);
         all_keepouts.addAll(poly_keepouts);
-        Map<Keepout, Map<Keepout, int[]>> map_oo_dist = new HashMap<>();
-        update_LRAB_keepouts(uni_keepouts, map_oo_dist);
+        update_LRAB_keepouts(uni_keepouts);
         System.out.println(all_keepouts);
 
 
@@ -160,7 +159,7 @@ public class Processor {
         /*
          * addConsToLBR
          */
-        buildCons_w_multiKO(mv, slaveVars_ko, VPvars, uni_keepouts, poly_keepouts, all_keepouts, busLength, sideBusLength, map_oo_dist);
+        buildCons_w_multiKO(mv, slaveVars_ko, VPvars, uni_keepouts, poly_keepouts, all_keepouts, busLength, sideBusLength);
 
         executor.updateModelWithCons();
 //        System.out.println("808" + executor.getConstraintByIndex(808));
@@ -282,7 +281,7 @@ public class Processor {
 
     }
 
-    private void update_LRAB_keepouts(ArrayList<Keepout> uni_keepouts, Map<Keepout, Map<Keepout, int[]>> map_oo_dist) {
+    private void update_LRAB_keepouts(ArrayList<Keepout> uni_keepouts) {
 
         /*
         initialize oL, oR, oA, oB
@@ -406,7 +405,6 @@ public class Processor {
         update map_oo_dist
          */
         for (Keepout current_k : uni_keepouts) {
-            Map<Keepout, int[]> o_dist = new HashMap<>();
             for (Keepout other_k : uni_keepouts) {
                 int[] dist = new int[4];
                 //ll
@@ -417,9 +415,8 @@ public class Processor {
                 dist[2] = Math.abs(current_k.getMaxX() - other_k.getMinX()) + Math.abs(current_k.getMaxY() - other_k.getMinY());
                 //ur
                 dist[3] = Math.abs(current_k.getMaxX() - other_k.getMaxX()) + Math.abs(current_k.getMaxY() - other_k.getMaxY());
-                o_dist.put(other_k, dist);
+                current_k.addToMap_oo_dist(other_k, dist);
             }
-            map_oo_dist.put(current_k, o_dist);
         }
     }
 
@@ -2892,7 +2889,7 @@ public class Processor {
 
     }
 
-    private void buildCons_w_multiKO(Master_var mv, ArrayList<Slave_var> slaveVars, ArrayList<VP_var> VPvars, ArrayList<Keepout> uni_keepouts, ArrayList<Poly_Keepout> poly_keepouts, ArrayList<Keepout> all_keepouts, GurobiVariable busLength, GurobiVariable sideBusLength, Map<Keepout, Map<Keepout, int[]>> map_oo_dist) throws GRBException {
+    private void buildCons_w_multiKO(Master_var mv, ArrayList<Slave_var> slaveVars, ArrayList<VP_var> VPvars, ArrayList<Keepout> uni_keepouts, ArrayList<Poly_Keepout> poly_keepouts, ArrayList<Keepout> all_keepouts, GurobiVariable busLength, GurobiVariable sideBusLength) throws GRBException {
         double eps = 1;
 
         GurobiConstraint c;
@@ -3055,7 +3052,7 @@ public class Processor {
             executor.addConstraint(c);
             executor.addGenConstraintAbs(vp_iq_abs[2], vp_iq[1], "vv.y_abs");
             /*
-            DT.7
+            DT.7 (1/3)
              */
             GurobiQuadConstraint d_vv = new GurobiQuadConstraint();
             d_vv.addToLHS(vp_iq_abs[3], 1.0);
@@ -3172,6 +3169,22 @@ public class Processor {
                 ko_vp_q = vp.ko_vp_bVars.get(o);
                 ko_vp_iq_abs = vp.ko_vp_iVars_abs.get(o);
                 ko_vp_iq = vp.ko_vp_iVars.get(o);
+
+                /*
+                DT.7 (2/3)
+                 */
+                GurobiVariable oq_d_ll_in = vpNext.ko_vp_bVars.get(o)[21];
+                GurobiVariable oq_d_ur_in = vpNext.ko_vp_bVars.get(o)[22];
+                GurobiVariable[] ko_vp_iq_absNext = vpNext.ko_vp_iVars_abs.get(o);
+                d_vv.addToRHS(ko_vp_iq_abs[0], ko_vp_q[19], 1.0);
+                d_vv.addToRHS(ko_vp_iq_abs[1], ko_vp_q[19], 1.0);
+                d_vv.addToRHS(ko_vp_iq_abs[2], ko_vp_q[20], 1.0);
+                d_vv.addToRHS(ko_vp_iq_abs[3], ko_vp_q[20], 1.0);
+                d_vv.addToRHS(ko_vp_iq_absNext[0], oq_d_ll_in, 1.0);
+                d_vv.addToRHS(ko_vp_iq_absNext[1], oq_d_ll_in, 1.0);
+                d_vv.addToRHS(ko_vp_iq_absNext[2], oq_d_ur_in, 1.0);
+                d_vv.addToRHS(ko_vp_iq_absNext[3], oq_d_ur_in, 1.0);
+
 
 
                 //(RL.3)
@@ -3413,10 +3426,6 @@ public class Processor {
                 c.addToRHS(ko_vp_q[18], 1.0);
                 executor.addConstraint(c);
 
-                /*
-                DT.4/5/6 connect rules
-                o->other_o
-                 */
 
                 /*
                 DT.5 (1&2/4)
@@ -3444,8 +3453,17 @@ public class Processor {
 
                 for (Keepout other_o : uni_keepouts){
                     GurobiVariable[] oo_vp_q = vp.oo_vp_bVars.get(o).get(other_o);
-                    GurobiVariable oq_d_ll = vpNext.ko_vp_bVars.get(other_o)[17];
-                    GurobiVariable oq_d_ur = vpNext.ko_vp_bVars.get(other_o)[18];
+                    GurobiVariable other_oq_d_ll_in = vpNext.ko_vp_bVars.get(other_o)[17];
+                    GurobiVariable other_oq_d_ur_in = vpNext.ko_vp_bVars.get(other_o)[18];
+
+                    /*
+                    DT.7 (3/3)
+                     */
+                    int[] cnm = o.getMap_oo_dist().get(other_o);
+                    d_vv.addToRHS(oo_vp_q[1], cnm[0]);
+                    d_vv.addToRHS(oo_vp_q[2], cnm[1]);
+                    d_vv.addToRHS(oo_vp_q[3], cnm[2]);
+                    d_vv.addToRHS(oo_vp_q[4], cnm[3]);
 
                     /*
                     DT.4
@@ -3474,11 +3492,11 @@ public class Processor {
                     /*
                     DT.5.(1&2/4)
                      */
-                    dt_rule_ur.addToLHS(oo_vp_q[3], oq_d_ll, 1.0);
-                    dt_rule_ur.addToLHS(oo_vp_q[4], oq_d_ur, 1.0);
+                    dt_rule_ur.addToLHS(oo_vp_q[3], other_oq_d_ll_in, 1.0);
+                    dt_rule_ur.addToLHS(oo_vp_q[4], other_oq_d_ur_in, 1.0);
 
-                    dt_rule_ll.addToLHS(oo_vp_q[1], oq_d_ll, 1.0);
-                    dt_rule_ll.addToLHS(oo_vp_q[2], oq_d_ur, 1.0);
+                    dt_rule_ll.addToLHS(oo_vp_q[1], other_oq_d_ll_in, 1.0);
+                    dt_rule_ll.addToLHS(oo_vp_q[2], other_oq_d_ur_in, 1.0);
 
                     /*
                     DT.6

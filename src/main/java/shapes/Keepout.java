@@ -1,6 +1,8 @@
 package shapes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A representation of a keepout on the pcb.
@@ -8,16 +10,11 @@ import java.util.ArrayList;
 public class Keepout {
     private String name;
 
-    private int minX, maxX, minY, maxY;
+    private final int minX, maxX, minY, maxY;
 
-    private final ArrayList<Keepout> left_os;
-    private final ArrayList<Keepout> right_os;
-    private final ArrayList<Keepout> above_os;
-    private final ArrayList<Keepout> below_os;
+    private final ArrayList<Keepout> left_os, right_os, above_os, below_os;
 
-
-
-    public int[] dist;
+    private final Map<Keepout, int[]> map_oo_dist;
 
     public Keepout(String name, int minX, int maxX, int minY, int maxY) {
         this.name = name;
@@ -29,6 +26,7 @@ public class Keepout {
         this.right_os = new ArrayList<>();
         this.above_os = new ArrayList<>();
         this.below_os = new ArrayList<>();
+        this.map_oo_dist = new HashMap<>();
 
     }
 
@@ -72,6 +70,13 @@ public class Keepout {
         this.below_os.add(below_os);
     }
 
+    public Map<Keepout, int[]> getMap_oo_dist() {
+        return map_oo_dist;
+    }
+
+    public void addToMap_oo_dist(Keepout o, int[] dist) {
+        this.map_oo_dist.put(o, dist);
+    }
 
     public int getMinX() {
         return minX;
