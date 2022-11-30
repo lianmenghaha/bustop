@@ -3168,7 +3168,6 @@ public class Processor {
             for (Keepout o : uni_keepouts) {
                 ko_vp_q = vp.ko_vp_bVars.get(o);
                 ko_vp_iq_abs = vp.ko_vp_iVars_abs.get(o);
-                ko_vp_iq = vp.ko_vp_iVars.get(o);
 
                 /*
                 DT.7 (2/3)
@@ -3504,14 +3503,11 @@ public class Processor {
                     c = new GurobiConstraint();
                     c.addToLHS(oo_vp_q[0], 1.0);
                     c.addToLHS(vp.oo_vp_bVars.get(other_o).get(o)[0], 1.0);
-
-
-
-
+                    c.setSense('<');
+                    c.setRHSConstant(1.0);
+                    executor.addConstraint(c);
 
                 }
-
-
 
             }
 
@@ -3533,7 +3529,6 @@ public class Processor {
 
         for (VP_var vp : VPvars) {
             vp_iq_abs = vp.vp_iVars_abs;
-            vp_iq = vp.vp_iVars;
 
             /*
             Each steiner point connects only one slave (vs_connecting_c): sum_j q_i_sj = 1
