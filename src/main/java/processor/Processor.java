@@ -3386,20 +3386,38 @@ public class Processor {
                 o->other_o
                  */
 
+                /*
+                DT.5
+                 */
+
                 for (Keepout other_o : uni_keepouts){
                     GurobiVariable[] oo_vp_q = vp.oo_vp_bVars.get(o).get(other_o);
 
                     /*
                     DT.4
                      */
-                    c = new GurobiConstraint();
-                    c.addToLHS(oo_vp_q[0], 1.0);
-                    c.setSense('=');
-                    c.addToRHS(oo_vp_q[1], 1.0);
-                    c.addToRHS(oo_vp_q[2], 1.0);
-                    c.addToRHS(oo_vp_q[3], 1.0);
-                    c.addToRHS(oo_vp_q[4], 1.0);
-                    executor.addConstraint(c);
+                    if (!o.getName().equals(other_o.getName())) {
+                        c = new GurobiConstraint();
+                        c.addToLHS(oo_vp_q[0], 1.0);
+                        c.setSense('=');
+                        c.addToRHS(oo_vp_q[1], 1.0);
+                        c.addToRHS(oo_vp_q[2], 1.0);
+                        c.addToRHS(oo_vp_q[3], 1.0);
+                        c.addToRHS(oo_vp_q[4], 1.0);
+                        executor.addConstraint(c);
+                    }else {
+                        c = new GurobiConstraint();
+                        c.addToLHS(oo_vp_q[0], 1.0);
+                        c.addToLHS(oo_vp_q[1], 1.0);
+                        c.addToLHS(oo_vp_q[2], 1.0);
+                        c.addToLHS(oo_vp_q[3], 1.0);
+                        c.addToLHS(oo_vp_q[4], 1.0);
+                        c.setSense('=');
+                        c.setRHSConstant(0.0);
+                        executor.addConstraint(c);
+                    }
+
+
 
 
 
