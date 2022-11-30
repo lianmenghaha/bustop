@@ -3455,14 +3455,7 @@ public class Processor {
                     GurobiVariable other_oq_d_ll_in = vpNext.ko_vp_bVars.get(other_o)[17];
                     GurobiVariable other_oq_d_ur_in = vpNext.ko_vp_bVars.get(other_o)[18];
 
-                    /*
-                    DT.7 (3/3)
-                     */
-                    int[] cnm = o.getMap_oo_dist().get(other_o);
-                    d_vv.addToRHS(oo_vp_q[1], cnm[0]);
-                    d_vv.addToRHS(oo_vp_q[2], cnm[1]);
-                    d_vv.addToRHS(oo_vp_q[3], cnm[2]);
-                    d_vv.addToRHS(oo_vp_q[4], cnm[3]);
+
 
                     /*
                     DT.4
@@ -3506,6 +3499,15 @@ public class Processor {
                     c.setSense('<');
                     c.setRHSConstant(1.0);
                     executor.addConstraint(c);
+
+                    /*
+                    DT.7 (3/3)
+                     */
+                    int[] cnm = o.getMap_oo_dist().get(other_o);
+                    d_vv.addToRHS(oo_vp_q[1], cnm[0]);
+                    d_vv.addToRHS(oo_vp_q[2], cnm[1]);
+                    d_vv.addToRHS(oo_vp_q[3], cnm[2]);
+                    d_vv.addToRHS(oo_vp_q[4], cnm[3]);
 
                 }
 
