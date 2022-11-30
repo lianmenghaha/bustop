@@ -36,16 +36,16 @@ public class GurobiQuadConstraint extends GurobiConstraint {
         this.type = ConstraintType.QUADRATIC;
     }
 
-    public void addToLHS(GurobiVariable v1, GurobiVariable v2, double coeff) {
+    public void addToLHS(GurobiVariable v1, GurobiVariable v2, double coefficient) {
         this.lhsType = ConstraintType.QUADRATIC;
         this.type = ConstraintType.QUADRATIC;
-        this.leftHandSideVars.put(new GurobiVariables(v1, v2), coeff);
+        this.leftHandSideVars.put(new GurobiVariables(v1, v2), coefficient);
     }
 
-    public void addToRHS(GurobiVariable v1, GurobiVariable v2, double coeff) {
+    public void addToRHS(GurobiVariable v1, GurobiVariable v2, double coefficient) {
         this.rhsType = ConstraintType.QUADRATIC;
         this.type = ConstraintType.QUADRATIC;
-        this.rightHandSideVars.put(new GurobiVariables(v1, v2), coeff);
+        this.rightHandSideVars.put(new GurobiVariables(v1, v2), coefficient);
     }
 
     public double getCoeffFromLHSByVars(GurobiVariable v1, GurobiVariable v2) {
