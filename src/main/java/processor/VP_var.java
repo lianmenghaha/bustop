@@ -44,10 +44,11 @@ public class VP_var {
 
     /*
      * vp_iVars_abs
-     * (0) d_vv(d)
+     * (0) d_vv
      * (1) |v_i.x - v_i+1.x|
      * (2) |v_i.y - v_i+1.y|
-     * (3) d_v_S(d)
+     * (3) d_vv(d)
+     * (4) d_v_S(d)
      *
      */
     public GurobiVariable[] vp_iVars_abs;

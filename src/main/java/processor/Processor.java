@@ -3054,6 +3054,23 @@ public class Processor {
             c.addToRHS(vpNext.y, -1.0);
             executor.addConstraint(c);
             executor.addGenConstraintAbs(vp_iq_abs[2], vp_iq[1], "vv.y_abs");
+            /*
+            DT.7
+             */
+            GurobiQuadConstraint d_vv = new GurobiQuadConstraint();
+            d_vv.addToLHS(vp_iq_abs[3], 1.0);
+            d_vv.setSense('=');
+            executor.addConstraint(d_vv);
+            /*
+            DT.8
+             */
+            c = new GurobiConstraint();
+            c.addToLHS(vp_iq_abs[0], 1.0);
+            c.setSense('>');
+            c.addToRHS(vp_iq_abs[3], 1.0);
+            c.addToRHS(vp_q[4], M);
+            executor.addConstraint(c);
+
 
             /*
             vp <-> vp
@@ -4821,13 +4838,15 @@ public class Processor {
 
             /*
              * vp_iVars_abs
-             * (0) d_vv(d)
+             *
+             * (0) d_vv
              * (1) |v_i.x - v_i+1.x|
              * (2) |v_i.y - v_i+1.y|
-             * (3) d_vs(d)
+             * (3) d_vv(d)
+             * (4) d_v_S(d)
              *
              */
-            int cnt_vp_iq_abs = 4;
+            int cnt_vp_iq_abs = 5;
             GurobiVariable[] vp_iq_abs = new GurobiVariable[cnt_vp_iq_abs];
             for (int var_cnt = 0; var_cnt < cnt_vp_iq_abs; ++var_cnt) {
                 vp_iq_abs[var_cnt] = new GurobiVariable(GRB.INTEGER, 0, ub_abs, i + "_vp_iVars_ABS_" + var_cnt);
