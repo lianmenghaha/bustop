@@ -3169,23 +3169,6 @@ public class Processor {
                 ko_vp_q = vp.ko_vp_bVars.get(o);
                 ko_vp_iq_abs = vp.ko_vp_iVars_abs.get(o);
 
-                /*
-                DT.7 (2/3)
-                 */
-                GurobiVariable oq_d_ll_in = vpNext.ko_vp_bVars.get(o)[21];
-                GurobiVariable oq_d_ur_in = vpNext.ko_vp_bVars.get(o)[22];
-                GurobiVariable[] ko_vp_iq_absNext = vpNext.ko_vp_iVars_abs.get(o);
-                d_vv.addToRHS(ko_vp_iq_abs[0], ko_vp_q[19], 1.0);
-                d_vv.addToRHS(ko_vp_iq_abs[1], ko_vp_q[19], 1.0);
-                d_vv.addToRHS(ko_vp_iq_abs[2], ko_vp_q[20], 1.0);
-                d_vv.addToRHS(ko_vp_iq_abs[3], ko_vp_q[20], 1.0);
-                d_vv.addToRHS(ko_vp_iq_absNext[0], oq_d_ll_in, 1.0);
-                d_vv.addToRHS(ko_vp_iq_absNext[1], oq_d_ll_in, 1.0);
-                d_vv.addToRHS(ko_vp_iq_absNext[2], oq_d_ur_in, 1.0);
-                d_vv.addToRHS(ko_vp_iq_absNext[3], oq_d_ur_in, 1.0);
-
-
-
                 //(RL.3)
                 cRL_leq.addToLHS(ko_vp_q[12], 1.0);
                 cRL_geq.addToLHS(ko_vp_q[12], 1.0);
@@ -3510,6 +3493,21 @@ public class Processor {
                     d_vv.addToRHS(oo_vp_q[4], cnm[3]);
 
                 }
+
+                /*
+                DT.7 (2/3)
+                 */
+                GurobiVariable oq_d_ll_in = vpNext.ko_vp_bVars.get(o)[21];
+                GurobiVariable oq_d_ur_in = vpNext.ko_vp_bVars.get(o)[22];
+                GurobiVariable[] ko_vp_iq_absNext = vpNext.ko_vp_iVars_abs.get(o);
+                d_vv.addToRHS(ko_vp_iq_abs[0], ko_vp_q[19], 1.0);
+                d_vv.addToRHS(ko_vp_iq_abs[1], ko_vp_q[19], 1.0);
+                d_vv.addToRHS(ko_vp_iq_abs[2], ko_vp_q[20], 1.0);
+                d_vv.addToRHS(ko_vp_iq_abs[3], ko_vp_q[20], 1.0);
+                d_vv.addToRHS(ko_vp_iq_absNext[0], oq_d_ll_in, 1.0);
+                d_vv.addToRHS(ko_vp_iq_absNext[1], oq_d_ll_in, 1.0);
+                d_vv.addToRHS(ko_vp_iq_absNext[2], oq_d_ur_in, 1.0);
+                d_vv.addToRHS(ko_vp_iq_absNext[3], oq_d_ur_in, 1.0);
 
             }
 
