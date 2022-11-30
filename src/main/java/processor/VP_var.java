@@ -70,13 +70,21 @@ public class VP_var {
      * (5) oqRd
      * (6) oqAd
      * (7) oqBd
-     * (8) oq(d): indicate relative obstacle regarding next vp
-     * (9) oq(d,ll): indicate route pass by lower-left corner
-     * (10) oq(d,ur)
-     * (11) oq(d,ll,out)
-     * (12) oq(d,ur,out)
-     * (13) oq(d,ll,in)
-     * (14) oq(d,ur,in)
+     * (8) oq(L): oq_ij^L = 1
+     * (9) oq(R)
+     * (10) oq(A)
+     * (11) oq(B)
+     * (12) oq(RL)
+     * (13) oq(LR)
+     * (14) oq(AB)
+     * (15) oq(BA)
+     * (16) oq(d): indicate relative obstacle regarding next vp
+     * (17) oq(d,ll): indicate route pass by lower-left corner
+     * (18) oq(d,ur)
+     * (19) oq(d,ll,out)
+     * (20) oq(d,ur,out)
+     * (21) oq(d,ll,in)
+     * (22) oq(d,ur,in)
      */
     public Map<Keepout, GurobiVariable[]> ko_vp_bVars;
 
