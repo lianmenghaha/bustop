@@ -3533,9 +3533,8 @@ public class Processor {
             vs_connecting_c.setSense('=');
             executor.addConstraint(vs_connecting_c);
 
-
             //add d(v_i, corrS) to sidebusLength
-            c_sideBusLength.addToRHS(vp_iq_abs[3], 1.0);
+            c_sideBusLength.addToRHS(vp_iq_abs[4], 1.0);
 
 
             /*
@@ -3765,13 +3764,14 @@ public class Processor {
 
 
             /*
-             * virtual points vs. slaves
+             * vp <-> slaves
              * VVVV
              */
 
             for (Slave_var sv : slaveVars) {
                 sl_q = vp.sl_bVars.get(sv);
                 sl_iq_abs = vp.sl_iVars_abs.get(sv);
+                sl_iq = vp.sl_iVars.get(sv);
                 vs_connecting_c.addToLHS(sl_q[5], 1.0);
 
                 /*
@@ -3779,14 +3779,14 @@ public class Processor {
                 d_vs(d) <= d(v_i, s_j) + (1 - q_i_sj) * M
                  */
                 c = new GurobiConstraint();
-                c.addToLHS(vp_iq_abs[1], 1.0);
+                c.addToLHS(vp_iq_abs[4], 1.0);
                 c.setSense('>');
                 c.addToRHS(sl_iq_abs[0], 1.0);
                 c.addToRHS(sl_q[5], M);
                 c.setRHSConstant(-M);
                 executor.addConstraint(c);
                 c = new GurobiConstraint();
-                c.addToLHS(vp_iq_abs[1], 1.0);
+                c.addToLHS(vp_iq_abs[4], 1.0);
                 c.setSense('<');
                 c.addToRHS(sl_iq_abs[0], 1.0);
                 c.addToRHS(sl_q[5], -M);
