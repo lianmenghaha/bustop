@@ -11,10 +11,15 @@ public class Master_var extends Master {
 
 
     /*
-     * 0: Left
-     * 1: Right
-     * 2: Above
-     * 3: Below
+     * binary pseudo variables:
+     * 0: L
+     * 1: R
+     * 2: A
+     * 3: B
+     * 4: Ld
+     * 5: Rd
+     * 6: Ad
+     * 7: Bd
      */
     public Map<Keepout, int[]> pseudo_bVars; //Left, Right, Above, Below
 

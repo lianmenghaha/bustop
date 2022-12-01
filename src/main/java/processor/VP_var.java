@@ -142,13 +142,17 @@ public class VP_var {
 
     /*
      * ko_sl_bVars (vp <-> slaves)
-     * (0) oq_vs(RL)
-     * (1) oq_vs(LR)
-     * (2) oq_vs(AB)
-     * (3) oq_vs(BA)
-     * (4) oq_vs(d)
-     * (5) oq_vs(d,ll,in)
-     * (6) oq_vs(d,ur,in)
+     * (0) oq(L): oq_i_sj^L = 1
+     * (1) oq(R)
+     * (2) oq(A)
+     * (3) oq(B)
+     * (4) oq_vs(RL)
+     * (5) oq_vs(LR)
+     * (6) oq_vs(AB)
+     * (7) oq_vs(BA)
+     * (8) oq_vs(d)
+     * (9) oq_vs(d,ll,in)
+     * (10) oq_vs(d,ur,in)
      */
     public Map<Keepout, Map<Slave_var, GurobiVariable[]>> ko_sl_bVars;
 

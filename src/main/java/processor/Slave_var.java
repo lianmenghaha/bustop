@@ -11,10 +11,14 @@ public class Slave_var extends Slave {
 
     /*
      * binary pseudo variables:
-     * 0: Left
-     * 1: Right
-     * 2: Above
-     * 3: Below
+     * 0: L
+     * 1: R
+     * 2: A
+     * 3: B
+     * 4: Ld
+     * 5: Rd
+     * 6: Ad
+     * 7: Bd
      */
     public Map<Keepout, int[]> pseudo_bVars;
 

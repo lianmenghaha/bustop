@@ -83,8 +83,8 @@ public class GurobiConstraint {
         this.leftHandSide.put(v, coefficient);
     }
 
-    public void addToRHS(GurobiVariable v, double coeff) {
-        this.rightHandSide.put(v, coeff);
+    public void addToRHS(GurobiVariable v, double coefficient) {
+        this.rightHandSide.put(v, coefficient);
     }
 
     public double deleteFromLHS(GurobiVariable v) {
