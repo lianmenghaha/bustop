@@ -3872,6 +3872,40 @@ public class Processor {
                 cvsBA_geq.setRHSConstant(1.0);
                 executor.addConstraint(cvsBA_geq);
 
+                /*
+                vp <-> slave
+                 */
+                //(vsDT.1)
+                c = new GurobiConstraint();
+                c.addToLHS(sl_q[4], 1.0);
+                c.setSense('<');
+                c.addToRHS(sl_q[0], 1.0);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(sl_q[4], 1.0);
+                c.setSense('<');
+                c.addToRHS(sl_q[1], 1.0);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(sl_q[4], 1.0);
+                c.setSense('<');
+                c.addToRHS(sl_q[2], 1.0);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(sl_q[4], 1.0);
+                c.setSense('<');
+                c.addToRHS(sl_q[3], 1.0);
+                executor.addConstraint(c);
+                c = new GurobiConstraint();
+                c.addToLHS(sl_q[4], 1.0);
+                c.setSense('>');
+                c.addToRHS(sl_q[0], 1.0);
+                c.addToRHS(sl_q[1], 1.0);
+                c.addToRHS(sl_q[2], 1.0);
+                c.addToRHS(sl_q[3], 1.0);
+                c.setRHSConstant(-3.0);
+                executor.addConstraint(c);
+
                 for (Keepout o : uni_keepouts) {
 
                     ko_vp_q = vp.ko_vp_bVars.get(o);
@@ -4102,6 +4136,27 @@ public class Processor {
                     //(vsBA.3)
                     cvsBA_leq.addToLHS(ko_sl_q[7], 1.0);
                     cvsBA_geq.addToLHS(ko_sl_q[7], 1.0);
+
+                    /*
+                    (vsDT.2)
+                     */
+                    c = new GurobiConstraint();
+                    c.addToLHS(ko_sl_q[4], 1.0);
+                    c.addToLHS(ko_sl_q[5], 1.0);
+                    c.addToLHS(ko_sl_q[6], 1.0);
+                    c.addToLHS(ko_sl_q[7], 1.0);
+                    c.setSense('<');
+                    c.addToRHS(ko_sl_q[8], M);
+                    executor.addConstraint(c);
+                    c = new GurobiConstraint();
+                    c.addToLHS(ko_sl_q[4], 1.0);
+                    c.addToLHS(ko_sl_q[5], 1.0);
+                    c.addToLHS(ko_sl_q[6], 1.0);
+                    c.addToLHS(ko_sl_q[7], 1.0);
+                    c.setSense('>');
+                    c.addToRHS(ko_sl_q[8], 1.0);
+                    executor.addConstraint(c);
+
 
 
                 }
