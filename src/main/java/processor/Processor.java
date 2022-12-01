@@ -3827,6 +3827,50 @@ public class Processor {
                 executor.addGenConstraintAbs(sl_iq_abs[2], sl_iq[1], "abs_v_s_y");
 
 
+                //(vsRL.3)
+                GurobiConstraint cvsRL_leq = new GurobiConstraint();
+                cvsRL_leq.setSense('<');
+                cvsRL_leq.addToRHS(sl_q[0], -M);
+                cvsRL_leq.setRHSConstant(M);
+                executor.addConstraint(cvsRL_leq);
+                GurobiConstraint cvsRL_geq = new GurobiConstraint();
+                cvsRL_geq.setSense('>');
+                cvsRL_geq.addToRHS(sl_q[0], -1.0);
+                cvsRL_geq.setRHSConstant(1.0);
+                executor.addConstraint(cvsRL_geq);
+                //(vsLR.3)
+                GurobiConstraint cvsLR_leq = new GurobiConstraint();
+                cvsLR_leq.setSense('<');
+                cvsLR_leq.addToRHS(sl_q[1], -M);
+                cvsLR_leq.setRHSConstant(M);
+                executor.addConstraint(cvsLR_leq);
+                GurobiConstraint cvsLR_geq = new GurobiConstraint();
+                cvsLR_geq.setSense('>');
+                cvsLR_geq.addToRHS(sl_q[1], -1.0);
+                cvsLR_geq.setRHSConstant(1.0);
+                executor.addConstraint(cvsLR_geq);
+                //(vsAB.3)
+                GurobiConstraint cvsAB_leq = new GurobiConstraint();
+                cvsAB_leq.setSense('<');
+                cvsAB_leq.addToRHS(sl_q[2], -M);
+                cvsAB_leq.setRHSConstant(M);
+                executor.addConstraint(cvsAB_leq);
+                GurobiConstraint cvsAB_geq = new GurobiConstraint();
+                cvsAB_geq.setSense('>');
+                cvsAB_geq.addToRHS(sl_q[2], -1.0);
+                cvsAB_geq.setRHSConstant(1.0);
+                executor.addConstraint(cvsAB_geq);
+                //(vsBA.3)
+                GurobiConstraint cvsBA_leq = new GurobiConstraint();
+                cvsBA_leq.setSense('<');
+                cvsBA_leq.addToRHS(sl_q[2], -M);
+                cvsBA_leq.setRHSConstant(M);
+                executor.addConstraint(cvsBA_leq);
+                GurobiConstraint cvsBA_geq = new GurobiConstraint();
+                cvsBA_geq.setSense('>');
+                cvsBA_geq.addToRHS(sl_q[2], -1.0);
+                cvsBA_geq.setRHSConstant(1.0);
+                executor.addConstraint(cvsBA_geq);
 
                 for (Keepout o : uni_keepouts) {
 
@@ -3841,7 +3885,7 @@ public class Processor {
                     GurobiConstraint cLeq;
                     GurobiConstraint cGeq;
                     /*
-                    RL-relation: q_vs(RL) = 0
+                    vsRL-relation: q_vs(RL) = 0
                     */
                     if (o.getLeft_os().size() > 1) {
                         /*
@@ -3893,7 +3937,7 @@ public class Processor {
                     }
 
                     /*
-                    LR-relation: q_vs(LR) = 0
+                    vsLR-relation: q_vs(LR) = 0
                      */
                     if (o.getRight_os().size() > 1) {
                         /*
@@ -3945,7 +3989,7 @@ public class Processor {
                     }
 
                     /*
-                    AB-relation: q_vs(AB) = 0
+                    vsAB-relation: q_vs(AB) = 0
                      */
                     if (o.getBelow_os().size() > 1) {
                         /*
@@ -3996,7 +4040,7 @@ public class Processor {
                     }
 
                     /*
-                    BA-relation: q(BA) = 0
+                    vsBA-relation: q(BA) = 0
                      */
                     if (o.getAbove_os().size() > 1) {
                         /*
@@ -4046,8 +4090,18 @@ public class Processor {
                         executor.addConstraint(c);
                     }
 
-
-
+                    //(vsRL.3)
+                    cvsRL_leq.addToLHS(ko_sl_q[4], 1.0);
+                    cvsRL_geq.addToLHS(ko_sl_q[4], 1.0);
+                    //(vsLR.3)
+                    cvsLR_leq.addToLHS(ko_sl_q[5], 1.0);
+                    cvsLR_geq.addToLHS(ko_sl_q[5], 1.0);
+                    //(vsAB.3)
+                    cvsAB_leq.addToLHS(ko_sl_q[6], 1.0);
+                    cvsAB_geq.addToLHS(ko_sl_q[6], 1.0);
+                    //(vsBA.3)
+                    cvsBA_leq.addToLHS(ko_sl_q[7], 1.0);
+                    cvsBA_geq.addToLHS(ko_sl_q[7], 1.0);
 
 
                 }
