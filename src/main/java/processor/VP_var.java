@@ -151,8 +151,10 @@ public class VP_var {
      * (6) oq_vs(AB)
      * (7) oq_vs(BA)
      * (8) oq_vs(d)
-     * (9) oq_vs(d,ll,in)
-     * (10) oq_vs(d,ur,in)
+     * (9) oq(d,ll): indicate route pass by lower-left corner
+     * (10) oq(d,ur)
+     * (11) oq_vs(d,ll,in)
+     * (12) oq_vs(d,ur,in)
      */
     public Map<Keepout, Map<Slave_var, GurobiVariable[]>> ko_sl_bVars;
 
@@ -160,7 +162,7 @@ public class VP_var {
 
 
     /*
-     * oo_vp_bVars
+     * oo_vp_bVars vp <-> vp
      * (0) ooq(d)
      * (1) ooq(d,ll)
      * (2) ooq(d,ll,ur)
@@ -168,4 +170,14 @@ public class VP_var {
      * (4) ooq(d,ur)
      */
     public Map<Keepout, Map<Keepout, GurobiVariable[]>> oo_vp_bVars;
+
+    /*
+     * oo_vp_bVars vp <-> slave
+     * (0) ooq_vs(d)
+     * (1) ooq_vs(d,ll)
+     * (2) ooq_vs(d,ll,ur)
+     * (3) ooq_vs(d,ur,ll)
+     * (4) ooq_vs(d,ur)
+     */
+    public Map<Slave_var, Map<Keepout, Map<Keepout, GurobiVariable[]>>> oo_sl_bVars;
 }

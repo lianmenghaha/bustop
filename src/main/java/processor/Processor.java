@@ -4157,6 +4157,18 @@ public class Processor {
                     c.addToRHS(ko_sl_q[8], 1.0);
                     executor.addConstraint(c);
 
+                    /*
+                    (vsDT.3)
+                     */
+                    c = new GurobiConstraint();
+                    c.addToLHS(ko_sl_q[9], 1.0);
+                    c.addToLHS(ko_sl_q[9], 1.0);
+                    c.setSense('=');
+                    c.addToRHS(ko_sl_q[8], 1.0);
+                    executor.addConstraint(c);
+
+
+
 
 
                 }
@@ -5208,7 +5220,7 @@ public class Processor {
                 for (Slave_var sv : slave_vars) {
                     /*
                      * ko_sl_bVars (vp <-> slaves)
-                     * (0) oq(L): oq_ij^L = 1
+                     * (0) oq(L): oq_i_sj^L = 1
                      * (1) oq(R)
                      * (2) oq(A)
                      * (3) oq(B)
@@ -5217,10 +5229,12 @@ public class Processor {
                      * (6) oq_vs(AB)
                      * (7) oq_vs(BA)
                      * (8) oq_vs(d)
-                     * (9) oq_vs(d,ll,in)
-                     * (10) oq_vs(d,ur,in)
+                     * (9) oq(d,ll): indicate route pass by lower-left corner
+                     * (10) oq(d,ur)
+                     * (11) oq_vs(d,ll,in)
+                     * (12) oq_vs(d,ur,in)
                      */
-                    int cnt_ko_sl_q = 11;
+                    int cnt_ko_sl_q = 13;
                     GurobiVariable[] ko_sl_q = new GurobiVariable[cnt_ko_sl_q];
                     for (int var_cnt = 0; var_cnt < cnt_ko_sl_q; ++var_cnt) {
                         ko_sl_q[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + k.getName() + "_ko_sl_bVars_" + var_cnt);
@@ -5233,18 +5247,16 @@ public class Processor {
                 vp.ko_sl_bVars.put(k, ko_sl_bVars);
 
 
-                //ooq
+                /*
+                 * oo_vp_bVars
+                 * (0) ooq(d)
+                 * (1) ooq(d,ll)
+                 * (2) ooq(d,ll,ur)
+                 * (3) ooq(d,ur,ll)
+                 * (4) ooq(d,ur)
+                 */
                 Map<Keepout, GurobiVariable[]> oo_vp_bVars = new HashMap<>();
                 for (Keepout otherK : uni_keepouts) {
-                    /*
-                     * oo_vp_bVars
-                     * (0) ooq(d)
-                     * (1) ooq(d,ll)
-                     * (2) ooq(d,ll,ur)
-                     * (3) ooq(d,ur,ll)
-                     * (4) ooq(d,ur)
-                     */
-
                     int cnt_oo_vp_q = 5;
                     GurobiVariable[] oo_vp_q = new GurobiVariable[cnt_oo_vp_q];
                     for (int var_cnt = 0; var_cnt < cnt_oo_vp_q; ++var_cnt) {
@@ -5305,7 +5317,29 @@ public class Processor {
                 }
                 vp.sl_iVars.put(sv, sl_iq);
 
-
+                /*
+                 * oo_vp_bVars vp <-> slave
+                 * (0) ooq_vs(d)
+                 * (1) ooq_vs(d,ll)
+                 * (2) ooq_vs(d,ll,ur)
+                 * (3) ooq_vs(d,ur,ll)
+                 * (4) ooq_vs(d,ur)
+                 */
+                Map<Keepout, Map<Keepout, GurobiVariable[]>> oo_sl_bVars = new HashMap<>();
+                for (Keepout o : uni_keepouts){
+                    Map<Keepout, GurobiVariable[]> o_sl_q = new HashMap<>();
+                    for (Keepout other_o : uni_keepouts){
+                        int cnt_oo_sl_q = 5;
+                        GurobiVariable[] oo_sl_q = new GurobiVariable[cnt_oo_sl_q];
+                        for (int var_cnt = 0; var_cnt < cnt_sl_q; ++var_cnt) {
+                            oo_sl_q[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + sv.getName() + "_oo_sl_bVars_" + var_cnt);
+                            executor.addVariable(oo_sl_q[var_cnt]);
+                        }
+                        o_sl_q.put(other_o, oo_sl_q);
+                    }
+                    oo_sl_bVars.put(o, o_sl_q);
+                }
+                vp.oo_sl_bVars.put(sv, oo_sl_bVars);
             }
 
 
