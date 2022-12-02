@@ -20,16 +20,16 @@ public class Slave_var extends Slave {
      * 6: Ad
      * 7: Bd
      */
-    public Map<Keepout, int[]> pseudo_bVars;
+    private final Map<Keepout, int[]> pseudo_bVars;
 
     /*
      * pseudo_iVars
-     * 0: |s_j.x - c^k_1.x|
-     * 1: |s_j.y - c^k_1.y|
-     * 2: |s_j.x - c^k_2.x|
-     * 3: |s_j.y - c^k_2.y|
+     * 0: so_x_ll: |sx - ox_ll|
+     * 1: so_y_ll: |sy - oy_ll|
+     * 2: so_x_ur: |sx - ox_ur|
+     * 3: so_y_ur: |sy - oy_ur|
      */
-    public Map<Keepout, int[]> pseudo_iVars;
+    private final Map<Keepout, int[]> pseudo_iVars;
 
     /*
      *
@@ -49,7 +49,7 @@ public class Slave_var extends Slave {
         this.pseudo_bVars.put(k,ints);
     }
 
-    public void addToPsedo_iVars(Keepout k, int[] ints) {
+    public void addToPseudo_iVars(Keepout k, int[] ints) {
         this.pseudo_iVars.put(k,ints);
     }
 
