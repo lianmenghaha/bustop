@@ -25,6 +25,9 @@ public class Test_KO_test_NewModel {
         Keepout o2 = new Keepout("o2", 5,6,3,6);
         Keepout o3 = new Keepout("o3", 7,8,5,8);
         Keepout o4 = new Keepout("o4", 9,11,7,12);
+        /*Keepout o1 = new Keepout("o1", 2,4,0,4);
+        Keepout o2 = new Keepout("o2", 5,7,3,8);
+        Keepout o3 = new Keepout("o3", 9,11,7,12);*/
 
 
 

@@ -3,6 +3,7 @@ package processor;
 import grb.GurobiVariable;
 import shapes.Keepout;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class VP_var {
@@ -71,23 +72,33 @@ public class VP_var {
      * (5) oqRd
      * (6) oqAd
      * (7) oqBd
-     * (8) oq(L): oq_ij^L = 1
-     * (9) oq(R)
-     * (10) oq(A)
-     * (11) oq(B)
-     * (12) oq(RL)
-     * (13) oq(LR)
-     * (14) oq(AB)
-     * (15) oq(BA)
-     * (16) oq(d): indicate relative obstacle regarding next vp
-     * (17) oq(d,ll): indicate route pass by lower-left corner
-     * (18) oq(d,ur)
-     * (19) oq(d,ll,out): if v_i -> v_i+1 must detour
-     * (20) oq(d,ur,out)
-     * (21) oq(d,ll,in): if v_i-1 -> v_i must detour
-     * (22) oq(d,ur,in)
+     * (8) oq(RL.R): oq_ij^L = 1
+     * (9) oq(RL.L)
+     * (10) oq(LR.L)
+     * (11) oq(LR.R)
+     * (12) oq(AB.A)
+     * (13) oq(AB.B)
+     * (14) oq(BA.B)
+     * (15) oq(BA.A)
+     *
      */
-    public Map<Keepout, GurobiVariable[]> ko_vp_bVars;
+    public Map<Keepout, GurobiVariable[]> ko_vp_bVars_aux;
+
+    /*
+     * ko_vp_bVars_dt
+     * (0) oq(RL)
+     * (1) oq(LR)
+     * (2) oq(AB)
+     * (3) oq(BA)
+     * (4) oq(d): indicate relative obstacle regarding next vp
+     * (5) oq(d,ll): indicate route pass by lower-left corner
+     * (6) oq(d,ur)
+     * (7) oq(d,ll,out): if v_i -> v_i+1 must detour
+     * (8) oq(d,ur,out)
+     * (9) oq(d,ll,in): if v_i-1 -> v_i must detour
+     * (10) oq(d,ur,in)
+     */
+    public Map<Keepout, GurobiVariable[]> ko_vp_bVars_dt;
 
     /*
      * ko_vp_iVars_abs
@@ -143,23 +154,32 @@ public class VP_var {
 
     /*
      * ko_sl_bVars (vp <-> slaves)
-     * (0) oq(L): oq_i_sj^L = 1
-     * (1) oq(R)
-     * (2) oq(A)
-     * (3) oq(B)
-     * (4) oq_vs(RL)
-     * (5) oq_vs(LR)
-     * (6) oq_vs(AB)
-     * (7) oq_vs(BA)
-     * (8) oq_vs(d)
-     * (9) oq(d,ll): indicate route pass by lower-left corner
-     * (10) oq(d,ur)
-     * (11) oq_vs(d,ll,in)
-     * (12) oq_vs(d,ur,in)
-     * (13) oq_vs(d,ll,out): if vp -> slave must detour, this indicate that vp -> obstacle's lower-left corner
-     * (14) oq_vs(d,ur,out)
+     * (0) oq(RL.L): oq_i_sj^L = 1
+     * (1) oq(RL.R)
+     * (2) oq(LR.R)
+     * (3) oq(LR.L)
+     * (4) oq(AB.B)
+     * (5) oq(AB.A)
+     * (6) oq(BA.A)
+     * (7) oq(BA.B)
      */
-    public Map<Keepout, Map<Slave_var, GurobiVariable[]>> ko_sl_bVars;
+    public Map<Keepout, Map<Slave_var, GurobiVariable[]>> ko_sl_bVars_aux;
+
+    /*
+     * ko_sl_bVars_dt
+     * (0) oq_vs(RL)
+     * (1) oq_vs(LR)
+     * (2) oq_vs(AB)
+     * (3) oq_vs(BA)
+     * (4) oq_vs(d)
+     * (5) oq(d,ll): indicate route pass by lower-left corner
+     * (6) oq(d,ur)
+     * (7) oq_vs(d,ll,in)
+     * (8) oq_vs(d,ur,in)
+     * (9) oq_vs(d,ll,out): if vp -> slave must detour, this indicate that vp -> obstacle's lower-left corner
+     * (10) oq_vs(d,ur,out)
+     */
+    public Map<Keepout, Map<Slave_var, GurobiVariable[]>> ko_sl_bVars_dt;
 
 
 
@@ -183,4 +203,28 @@ public class VP_var {
      * (4) ooq_vs(d,ur)
      */
     public Map<Slave_var, Map<Keepout, Map<Keepout, GurobiVariable[]>>> oo_sl_bVars;
+
+    public VP_var(){
+
+
+
+
+        this.ko_vp_bVars_aux = new HashMap<>();
+        this.ko_vp_bVars_dt = new HashMap<>();
+        this.ko_vp_iVars_abs = new HashMap<>();
+        this.ko_vp_iVars = new HashMap<>();
+
+        this.sl_bVars = new HashMap<>();
+        this.sl_iVars_abs = new HashMap<>();
+        this.sl_iVars = new HashMap<>();
+
+        this.ko_sl_bVars_aux = new HashMap<>();
+        this.ko_sl_bVars_dt = new HashMap<>();
+        this.oo_vp_bVars = new HashMap<>();
+        this.oo_sl_bVars = new HashMap<>();
+
+
+
+
+    }
 }
