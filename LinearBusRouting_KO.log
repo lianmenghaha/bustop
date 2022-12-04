@@ -1578,3 +1578,99 @@ Solution count 2: 19 523
 Optimal solution found (tolerance 0.00e+00)
 Best objective 1.900000000000e+01, best bound 1.900000000000e+01, gap 0.0000%
 Warning: general constraint 946 and general constraint 947 have the same name "vo_ur.x_abs"
+
+Gurobi 9.5.0 (mac64[arm]) logging started Sun Dec  4 18:45:20 2022
+
+Set parameter LogFile to value "LinearBusRouting_KO.log"
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0
+Gurobi Optimizer version 9.5.0 build v9.5.0rc5 (mac64[arm])
+Thread count: 8 physical cores, 8 logical processors, using up to 8 threads
+Optimize a model with 1047 rows, 1182 columns and 2806 nonzeros
+Model fingerprint: 0x2dc325f5
+Model has 55 quadratic constraints
+Model has 42 general constraints
+Variable types: 0 continuous, 1182 integer (1074 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+06]
+  QMatrix range    [1e+00, 1e+00]
+  QLMatrix range   [1e+00, 2e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+06]
+  RHS range        [1e+00, 1e+06]
+  QRHS range       [1e+00, 1e+00]
+Presolve removed 695 rows and 542 columns
+Presolve time: 0.03s
+Presolved: 1847 rows, 1120 columns, 5501 nonzeros
+Variable types: 0 continuous, 1120 integer (908 binary)
+Found heuristic solution: objective 1040.0000000
+
+Root relaxation: objective 0.000000e+00, 214 iterations, 0.01 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0    0.00000    0    1 1040.00000    0.00000   100%     -    0s
+H    0     0                      19.0000000    0.00000   100%     -    0s
+     0     0   19.00000    0   57   19.00000   19.00000  0.00%     -    0s
+
+Cutting planes:
+  MIR: 3
+  Zero half: 1
+
+Explored 1 nodes (412 simplex iterations) in 0.14 seconds (0.07 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 2: 19 1040 
+
+Optimal solution found (tolerance 0.00e+00)
+Best objective 1.900000000000e+01, best bound 1.900000000000e+01, gap 0.0000%
+Warning: general constraint 1106 and general constraint 1107 have the same name "vo_ur.x_abs"
+
+Gurobi 9.5.0 (mac64[arm]) logging started Sun Dec  4 18:48:11 2022
+
+Set parameter LogFile to value "LinearBusRouting_KO.log"
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0
+Gurobi Optimizer version 9.5.0 build v9.5.0rc5 (mac64[arm])
+Thread count: 8 physical cores, 8 logical processors, using up to 8 threads
+Optimize a model with 1047 rows, 1182 columns and 2806 nonzeros
+Model fingerprint: 0x2dc325f5
+Model has 55 quadratic constraints
+Model has 42 general constraints
+Variable types: 0 continuous, 1182 integer (1074 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+06]
+  QMatrix range    [1e+00, 1e+00]
+  QLMatrix range   [1e+00, 2e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+06]
+  RHS range        [1e+00, 1e+06]
+  QRHS range       [1e+00, 1e+00]
+Presolve removed 695 rows and 542 columns
+Presolve time: 0.05s
+Presolved: 1847 rows, 1120 columns, 5501 nonzeros
+Variable types: 0 continuous, 1120 integer (908 binary)
+Found heuristic solution: objective 1040.0000000
+
+Root relaxation: objective 0.000000e+00, 214 iterations, 0.01 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0    0.00000    0    1 1040.00000    0.00000   100%     -    0s
+H    0     0                      19.0000000    0.00000   100%     -    0s
+     0     0   19.00000    0   57   19.00000   19.00000  0.00%     -    0s
+
+Cutting planes:
+  MIR: 3
+  Zero half: 1
+
+Explored 1 nodes (412 simplex iterations) in 0.22 seconds (0.07 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 2: 19 1040 
+
+Optimal solution found (tolerance 0.00e+00)
+Best objective 1.900000000000e+01, best bound 1.900000000000e+01, gap 0.0000%
+Warning: general constraint 1106 and general constraint 1107 have the same name "vo_ur.x_abs"
