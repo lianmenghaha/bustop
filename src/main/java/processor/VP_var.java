@@ -106,7 +106,8 @@ public class VP_var {
      * (1) vo_y_ll
      * (2) vo_x_ur
      * (3) vo_y_ur
-     *
+     * (4) vo_ll
+     * (5) vo_ur
      */
     public Map<Keepout, GurobiVariable[]> ko_vp_iVars_abs;
 
