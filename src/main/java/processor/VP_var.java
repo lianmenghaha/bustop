@@ -254,6 +254,7 @@ public class VP_var {
 
         this.ko_sl_bVars_aux = new HashMap<>();
         this.ko_sl_bVars_dt = new HashMap<>();
+        this.ko_sl_bVars_dtAux =new HashMap<>();
         this.oo_vp_bVars = new HashMap<>();
         this.oo_sl_bVars = new HashMap<>();
 

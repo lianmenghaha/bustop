@@ -4030,3 +4030,83 @@ Solution count 5: 19 20 23 ... 513
 Optimal solution found (tolerance 0.00e+00)
 Best objective 1.900000000000e+01, best bound 1.900000000000e+01, gap 0.0000%
 Warning: general constraint 1458 and general constraint 1459 have the same name "vo_ur.x_abs"
+
+Gurobi 9.5.0 (mac64[arm]) logging started Thu Dec 15 16:30:54 2022
+
+Set parameter LogFile to value "LinearBusRouting_KO.log"
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0
+
+Gurobi 9.5.0 (mac64[arm]) logging started Thu Dec 15 16:31:11 2022
+
+Set parameter LogFile to value "LinearBusRouting_KO.log"
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0
+
+Gurobi 9.5.0 (mac64[arm]) logging started Thu Dec 15 16:33:17 2022
+
+Set parameter LogFile to value "LinearBusRouting_KO.log"
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0
+
+Gurobi 9.5.0 (mac64[arm]) logging started Thu Dec 15 16:33:53 2022
+
+Set parameter LogFile to value "LinearBusRouting_KO.log"
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0
+Gurobi Optimizer version 9.5.0 build v9.5.0rc5 (mac64[arm])
+Thread count: 8 physical cores, 8 logical processors, using up to 8 threads
+Optimize a model with 2410 rows, 1382 columns and 6345 nonzeros
+Model fingerprint: 0xa7cbffbd
+Model has 4 quadratic constraints
+Model has 42 general constraints
+Variable types: 0 continuous, 1382 integer (1226 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+06]
+  QMatrix range    [1e+00, 1e+00]
+  QLMatrix range   [1e+00, 2e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+06]
+  RHS range        [1e+00, 1e+06]
+Presolve removed 1942 rows and 897 columns
+Presolve time: 0.08s
+Presolved: 568 rows, 517 columns, 2426 nonzeros
+Variable types: 0 continuous, 517 integer (341 binary)
+Found heuristic solution: objective 33.0000000
+Found heuristic solution: objective 21.0000000
+
+Root relaxation: objective 0.000000e+00, 180 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0    0.00000    0    1   21.00000    0.00000   100%     -    0s
+     0     0    4.00000    0    1   21.00000    4.00000  81.0%     -    0s
+     0     0   19.00000    0   67   21.00000   19.00000  9.52%     -    0s
+H    0     0                      20.0000000   19.00000  5.00%     -    0s
+     0     0   19.00000    0   26   20.00000   19.00000  5.00%     -    0s
+     0     0   19.00000    0   25   20.00000   19.00000  5.00%     -    0s
+     0     0   19.00000    0   18   20.00000   19.00000  5.00%     -    0s
+     0     0   19.00000    0   14   20.00000   19.00000  5.00%     -    0s
+     0     0   19.00000    0    5   20.00000   19.00000  5.00%     -    0s
+
+Cutting planes:
+  Learned: 2
+  Gomory: 1
+  Cover: 12
+  Implied bound: 17
+  Clique: 12
+  MIR: 12
+  StrongCG: 1
+  Zero half: 1
+  RLT: 1
+  Relax-and-lift: 12
+
+Explored 1 nodes (910 simplex iterations) in 0.26 seconds (0.08 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 3: 20 21 33 
+
+Optimal solution found (tolerance 0.00e+00)
+Best objective 2.000000000000e+01, best bound 2.000000000000e+01, gap 0.0000%
+Warning: general constraint 2418 and general constraint 2419 have the same name "vo_ur.x_abs"

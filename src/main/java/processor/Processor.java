@@ -4760,12 +4760,10 @@ public class Processor {
                     for (Keepout other_o : uni_keepouts) {
                         GurobiVariable[] oo_sl_q = vp.oo_sl_bVars.get(sv).get(o).get(other_o);
 
-                        GurobiVariable other_o_sl_ll = vp.ko_sl_bVars_dt.get(sv).get(other_o)[5];
-                        GurobiVariable other_o_sl_ur = vp.ko_sl_bVars_dt.get(sv).get(other_o)[6];
-                        GurobiVariable[] other_o_sl_q_dtAux = vp.ko_sl_bVars_dtAux.get(sv).get(other_o);
+                        GurobiVariable other_o_sl_ll = vp.ko_sl_bVars_dt.get(other_o).get(sv)[5];
+                        GurobiVariable other_o_sl_ur = vp.ko_sl_bVars_dt.get(other_o).get(sv)[6];
+                        GurobiVariable[] other_o_sl_q_dtAux = vp.ko_sl_bVars_dtAux.get(other_o).get(sv);
 
-                        GurobiVariable other_oq_vsd_ll_pass_by = vp.ko_sl_bVars_dt.get(other_o).get(sv)[5];
-                        GurobiVariable other_oq_vsd_ur_pass_by = vp.ko_sl_bVars_dt.get(other_o).get(sv)[6];
 
                         /*
                         vsDT.4
