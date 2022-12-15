@@ -122,6 +122,10 @@ public class VP_var {
      * (3) vo_y_ur
      * (4) vo_ll
      * (5) vo_ur
+     * (6) vo_ll_out
+     * (7) vo_ur_out
+     * (8) vo_ll_in
+     * (9) vo_ur_in
      */
     public Map<Keepout, GurobiVariable[]> ko_vp_iVars_abs;
 
@@ -226,6 +230,7 @@ public class VP_var {
 
         this.ko_vp_bVars_aux = new HashMap<>();
         this.ko_vp_bVars_dt = new HashMap<>();
+        this.ko_vp_bVars_dtAux = new HashMap<>();
         this.ko_vp_iVars_abs = new HashMap<>();
         this.ko_vp_iVars = new HashMap<>();
 
