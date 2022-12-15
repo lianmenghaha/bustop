@@ -191,14 +191,28 @@ public class VP_var {
      * (2) oq_vs(AB)
      * (3) oq_vs(BA)
      * (4) oq_vs(d)
-     * (5) oq(d,ll): indicate route pass by lower-left corner
-     * (6) oq(d,ur)
+     * (5) oq_vs(d,ll): indicate route pass by lower-left corner
+     * (6) oq_vs(d,ur)
      * (7) oq_vs(d,ll,in)
      * (8) oq_vs(d,ur,in)
      * (9) oq_vs(d,ll,out): if vp -> slave must detour, this indicate that vp -> obstacle's lower-left corner
      * (10) oq_vs(d,ur,out)
      */
     public Map<Keepout, Map<Slave_var, GurobiVariable[]>> ko_sl_bVars_dt;
+
+    /*
+     * ko_sl_bVars_dtAux
+     * (0) _oq_vs(ll,out)
+     * (1) _oq_vs(ur,out)
+     * (2) _oq_vs(ll,in)
+     * (3) _oq_vs(ur,in)
+     * (4) _oq_vs(ur,ll)
+     * (5) _oq_vs(ur)
+     * (6) _oq_vs(ll)
+     * (7) _oq_vs(ll,ur)
+     */
+
+    public Map<Keepout, Map<Slave_var, GurobiVariable[]>> ko_sl_bVars_dtAux;
 
 
 
