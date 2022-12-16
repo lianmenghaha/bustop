@@ -216,8 +216,8 @@ public class VP_var {
 
     /*
      * ko_sl_iVars_dtAux
-     * (0) vso_ll_in
-     * (1) vso_ur_in
+     * (0) _vso_ll_in
+     * (1) _vso_ur_in
      */
     public Map<Keepout, Map<Slave_var, GurobiVariable[]>> ko_sl_iVars_dtAux;
 
