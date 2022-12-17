@@ -4249,3 +4249,71 @@ Solution count 4: 23 25 27 1044
 Optimal solution found (tolerance 0.00e+00)
 Best objective 2.300000000000e+01, best bound 2.300000000000e+01, gap 0.0000%
 Warning: general constraint 2522 and general constraint 2523 have the same name "vo_ur.x_abs"
+
+Gurobi 9.5.0 (mac64[arm]) logging started Sat Dec 17 09:27:00 2022
+
+Set parameter LogFile to value "LinearBusRouting_KO.log"
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0
+
+Gurobi 9.5.0 (mac64[arm]) logging started Sat Dec 17 09:27:29 2022
+
+Set parameter LogFile to value "LinearBusRouting_KO.log"
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0
+Gurobi Optimizer version 9.5.0 build v9.5.0rc5 (mac64[arm])
+Thread count: 8 physical cores, 8 logical processors, using up to 8 threads
+Optimize a model with 2470 rows, 1728 columns and 6805 nonzeros
+Model fingerprint: 0x38f42563
+Model has 42 general constraints
+Variable types: 0 continuous, 1728 integer (1431 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+06]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+06]
+  RHS range        [1e+00, 1e+06]
+Presolve removed 2141 rows and 1491 columns
+Presolve time: 0.08s
+Presolved: 329 rows, 237 columns, 1366 nonzeros
+Variable types: 0 continuous, 237 integer (89 binary)
+Found heuristic solution: objective 537.0000000
+Found heuristic solution: objective 27.0000000
+
+Root relaxation: objective 0.000000e+00, 103 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0    0.00000    0    1   27.00000    0.00000   100%     -    0s
+H    0     0                      25.0000000    0.00000   100%     -    0s
+     0     0    4.00000    0    5   25.00000    4.00000  84.0%     -    0s
+H    0     0                      23.0000000   19.00000  17.4%     -    0s
+     0     0   19.00000    0    7   23.00000   19.00000  17.4%     -    0s
+     0     0   19.00000    0   10   23.00000   19.00000  17.4%     -    0s
+     0     0   19.00000    0    7   23.00000   19.00000  17.4%     -    0s
+     0     0   19.00000    0    8   23.00000   19.00000  17.4%     -    0s
+     0     0   19.00000    0   14   23.00000   19.00000  17.4%     -    0s
+     0     0   19.00000    0    9   23.00000   19.00000  17.4%     -    0s
+     0     0   19.00000    0    9   23.00000   19.00000  17.4%     -    0s
+     0     2   19.00000    0    9   23.00000   19.00000  17.4%     -    0s
+
+Cutting planes:
+  Learned: 1
+  Gomory: 4
+  Cover: 13
+  Implied bound: 88
+  Clique: 15
+  MIR: 15
+  StrongCG: 2
+  Zero half: 1
+  RLT: 1
+  Relax-and-lift: 18
+
+Explored 130 nodes (1825 simplex iterations) in 0.25 seconds (0.07 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 4: 23 25 27 537 
+
+Optimal solution found (tolerance 0.00e+00)
+Best objective 2.300000000000e+01, best bound 2.300000000000e+01, gap 0.0000%
+Warning: general constraint 2474 and general constraint 2475 have the same name "vo_ur.x_abs"

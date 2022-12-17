@@ -1821,8 +1821,8 @@ public class Processor {
                 ms_ko_sp_q = pv_ko.ms_ko_sp_bVars.get(all_k);
                 ms_ko_sp_iq = pv_ko.ms_ko_sp_iVars.get(all_k);
 
-                ms_q = mv.pseudo_bVars.get(all_k);
-                ms_iq = mv.pseudo_iVars.get(all_k);
+                ms_q = mv.getPseudo_bVars().get(all_k);
+                ms_iq = mv.getPseudo_iVars().get(all_k);
 
 
                 /*
@@ -2976,13 +2976,6 @@ public class Processor {
         GurobiVariable[] ko_sl_iq_dtAux;
 
 
-        //only for v1 <-> ms
-        GurobiVariable[] ms_vp_q;
-        GurobiVariable[] ms_vp_iq;
-        GurobiVariable[] ms_ko_vp_q;
-        GurobiVariable[] ms_ko_vp_iq;
-
-
         GurobiConstraint c_busLength;
         GurobiConstraint c_sideBusLength;
 
@@ -3006,44 +2999,770 @@ public class Processor {
          * VVVV
          */
 //        {
-//            vp = VPvars.get(0);
-//            ms_vp_q = vp.ms_vp_bVars;
-//            ms_vp_iq = vp.ms_vp_iVars;
+//            VP_var vp1 = VPvars.get(0);
+//            GurobiVariable[] mvp_q = vp1.mvp_bVars;
+//            GurobiVariable[] mvp_iq_abs = vp1.mvp_iVars_abs;
+//            GurobiVariable[] mvp_iq = vp1.mvp_iVars;
+//
 //
 //            //add d(v_1,ms) to busLength
-//            c_busLength.addToRHS(ms_vp_iq[0], 1.0);
+//            c_busLength.addToRHS(mvp_iq_abs[0], 1.0);
 //
 //
 //            /*
-//             * Compute d(v_1, ms) w.r.t. Manhattan distance:
-//             * VVVV
 //             * d(v_1, ms) >= |v_1.x - ms.x| + |v_1.y - ms.y|
 //             */
 //            c = new GurobiConstraint();
-//            c.addToLHS(ms_vp_iq[0], 1.0);
+//            c.addToLHS(mvp_iq_abs[0], 1.0);
 //            c.setSense('>');
-//            c.addToRHS(ms_vp_iq[1], 1.0);
-//            c.addToRHS(ms_vp_iq[2], 1.0);
+//            c.addToRHS(mvp_iq_abs[1], 1.0);
+//            c.addToRHS(mvp_iq_abs[2], 1.0);
 //            executor.addConstraint(c);
 //            c = new GurobiConstraint();
-//            c.addToLHS(ms_vp_iq[3], 1.0);
+//            c.addToLHS(mvp_iq[0], 1.0);
 //            c.setSense('=');
-//            c.addToRHS(vp.x, 1.0);
+//            c.addToRHS(vp1.x, 1.0);
 //            c.setRHSConstant(-mv.getX_ct());
 //            executor.addConstraint(c);
-//            executor.addGenConstraintAbs(ms_vp_iq[1], ms_vp_iq[3], "_abs_v_1.x - ms.x");
+//            executor.addGenConstraintAbs(mvp_iq_abs[1], mvp_iq[0], "_abs_v_1.x - ms.x");
 //            c = new GurobiConstraint();
-//            c.addToLHS(ms_vp_iq[4], 1.0);
+//            c.addToLHS(mvp_iq[1], 1.0);
 //            c.setSense('=');
-//            c.addToRHS(vp.y, 1.0);
+//            c.addToRHS(vp1.y, 1.0);
 //            c.setRHSConstant(-mv.getY_ct());
 //            executor.addConstraint(c);
-//            executor.addGenConstraintAbs(ms_vp_iq[2], ms_vp_iq[4], "_abs_v_1.y - ms.y");
+//            executor.addGenConstraintAbs(mvp_iq_abs[2], mvp_iq[1], "_abs_v_1.y - ms.y");
+//
+//            //(mv_RL.3)
+//            GurobiConstraint cmv_RL_leq = new GurobiConstraint();
+//            cmv_RL_leq.setSense('<');
+//            cmv_RL_leq.addToRHS(mvp_q[0], -M);
+//            cmv_RL_leq.setRHSConstant(M);
+//            executor.addConstraint(cmv_RL_leq);
+//            GurobiConstraint cmv_RL_geq = new GurobiConstraint();
+//            cmv_RL_geq.setSense('>');
+//            cmv_RL_geq.addToRHS(mvp_q[0], -1.0);
+//            cmv_RL_geq.setRHSConstant(1.0);
+//            executor.addConstraint(cmv_RL_geq);
+//            //(mv_LR.3)
+//            GurobiConstraint cmv_LR_leq = new GurobiConstraint();
+//            cmv_LR_leq.setSense('<');
+//            cmv_LR_leq.addToRHS(mvp_q[1], -M);
+//            cmv_LR_leq.setRHSConstant(M);
+//            executor.addConstraint(cmv_LR_leq);
+//            GurobiConstraint cmv_LR_geq = new GurobiConstraint();
+//            cmv_LR_geq.setSense('>');
+//            cmv_LR_geq.addToRHS(mvp_q[1], -1.0);
+//            cmv_LR_geq.setRHSConstant(1.0);
+//            executor.addConstraint(cmv_LR_geq);
+//            //(mv_AB.3)
+//            GurobiConstraint cmv_AB_leq = new GurobiConstraint();
+//            cmv_AB_leq.setSense('<');
+//            cmv_AB_leq.addToRHS(mvp_q[2], -M);
+//            cmv_AB_leq.setRHSConstant(M);
+//            executor.addConstraint(cmv_AB_leq);
+//            GurobiConstraint cmv_AB_geq = new GurobiConstraint();
+//            cmv_AB_geq.setSense('>');
+//            cmv_AB_geq.addToRHS(mvp_q[2], -1.0);
+//            cmv_AB_geq.setRHSConstant(1.0);
+//            executor.addConstraint(cmv_AB_geq);
+//            //(mv_BA.3)
+//            GurobiConstraint cmv_BA_leq = new GurobiConstraint();
+//            cmv_BA_leq.setSense('<');
+//            cmv_BA_leq.addToRHS(mvp_q[3], -M);
+//            cmv_BA_leq.setRHSConstant(M);
+//            executor.addConstraint(cmv_BA_leq);
+//            GurobiConstraint cmv_BA_geq = new GurobiConstraint();
+//            cmv_BA_geq.setSense('>');
+//            cmv_BA_geq.addToRHS(mvp_q[3], -1.0);
+//            cmv_BA_geq.setRHSConstant(1.0);
+//            executor.addConstraint(cmv_BA_geq);
+//
+//            //(mv_DT.1)
+//            c = new GurobiConstraint();
+//            c.addToLHS(mvp_q[4], 1.0);
+//            c.setSense('<');
+//            c.addToRHS(mvp_q[0], 1.0);
+//            executor.addConstraint(c);
+//            c = new GurobiConstraint();
+//            c.addToLHS(mvp_q[4], 1.0);
+//            c.setSense('<');
+//            c.addToRHS(mvp_q[1], 1.0);
+//            executor.addConstraint(c);
+//            c = new GurobiConstraint();
+//            c.addToLHS(mvp_q[4], 1.0);
+//            c.setSense('<');
+//            c.addToRHS(mvp_q[2], 1.0);
+//            executor.addConstraint(c);
+//            c = new GurobiConstraint();
+//            c.addToLHS(mvp_q[4], 1.0);
+//            c.setSense('<');
+//            c.addToRHS(mvp_q[3], 1.0);
+//            executor.addConstraint(c);
+//            c = new GurobiConstraint();
+//            c.addToLHS(mvp_q[4], 1.0);
+//            c.setSense('>');
+//            c.addToRHS(mvp_q[0], 1.0);
+//            c.addToRHS(mvp_q[1], 1.0);
+//            c.addToRHS(mvp_q[2], 1.0);
+//            c.addToRHS(mvp_q[3], 1.0);
+//            c.setRHSConstant(-3.0);
+//            executor.addConstraint(c);
 //
 //            /*
-//             * AAAA
-//             * Compute d(v_1, ms) w.r.t. Manhattan distance:
+//            mv_DT.5 (3&4/4)
 //             */
+//            GurobiConstraint dt_rule_mvp_out = new GurobiConstraint();
+//            dt_rule_mvp_out.setSense('=');
+//            dt_rule_mvp_out.addToRHS(mvp_q[4], -1.0);
+//            dt_rule_mvp_out.setRHSConstant(1.0);
+//            executor.addConstraint(dt_rule_mvp_out);
+//            GurobiConstraint dt_rule_mvp_in = new GurobiConstraint();
+//            dt_rule_mvp_in.setSense('=');
+//            dt_rule_mvp_in.addToRHS(mvp_q[4], -1.0);
+//            dt_rule_mvp_in.setRHSConstant(1.0);
+//            executor.addConstraint(dt_rule_mvp_in);
+//
+//            for (Keepout o : uni_keepouts){
+//                GurobiVariable[] ko_vp1_iq_abs = vp1.ko_vp_iVars_abs.get(o);
+//                GurobiVariable[] ko_mvp_q_aux = vp1.ko_mvp_bVars_aux.get(o);
+//                GurobiVariable[] ko_mvp_q_dt = vp1.ko_mvp_bVars_dt.get(o);
+//                GurobiVariable[] ko_mvp_q_dtAux = vp1.ko_mvp_bVars_dtAux.get(o);
+//                GurobiVariable[] ko_mvp_iq_dtAux = vp1.ko_mvp_iVars_dtAux.get(o);
+//
+//                GurobiConstraint cLeq;
+//                GurobiConstraint cGeq;
+//
+//                /*
+//                mv_RL-relation: q_mv(RL) = 0
+//                */
+//                if (o.getLeft_os().size() > 0){
+//                    /*
+//                    (mv_RL.1R)
+//                     */
+//                    cLeq = new GurobiConstraint();
+//                    cLeq.setSense('<');
+//                    cLeq.addToRHS(ko_mvp_q_aux[0], M);
+//                    executor.addConstraint(cLeq);
+//                    cGeq = new GurobiConstraint();
+//                    cGeq.setSense('>');
+//                    cGeq.addToRHS(ko_mvp_q_aux[0], 1.0);
+//                    executor.addConstraint(cGeq);
+//                    for (Keepout oR : o.getRight_os()) {
+//                        cLeq.addToLHS(vp1.ko_vp_bVars_aux.get(oR)[5], 1.0);
+//                        cGeq.addToLHS(vp1.ko_vp_bVars_aux.get(oR)[5], 1.0);
+//                    }
+//
+//                    /*
+//                    (mv_ RL.1L)
+//                     */
+//                    int sum_oL = 0;
+//                    for (Keepout oL : o.getLeft_os()) {
+//                        sum_oL += mv.getPseudo_bVars().get(oL)[4];
+//                    }
+//                    cLeq = new GurobiConstraint();
+//                    cLeq.setLHSConstant(sum_oL);
+//                    cLeq.setSense('<');
+//                    cLeq.addToRHS(ko_mvp_q_aux[1], M);
+//                    executor.addConstraint(cLeq);
+//                    cGeq = new GurobiConstraint();
+//                    cGeq.setLHSConstant(sum_oL);
+//                    cGeq.setSense('>');
+//                    cGeq.addToRHS(ko_mvp_q_aux[1], 1.0);
+//                    executor.addConstraint(cGeq);
+//
+//                    /*
+//                    (mv_RL.2)
+//                     */
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[0], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_aux[0], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[0], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_aux[1], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[0], 1.0);
+//                    c.setSense('>');
+//                    c.addToRHS(ko_mvp_q_aux[0], 1.0);
+//                    c.addToRHS(ko_mvp_q_aux[1], 1.0);
+//                    c.setRHSConstant(-1.0);
+//                    executor.addConstraint(c);
+//
+//
+//                }else {
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[0], 1.0);
+//                    c.setSense('=');
+//                    c.setRHSConstant(0.0);
+//                    executor.addConstraint(c);
+//                }
+//
+//                /*
+//                mv_LR-relation: q_mv(LR) = 0
+//                 */
+//                if (o.getRight_os().size() > 0){
+//                    /*
+//                    mv_LR.1L
+//                     */
+//                    cLeq = new GurobiConstraint();
+//                    cLeq.setSense('<');
+//                    cLeq.addToRHS(ko_mvp_q_aux[2], M);
+//                    executor.addConstraint(cLeq);
+//                    cGeq = new GurobiConstraint();
+//                    cGeq.setSense('>');
+//                    cGeq.addToRHS(ko_mvp_q_aux[2], 1.0);
+//                    executor.addConstraint(cGeq);
+//                    for (Keepout oL : o.getLeft_os()) {
+//                        cLeq.addToLHS(vp1.ko_vp_bVars_aux.get(oL)[4], 1.0);
+//                        cGeq.addToLHS(vp1.ko_vp_bVars_aux.get(oL)[4], 1.0);
+//                    }
+//                    /*
+//                    mv_LR.1R
+//                     */
+//                    int sum_oR = 0;
+//                    for (Keepout oR : o.getRight_os()) {
+//                        sum_oR += mv.getPseudo_bVars().get(oR)[5];
+//                    }
+//                    cLeq = new GurobiConstraint();
+//                    cLeq.setLHSConstant(sum_oR);
+//                    cLeq.setSense('<');
+//                    cLeq.addToRHS(ko_mvp_q_aux[3], M);
+//                    executor.addConstraint(cLeq);
+//                    cGeq = new GurobiConstraint();
+//                    cGeq.setLHSConstant(sum_oR);
+//                    cGeq.setSense('>');
+//                    cGeq.addToRHS(ko_mvp_q_aux[3], 1.0);
+//                    executor.addConstraint(cGeq);
+//
+//                    /*
+//                    mv_LR.2
+//                     */
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[1], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_aux[2], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[1], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_aux[3], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[1], 1.0);
+//                    c.setSense('>');
+//                    c.addToRHS(ko_mvp_q_aux[2], 1.0);
+//                    c.addToRHS(ko_mvp_q_aux[3], 1.0);
+//                    c.setRHSConstant(-1.0);
+//                    executor.addConstraint(c);
+//                }else {
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[1], 1.0);
+//                    c.setSense('=');
+//                    c.setRHSConstant(0.0);
+//                    executor.addConstraint(c);
+//                }
+//
+//                /*
+//                mv_AB-relation: q_mv(AB) = 0
+//                 */
+//                if (o.getBelow_os().size() > 0) {
+//                    /*
+//                    mv_AB.1A
+//                     */
+//                    cLeq = new GurobiConstraint();
+//                    cLeq.setSense('<');
+//                    cLeq.addToRHS(ko_mvp_q_aux[4], M);
+//                    executor.addConstraint(cLeq);
+//                    cGeq = new GurobiConstraint();
+//                    cGeq.setSense('>');
+//                    cGeq.addToRHS(ko_mvp_q_aux[4], 1.0);
+//                    executor.addConstraint(cGeq);
+//                    for (Keepout oA : o.getAbove_os()) {
+//                        cLeq.addToLHS(vp1.ko_vp_bVars_aux.get(oA)[6], 1.0);
+//                        cGeq.addToLHS(vp1.ko_vp_bVars_aux.get(oA)[6], 1.0);
+//                    }
+//
+//                    /*
+//                    mv_AB.1B
+//                     */
+//                    int sum_oB = 0;
+//                    for (Keepout oB : o.getBelow_os()) {
+//                        sum_oB += mv.getPseudo_bVars().get(oB)[7];
+//                    }
+//                    cLeq = new GurobiConstraint();
+//                    cLeq.setLHSConstant(sum_oB);
+//                    cLeq.setSense('<');
+//                    cLeq.addToRHS(ko_mvp_q_aux[5], M);
+//                    executor.addConstraint(cLeq);
+//                    cGeq = new GurobiConstraint();
+//                    cGeq.setLHSConstant(sum_oB);
+//                    cGeq.setSense('>');
+//                    cGeq.addToRHS(ko_mvp_q_aux[5], 1.0);
+//                    executor.addConstraint(cGeq);
+//
+//                    /*
+//                    mv_AB.2
+//                     */
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[2], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_aux[4], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[2], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_aux[5], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[2], 1.0);
+//                    c.setSense('>');
+//                    c.addToRHS(ko_mvp_q_aux[4], 1.0);
+//                    c.addToRHS(ko_mvp_q_aux[5], 1.0);
+//                    c.setRHSConstant(-1.0);
+//                    executor.addConstraint(c);
+//                }else {
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[2], 1.0);
+//                    c.setSense('=');
+//                    c.setRHSConstant(0.0);
+//                    executor.addConstraint(c);
+//                }
+//
+//                /*
+//                mv_BA-relation: q_mv(BA) = 0
+//                 */
+//                if (o.getAbove_os().size() > 0) {
+//                    /*
+//                    mv_BA.1B
+//                     */
+//                    cLeq = new GurobiConstraint();
+//                    cLeq.setSense('<');
+//                    cLeq.addToRHS(ko_mvp_q_aux[6], M);
+//                    executor.addConstraint(cLeq);
+//                    cGeq = new GurobiConstraint();
+//                    cGeq.setSense('>');
+//                    cGeq.addToRHS(ko_mvp_q_aux[6], 1.0);
+//                    executor.addConstraint(cGeq);
+//                    for (Keepout oB : o.getBelow_os()) {
+//                        cLeq.addToLHS(vp1.ko_vp_bVars_aux.get(oB)[7], 1.0);
+//                        cGeq.addToLHS(vp1.ko_vp_bVars_aux.get(oB)[7], 1.0);
+//                    }
+//                    /*
+//                    mv_BA.1A
+//                     */
+//                    int sum_oA = 0;
+//                    for (Keepout oA : o.getAbove_os()) {
+//                        sum_oA += mv.getPseudo_bVars().get(oA)[6];
+//                    }
+//                    cLeq = new GurobiConstraint();
+//                    cLeq.setLHSConstant(sum_oA);
+//                    cLeq.setSense('<');
+//                    cLeq.addToRHS(ko_mvp_q_aux[7], M);
+//                    executor.addConstraint(cLeq);
+//                    cGeq = new GurobiConstraint();
+//                    cGeq.setLHSConstant(sum_oA);
+//                    cGeq.setSense('>');
+//                    cGeq.addToRHS(ko_mvp_q_aux[7], 1.0);
+//                    executor.addConstraint(cGeq);
+//
+//                    /*
+//                    mv_BA.2
+//                     */
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[3], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_aux[6], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[3], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_aux[7], 1.0);
+//                    executor.addConstraint(c);
+//                    c.addToLHS(ko_mvp_q_dt[3], 1.0);
+//                    c.setSense('>');
+//                    c.addToRHS(ko_mvp_q_aux[6], 1.0);
+//                    c.addToRHS(ko_mvp_q_aux[7], 1.0);
+//                    c.setRHSConstant(-1.0);
+//                    executor.addConstraint(c);
+//                }else {
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dt[3], 1.0);
+//                    c.setSense('=');
+//                    c.setRHSConstant(0.0);
+//                    executor.addConstraint(c);
+//                }
+//
+//                //(mv_RL.3)
+//                cmv_RL_leq.addToLHS(ko_mvp_q_dt[0], 1.0);
+//                cmv_RL_geq.addToLHS(ko_mvp_q_dt[0], 1.0);
+//                //(mv_LR.3)
+//                cmv_LR_leq.addToLHS(ko_mvp_q_dt[1], 1.0);
+//                cmv_LR_geq.addToLHS(ko_mvp_q_dt[1], 1.0);
+//                //(mv_AB.3)
+//                cmv_AB_leq.addToLHS(ko_mvp_q_dt[2], 1.0);
+//                cmv_AB_geq.addToLHS(ko_mvp_q_dt[2], 1.0);
+//                //(mv_BA.3)
+//                cmv_BA_leq.addToLHS(ko_mvp_q_dt[3], 1.0);
+//                cmv_BA_geq.addToLHS(ko_mvp_q_dt[3], 1.0);
+//
+//                /*
+//                (mvDT.2)
+//                 */
+//                c = new GurobiConstraint();
+//                c.addToLHS(ko_mvp_q_dt[0], 1.0);
+//                c.addToLHS(ko_mvp_q_dt[1], 1.0);
+//                c.addToLHS(ko_mvp_q_dt[2], 1.0);
+//                c.addToLHS(ko_mvp_q_dt[3], 1.0);
+//                c.setSense('<');
+//                c.addToRHS(ko_mvp_q_dt[4], M);
+//                executor.addConstraint(c);
+//                c = new GurobiConstraint();
+//                c.addToLHS(ko_mvp_q_dt[0], 1.0);
+//                c.addToLHS(ko_mvp_q_dt[1], 1.0);
+//                c.addToLHS(ko_mvp_q_dt[2], 1.0);
+//                c.addToLHS(ko_mvp_q_dt[3], 1.0);
+//                c.setSense('>');
+//                c.addToRHS(ko_mvp_q_dt[4], 1.0);
+//                executor.addConstraint(c);
+//
+//                /*
+//                mv_DT.3
+//                 */
+//                c = new GurobiConstraint();
+//                c.addToLHS(ko_mvp_q_dt[5], 1.0);
+//                c.addToLHS(ko_mvp_q_dt[6], 1.0);
+//                c.setSense('=');
+//                c.addToRHS(ko_mvp_q_dt[4], 1.0);
+//                executor.addConstraint(c);
+//
+//                /*
+//                mv_DT.4 3&4
+//                 */
+//                c = new GurobiConstraint();
+//                c.addToLHS(ko_mvp_q_dt[6], M);
+//                c.setSense('>');
+//                c.addToRHS(ko_mvp_q_dt[8], 1.0);
+//                c.addToRHS(ko_mvp_q_dt[10], 1.0);
+//                executor.addConstraint(c);
+//                c = new GurobiConstraint();
+//                c.addToLHS(ko_mvp_q_dt[5], M);
+//                c.setSense('>');
+//                c.addToRHS(ko_mvp_q_dt[7], 1.0);
+//                c.addToRHS(ko_mvp_q_dt[9], 1.0);
+//                executor.addConstraint(c);
+//
+//                /*
+//                mv_DT.5 L5 - L8
+//                 */
+//                {
+//                    /*
+//                    mv_DT.5.L5
+//                     */
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dtAux[0], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_dt[9], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dtAux[0], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_dt[4], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dtAux[0], 1.0);
+//                    c.setSense('>');
+//                    c.addToRHS(ko_mvp_q_dt[9], 1.0);
+//                    c.addToRHS(ko_mvp_q_dt[4], 1.0);
+//                    c.setRHSConstant(-1.0);
+//                    executor.addConstraint(c);
+//
+//                    /*
+//                    mv_DT.5.L6
+//                     */
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dtAux[1], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_dt[10], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dtAux[1], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_dt[4], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dtAux[1], 1.0);
+//                    c.setSense('>');
+//                    c.addToRHS(ko_mvp_q_dt[10], 1.0);
+//                    c.addToRHS(ko_mvp_q_dt[4], 1.0);
+//                    c.setRHSConstant(-1.0);
+//                    executor.addConstraint(c);
+//
+//                    /*
+//                    mv_DT.5.L7
+//                     */
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dtAux[2], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_dt[7], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dtAux[2], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_dt[4], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dtAux[2], 1.0);
+//                    c.setSense('>');
+//                    c.addToRHS(ko_mvp_q_dt[7], 1.0);
+//                    c.addToRHS(ko_mvp_q_dt[4], 1.0);
+//                    c.setRHSConstant(-1.0);
+//                    executor.addConstraint(c);
+//
+//                    /*
+//                    mv_DT.5.L8
+//                     */
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dtAux[3], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_dt[8], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dtAux[3], 1.0);
+//                    c.setSense('<');
+//                    c.addToRHS(ko_mvp_q_dt[4], 1.0);
+//                    executor.addConstraint(c);
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(ko_mvp_q_dtAux[3], 1.0);
+//                    c.setSense('>');
+//                    c.addToRHS(ko_mvp_q_dt[8], 1.0);
+//                    c.addToRHS(ko_mvp_q_dt[4], 1.0);
+//                    c.setRHSConstant(-1.0);
+//                    executor.addConstraint(c);
+//                }
+//                /*
+//                mv_DT.5 (1&2/4)
+//                 */
+//                GurobiConstraint dt_rule_mvp_ur = new GurobiConstraint();
+//                dt_rule_mvp_ur.addToLHS(ko_mvp_q_dt[8], 1.0);
+//                dt_rule_mvp_ur.setSense('=');
+//                dt_rule_mvp_ur.addToRHS(ko_mvp_q_dt[6], 1.0);
+//                executor.addConstraint(dt_rule_mvp_ur);
+//                GurobiConstraint dt_rule_mvp_ll = new GurobiConstraint();
+//                dt_rule_mvp_ll.addToLHS(ko_mvp_q_dt[7], 1.0);
+//                dt_rule_mvp_ll.setSense('=');
+//                dt_rule_mvp_ll.addToRHS(ko_mvp_q_dt[5], 1.0);
+//                executor.addConstraint(dt_rule_mvp_ll);
+//
+//                /*
+//                mv_DT.5 (3&4/4)
+//                 */
+//                //i -> out
+//                dt_rule_mvp_out.addToLHS(ko_mvp_q_dtAux[0], 1.0);
+//                dt_rule_mvp_out.addToLHS(ko_mvp_q_dtAux[1], 1.0);
+//                //s_j -> in
+//                dt_rule_mvp_in.addToLHS(ko_mvp_q_dtAux[2], 1.0);
+//                dt_rule_mvp_in.addToLHS(ko_mvp_q_dtAux[3], 1.0);
+//
+//
+//                /*
+//                mv_DT.7 (LHS)
+//                 */
+//                GurobiConstraint d_mvp = new GurobiConstraint();
+//                d_mvp.addToLHS(mvp_iq[0], 1.0);
+//                d_mvp.setSense('>');
+//                executor.addConstraint(d_mvp);
+//
+//                /*
+//                mv_DT.4/5/6/7
+//                 */
+//                for (Keepout other_o : uni_keepouts){
+//                    GurobiVariable[] oo_mvp_q = vp1.oo_mvp_bVars.get(o).get(other_o);
+//
+//                    GurobiVariable other_o_mvp_ll = vp1.ko_mvp_bVars_dt.get(other_o)[5];
+//                    GurobiVariable other_o_mvp_ur = vp1.ko_mvp_bVars_dt.get(other_o)[6];
+//                    GurobiVariable[] other_o_mvp_q_dtAux = vp1.ko_mvp_bVars_dtAux.get(other_o);
+//
+//                    /*
+//                    mv_DT.4
+//                     */
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(oo_mvp_q[0], 1.0);
+//                    c.setSense('=');
+//                    c.addToRHS(oo_mvp_q[1], 1.0);
+//                    c.addToRHS(oo_mvp_q[2], 1.0);
+//                    c.addToRHS(oo_mvp_q[3], 1.0);
+//                    c.addToRHS(oo_mvp_q[4], 1.0);
+//                    executor.addConstraint(c);
+//                    if (o.getName().equals(other_o.getName())) {
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(oo_mvp_q[0], 1.0);
+//                        c.setSense('=');
+//                        c.setRHSConstant(0.0);
+//                        executor.addConstraint(c);
+//                    }
+//
+//                    /*
+//                    mv_DT.5.L1 - L4
+//                     */
+//                    {
+//                        /*
+//                        mv_DT.5.L1
+//                         */
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(other_o_mvp_q_dtAux[4], 1.0);
+//                        c.setSense('<');
+//                        c.addToRHS(oo_mvp_q[3], 1.0);
+//                        executor.addConstraint(c);
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(other_o_mvp_q_dtAux[4], 1.0);
+//                        c.setSense('<');
+//                        c.addToRHS(other_o_mvp_ll, 1.0);
+//                        executor.addConstraint(c);
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(other_o_mvp_q_dtAux[4], 1.0);
+//                        c.setSense('>');
+//                        c.addToRHS(oo_mvp_q[3], 1.0);
+//                        c.addToRHS(other_o_mvp_ll, 1.0);
+//                        c.setRHSConstant(-1.0);
+//                        executor.addConstraint(c);
+//
+//                        /*
+//                        mv_DT.5.L2
+//                         */
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(other_o_mvp_q_dtAux[5], 1.0);
+//                        c.setSense('<');
+//                        c.addToRHS(oo_mvp_q[4], 1.0);
+//                        executor.addConstraint(c);
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(other_o_mvp_q_dtAux[5], 1.0);
+//                        c.setSense('<');
+//                        c.addToRHS(other_o_mvp_ur, 1.0);
+//                        executor.addConstraint(c);
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(other_o_mvp_q_dtAux[5], 1.0);
+//                        c.setSense('>');
+//                        c.addToRHS(oo_mvp_q[4], 1.0);
+//                        c.addToRHS(other_o_mvp_ur, 1.0);
+//                        c.setRHSConstant(-1.0);
+//                        executor.addConstraint(c);
+//
+//                        /*
+//                        mv_DT.5.L3
+//                         */
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(other_o_mvp_q_dtAux[6], 1.0);
+//                        c.setSense('<');
+//                        c.addToRHS(oo_mvp_q[1], 1.0);
+//                        executor.addConstraint(c);
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(other_o_mvp_q_dtAux[6], 1.0);
+//                        c.setSense('<');
+//                        c.addToRHS(other_o_mvp_ll, 1.0);
+//                        executor.addConstraint(c);
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(other_o_mvp_q_dtAux[6], 1.0);
+//                        c.setSense('>');
+//                        c.addToRHS(oo_mvp_q[1], 1.0);
+//                        c.addToRHS(other_o_mvp_ll, 1.0);
+//                        c.setRHSConstant(-1.0);
+//                        executor.addConstraint(c);
+//
+//                        /*
+//                        mv_DT.5.L4
+//                         */
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(other_o_mvp_q_dtAux[7], 1.0);
+//                        c.setSense('<');
+//                        c.addToRHS(oo_mvp_q[2], 1.0);
+//                        executor.addConstraint(c);
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(other_o_mvp_q_dtAux[7], 1.0);
+//                        c.setSense('<');
+//                        c.addToRHS(other_o_mvp_ur, 1.0);
+//                        executor.addConstraint(c);
+//                        c = new GurobiConstraint();
+//                        c.addToLHS(other_o_mvp_q_dtAux[7], 1.0);
+//                        c.setSense('>');
+//                        c.addToRHS(oo_mvp_q[2], 1.0);
+//                        c.addToRHS(other_o_mvp_ur, 1.0);
+//                        c.setRHSConstant(-1.0);
+//                        executor.addConstraint(c);
+//
+//
+//                    }
+//
+//                    /*
+//                    mv_DT.5 (1&2/4)
+//                     */
+//                    dt_rule_mvp_ur.addToLHS(ko_mvp_q_dtAux[4], 1.0);
+//                    dt_rule_mvp_ur.addToLHS(ko_mvp_q_dtAux[5], 1.0);
+//
+//                    dt_rule_mvp_ll.addToLHS(ko_mvp_q_dtAux[6], 1.0);
+//                    dt_rule_mvp_ll.addToLHS(ko_mvp_q_dtAux[7], 1.0);
+//
+//                    /*
+//                    mv_DT.6
+//                     */
+//                    c = new GurobiConstraint();
+//                    c.addToLHS(oo_mvp_q[0], 1.0);
+//                    c.addToLHS(vp1.oo_mvp_bVars.get(other_o).get(o)[0], 1.0);
+//                    c.setSense('<');
+//                    c.setRHSConstant(1.0);
+//                    executor.addConstraint(c);
+//
+//                    /*
+//                    mv_DT.7 (RHS2/2)
+//                     */
+//                    int[] cnm = o.getMap_oo_dist().get(other_o);
+//                    d_mvp.addToRHS(oo_mvp_q[1], cnm[0]);
+//                    d_mvp.addToRHS(oo_mvp_q[2], cnm[1]);
+//                    d_mvp.addToRHS(oo_mvp_q[3], cnm[2]);
+//                    d_mvp.addToRHS(oo_mvp_q[4], cnm[3]);
+//
+//
+//
+//                }
+//                /*
+//                mv_DT.7.L1 - L2
+//                 */
+//                c = new GurobiConstraint();
+//                c.addToLHS(ko_mvp_iq_dtAux[0], 1.0);
+//                c.setSense('<');
+//                c.addToRHS(ko_vp1_iq_abs[4], 1.0);
+//                c.addToRHS(ko_mvp_q_dt[9], -M);
+//                c.setRHSConstant(M);
+//                executor.addConstraint(c);
+//                c = new GurobiConstraint();
+//                c.addToLHS(ko_mvp_iq_dtAux[0], 1.0);
+//                c.setSense('>');
+//                c.addToRHS(ko_vp1_iq_abs[4], 1.0);
+//                c.addToRHS(ko_mvp_q_dt[9], M);
+//                c.setRHSConstant(-M);
+//                executor.addConstraint(c);
+//
+//                c = new GurobiConstraint();
+//                c.addToLHS(ko_mvp_iq_dtAux[1], 1.0);
+//                c.setSense('<');
+//                c.addToRHS(ko_vp1_iq_abs[5], 1.0);
+//                c.addToRHS(ko_mvp_q_dt[10], -M);
+//                c.setRHSConstant(M);
+//                executor.addConstraint(c);
+//                c = new GurobiConstraint();
+//                c.addToLHS(ko_mvp_iq_dtAux[1], 1.0);
+//                c.setSense('>');
+//                c.addToRHS(ko_vp1_iq_abs[5], 1.0);
+//                c.addToRHS(ko_mvp_q_dt[10], M);
+//                c.setRHSConstant(-M);
+//                executor.addConstraint(c);
+//
+//            }
+//
+//
 //
 //
 //
@@ -3683,6 +4402,49 @@ public class Processor {
                     executor.addConstraint(c);
 
                 }
+                /*
+                 DT.7.L3 - L4
+                  */
+                {
+                    GurobiVariable vo_ll_Nxt = vpNext.ko_vp_iVars_abs.get(o)[4];
+                    GurobiVariable vo_ur_Nxt = vpNext.ko_vp_iVars_abs.get(o)[5];
+                    /*
+                    DT.7.L3
+                     */
+                    c = new GurobiConstraint();
+                    c.addToLHS(ko_vp_iq_abs[8], 1.0);
+                    c.setSense('<');
+                    c.addToRHS(vo_ll_Nxt, 1.0);
+                    c.addToRHS(ko_vp_q_dt[9], -M);
+                    c.setRHSConstant(M);
+                    executor.addConstraint(c);
+                    c = new GurobiConstraint();
+                    c.addToLHS(ko_vp_iq_abs[8], 1.0);
+                    c.setSense('>');
+                    c.addToRHS(vo_ll_Nxt, 1.0);
+                    c.addToRHS(ko_vp_q_dt[9], M);
+                    c.setRHSConstant(-M);
+                    executor.addConstraint(c);
+
+                    /*
+                    DT.7.L4
+                     */
+                    c = new GurobiConstraint();
+                    c.addToLHS(ko_vp_iq_abs[9], 1.0);
+                    c.setSense('<');
+                    c.addToRHS(vo_ur_Nxt, 1.0);
+                    c.addToRHS(ko_vp_q_dt[10], -M);
+                    c.setRHSConstant(M);
+                    executor.addConstraint(c);
+                    c = new GurobiConstraint();
+                    c.addToLHS(ko_vp_iq_abs[9], 1.0);
+                    c.setSense('>');
+                    c.addToRHS(vo_ur_Nxt, 1.0);
+                    c.addToRHS(ko_vp_q_dt[10], M);
+                    c.setRHSConstant(-M);
+                    executor.addConstraint(c);
+
+                }
 
                 /*
                 DT4/5/6/7
@@ -3692,11 +4454,6 @@ public class Processor {
                     GurobiVariable other_o_ll = vp.ko_vp_bVars_dt.get(other_o)[5];
                     GurobiVariable other_o_ur = vp.ko_vp_bVars_dt.get(other_o)[6];
                     GurobiVariable[] other_o_vp_q_dtAux = vp.ko_vp_bVars_dtAux.get(other_o);
-
-                    GurobiVariable other_o_ll_in = vp.ko_vp_bVars_dt.get(other_o)[9];
-                    GurobiVariable other_o_ur_in = vp.ko_vp_bVars_dt.get(other_o)[10];
-                    GurobiVariable other_vo_ll = vp.ko_vp_iVars_abs.get(other_o)[4];
-                    GurobiVariable other_vo_ur = vp.ko_vp_iVars_abs.get(other_o)[5];
 
                     /*
                     DT.4 1&2
@@ -3810,9 +4567,6 @@ public class Processor {
                         executor.addConstraint(c);
                     }
 
-
-
-
                     /*
                     DT.5.(1&2/4)
                      */
@@ -3833,48 +4587,6 @@ public class Processor {
                     executor.addConstraint(c);
 
                     /*
-                    DT.7.L3 - L4
-                     */
-                    {
-                        /*
-                        DT.7.L3
-                         */
-                        c = new GurobiConstraint();
-                        c.addToLHS(ko_vp_iq_abs[8], 1.0);
-                        c.setSense('<');
-                        c.addToRHS(other_vo_ll, 1.0);
-                        c.addToRHS(ko_vp_q_dt[9], -M);
-                        c.setRHSConstant(M);
-                        executor.addConstraint(c);
-                        c = new GurobiConstraint();
-                        c.addToLHS(ko_vp_iq_abs[8], 1.0);
-                        c.setSense('>');
-                        c.addToRHS(other_vo_ll, 1.0);
-                        c.addToRHS(ko_vp_q_dt[9], M);
-                        c.setRHSConstant(-M);
-                        executor.addConstraint(c);
-
-                        /*
-                        DT.7.L4
-                         */
-                        c = new GurobiConstraint();
-                        c.addToLHS(ko_vp_iq_abs[9], 1.0);
-                        c.setSense('<');
-                        c.addToRHS(other_vo_ur, 1.0);
-                        c.addToRHS(ko_vp_q_dt[10], -M);
-                        c.setRHSConstant(M);
-                        executor.addConstraint(c);
-                        c = new GurobiConstraint();
-                        c.addToLHS(ko_vp_iq_abs[9], 1.0);
-                        c.setSense('>');
-                        c.addToRHS(other_vo_ur, 1.0);
-                        c.addToRHS(ko_vp_q_dt[10], M);
-                        c.setRHSConstant(-M);
-                        executor.addConstraint(c);
-
-                    }
-
-                    /*
                     DT.7 (RHS2/2)
                      */
                     int[] cnm = o.getMap_oo_dist().get(other_o);
@@ -3885,6 +4597,9 @@ public class Processor {
 
 
                 }
+
+
+
 
                 /*
                 DT.7 (RHS1/2)
@@ -4952,35 +5667,40 @@ public class Processor {
                     /*
                     vsDT.7.L1 - L2
                      */
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_sl_iq_dtAux[0], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_vp_iq_abs[4], 1.0);
-                    c.addToRHS(ko_sl_q_dt[9], -M);
-                    c.setRHSConstant(M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_sl_iq_dtAux[0], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(ko_vp_iq_abs[4], 1.0);
-                    c.addToRHS(ko_sl_q_dt[9], M);
-                    c.setRHSConstant(-M);
-                    executor.addConstraint(c);
+                    {
+                        c = new GurobiConstraint();
+                        c.addToLHS(ko_sl_iq_dtAux[0], 1.0);
+                        c.setSense('<');
+                        c.addToRHS(ko_vp_iq_abs[4], 1.0);
+                        c.addToRHS(ko_sl_q_dt[9], -M);
+                        c.setRHSConstant(M);
+                        executor.addConstraint(c);
+                        c = new GurobiConstraint();
+                        c.addToLHS(ko_sl_iq_dtAux[0], 1.0);
+                        c.setSense('>');
+                        c.addToRHS(ko_vp_iq_abs[4], 1.0);
+                        c.addToRHS(ko_sl_q_dt[9], M);
+                        c.setRHSConstant(-M);
+                        executor.addConstraint(c);
 
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_sl_iq_dtAux[1], 1.0);
-                    c.setSense('<');
-                    c.addToRHS(ko_vp_iq_abs[5], 1.0);
-                    c.addToRHS(ko_sl_q_dt[10], -M);
-                    c.setRHSConstant(M);
-                    executor.addConstraint(c);
-                    c = new GurobiConstraint();
-                    c.addToLHS(ko_sl_iq_dtAux[1], 1.0);
-                    c.setSense('>');
-                    c.addToRHS(ko_vp_iq_abs[5], 1.0);
-                    c.addToRHS(ko_sl_q_dt[10], M);
-                    c.setRHSConstant(-M);
-                    executor.addConstraint(c);
+                        c = new GurobiConstraint();
+                        c.addToLHS(ko_sl_iq_dtAux[1], 1.0);
+                        c.setSense('<');
+                        c.addToRHS(ko_vp_iq_abs[5], 1.0);
+                        c.addToRHS(ko_sl_q_dt[10], -M);
+                        c.setRHSConstant(M);
+                        executor.addConstraint(c);
+                        c = new GurobiConstraint();
+                        c.addToLHS(ko_sl_iq_dtAux[1], 1.0);
+                        c.setSense('>');
+                        c.addToRHS(ko_vp_iq_abs[5], 1.0);
+                        c.addToRHS(ko_sl_q_dt[10], M);
+                        c.setRHSConstant(-M);
+                        executor.addConstraint(c);
+                    }
+
+
+
 
 
 
@@ -5892,59 +6612,157 @@ public class Processor {
             /*
             the 1st steiner point
              */
-//            if (i == 0) {
-//                /*
-//                 * ONLY for v1 <-> ms (5)
-//
-//                 */
-//                GurobiVariable[] ms_bVars = new GurobiVariable[5];
-//                for (int var_cnt = 0; var_cnt < 5; ++var_cnt) {
-//                    ms_bVars[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, i + "_ms_vp_bVars_" + var_cnt);
-//                    executor.addVariable(ms_bVars[var_cnt]);
-//                }
-//                vp.ms_vp_bVars = ms_bVars;
-//
-//                /*
-//                 * ONLY for v1 <-> ms
-//                 *
-//                 */
-//                GurobiVariable[] sp_iVars = new GurobiVariable[5];
-//                for (int var_cnt = 0; var_cnt < 5; ++var_cnt) {
-//                    sp_iVars[var_cnt] = new GurobiVariable(GRB.INTEGER, 0, ub_abs, i + "_ms_vp_iVars_" + var_cnt);
-//                    executor.addVariable(sp_iVars[var_cnt]);
-//                }
-//                vp.ms_vp_iVars = sp_iVars;
-//
-//                for (Keepout k : uni_keepouts) {
-//                    /*
-//                     * ONLY for v1 <-> ms
-//                     */
-//                    GurobiVariable[] ko_vp_bVars = new GurobiVariable[6];
-//                    for (int var_cnt = 0; var_cnt < 6; ++var_cnt) {
-//                        ko_vp_bVars[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + k.getName() + "_ko_vp_bVars_" + var_cnt);
-//                        executor.addVariable(ko_vp_bVars[var_cnt]);
-//                    }
-//                    vp.ms_ko_vp_bVars.put(k, ko_vp_bVars);
-//
-//                    /*
-//                     * ONLY for v1 <-> ms
-//                     */
-//                    GurobiVariable[] ko_vp_iVars = new GurobiVariable[3];
-//                    for (int var_cnt = 0; var_cnt < 1; ++var_cnt) {
-//                        ko_vp_iVars[var_cnt] = new GurobiVariable(GRB.INTEGER, +0, ub_abs, "v_" + i + ";" + k.getName() + "_ms_ko_vp_iVars_" + var_cnt);
-//                        executor.addVariable(ko_vp_iVars[var_cnt]);
-//                    }
-//                    for (int var_cnt = 1; var_cnt < 3; ++var_cnt) {
-//                        ko_vp_iVars[var_cnt] = new GurobiVariable(GRB.INTEGER, -ub_abs, ub_abs, "v_" + i + ";" + k.getName() + "_ms_ko_vp_iVars_" + var_cnt);
-//                        executor.addVariable(ko_vp_iVars[var_cnt]);
-//                    }
-//                    vp.ms_ko_vp_iVars.put(k, ko_vp_iVars);
-//
-//
-//                }
-//
-//
-//            }
+            if (i == 0) {
+                /*
+                 * ONLY for v1 <-> ms
+                 * mvp_bVars
+                 * (0) q_mv(RL)
+                 * (1) q_mv(LR)
+                 * (2) q_mv(AB)
+                 * (3) q_mv(BA)
+                 * (4) q_mv(d)
+                 */
+                int cnt_mvp_q = 5;
+                GurobiVariable[] mvp_q = new GurobiVariable[cnt_mvp_q];
+                for (int var_cnt = 0; var_cnt < cnt_mvp_q; ++var_cnt) {
+                    mvp_q[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, i + "_mvp_bVars_" + var_cnt);
+                    executor.addVariable(mvp_q[var_cnt]);
+                }
+                vp.mvp_bVars = mvp_q;
+
+                /*
+                 * ONLY for v1 <-> ms
+                 * mvp_iVars_abs
+                 * (0) d_mv
+                 * (1) |v_1.x - ms.x|
+                 * (2) |v_1.y - ms.y|
+                 */
+                int cnt_mvp_iq_Abs = 3;
+                GurobiVariable[] mvp_iq_Abs = new GurobiVariable[cnt_mvp_iq_Abs];
+                for (int var_cnt = 0; var_cnt < cnt_mvp_iq_Abs; ++var_cnt) {
+                    mvp_iq_Abs[var_cnt] = new GurobiVariable(GRB.INTEGER, 0, ub_abs, i + "_mvp_iVars_abs_" + var_cnt);
+                    executor.addVariable(mvp_iq_Abs[var_cnt]);
+                }
+                vp.mvp_iVars_abs = mvp_iq_Abs;
+
+                /*
+                 * ONLY for v1 <-> ms
+                 * mvp_iVars
+                 * (0) v_1.x - ms.x
+                 * (1) v_1.y - ms.y
+                 */
+                int cnt_mvp_iq = 2;
+                GurobiVariable[] mvp_iq = new GurobiVariable[cnt_mvp_iq];
+                for (int var_cnt = 0; var_cnt < cnt_mvp_iq; ++var_cnt) {
+                    mvp_iq[var_cnt] = new GurobiVariable(GRB.INTEGER, -ub_abs, ub_abs, i + "_mvp_iVars_" + var_cnt);
+                    executor.addVariable(mvp_iq[var_cnt]);
+                }
+                vp.mvp_iVars = mvp_iq;
+
+                for (Keepout o : uni_keepouts) {
+                    /*
+                     * ONLY for v1 <-> ms
+                     * ko_mvp_bVars_aux
+                     * (0) oq_mv(RL.R): oq_i_sj^L = 1
+                     * (1) oq_mv(RL.L)
+                     * (2) oq_mv(LR.L)
+                     * (3) oq_mv(LR.R)
+                     * (4) oq_mv(AB.A)
+                     * (5) oq_mv(AB.B)
+                     * (6) oq_mv(BA.B)
+                     * (7) oq_mv(BA.A)
+                     */
+                    int cnt_ko_mvp_q_Aux = 8;
+                    GurobiVariable[] ko_vp_q_Aux = new GurobiVariable[cnt_ko_mvp_q_Aux];
+                    for (int var_cnt = 0; var_cnt < cnt_ko_mvp_q_Aux; ++var_cnt) {
+                        ko_vp_q_Aux[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + o.getName() + "_ko_mvp_bVars_aux_" + var_cnt);
+                        executor.addVariable(ko_vp_q_Aux[var_cnt]);
+                    }
+                    vp.ko_mvp_bVars_aux.put(o, ko_vp_q_Aux);
+
+                    /*
+                     * ONLY for v1 <-> ms
+                     * ko_mvp_bVars_dt
+                     * (0) oq_mv(RL)
+                     * (1) oq_mv(LR)
+                     * (2) oq_mv(AB)
+                     * (3) oq_mv(BA)
+                     * (4) oq_mv(d)
+                     * (5) oq_mv(d,ll): indicate route pass by lower-left corner
+                     * (6) oq_mv(d,ur)
+                     * (7) oq_mv(d,ll,in)
+                     * (8) oq_mv(d,ur,in)
+                     * (9) oq_mv(d,ll,out): if vp -> slave must detour, this indicate that vp -> obstacle's lower-left corner
+                     * (10) oq_mv(d,ur,out)
+                     */
+                    int cnt_ko_mvp_q_dt = 11;
+                    GurobiVariable[] ko_vp_q_dt = new GurobiVariable[cnt_ko_mvp_q_dt];
+                    for (int var_cnt = 0; var_cnt < cnt_ko_mvp_q_dt; ++var_cnt) {
+                        ko_vp_q_dt[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + o.getName() + "_ko_mvp_bVars_dt_" + var_cnt);
+                        executor.addVariable(ko_vp_q_dt[var_cnt]);
+                    }
+                    vp.ko_mvp_bVars_dt.put(o, ko_vp_q_dt);
+
+                    /*
+                     * ONLY for v1 <-> ms
+                     * ko_mvp_bVars_dtAus
+                     * (0) _oq_vs(ll,out)
+                     * (1) _oq_vs(ur,out)
+                     * (2) _oq_vs(ll,in)
+                     * (3) _oq_vs(ur,in)
+                     * (4) _oq_vs(ur,ll)
+                     * (5) _oq_vs(ur)
+                     * (6) _oq_vs(ll)
+                     * (7) _oq_vs(ll,ur)
+                     */
+                    int cnt_ko_mvp_q_dtAux = 11;
+                    GurobiVariable[] ko_vp_q_dtAux = new GurobiVariable[cnt_ko_mvp_q_dtAux];
+                    for (int var_cnt = 0; var_cnt < cnt_ko_mvp_q_dtAux; ++var_cnt) {
+                        ko_vp_q_dtAux[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + o.getName() + "_ko_mvp_bVars_dtAus_" + var_cnt);
+                        executor.addVariable(ko_vp_q_dtAux[var_cnt]);
+                    }
+                    vp.ko_mvp_bVars_dtAux.put(o, ko_vp_q_dtAux);
+
+
+                    /*
+                     * ONLY for v1 <-> ms
+                     * ko_mvp_iVars_dtAux
+                     * (0) _vso_ll_in
+                     * (1) _vso_ur_in
+                     */
+                    int cnt_ko_mvp_iq_dtAux = 2;
+                    GurobiVariable[] ko_mvp_iqAux = new GurobiVariable[cnt_ko_mvp_iq_dtAux];
+                    for (int var_cnt = 0; var_cnt < cnt_ko_mvp_iq_dtAux; ++var_cnt) {
+                        ko_mvp_iqAux[var_cnt] = new GurobiVariable(GRB.INTEGER, +0, ub_abs, "v_" + i + ";" + o.getName() + "_ko_mvp_iVars_dtAux_" + var_cnt);
+                        executor.addVariable(ko_mvp_iqAux[var_cnt]);
+                    }
+                    vp.ko_mvp_iVars_dtAux.put(o, ko_mvp_iqAux);
+
+
+                    /*
+                     * oo_mvp_bVars vp1 <-> master
+                     * (0) ooq_mv(d)
+                     * (1) ooq_mv(d,ll)
+                     * (2) ooq_mv(d,ll,ur)
+                     * (3) ooq_mv(d,ur,ll)
+                     * (4) ooq_mv(d,ur)
+                     */
+                    Map<Keepout, GurobiVariable[]> other_o_mvp_bVars = new HashMap<>();
+                    for (Keepout other_o : uni_keepouts) {
+                        int cnt_oo_vp_q = 5;
+                        GurobiVariable[] oo_mvp_q = new GurobiVariable[cnt_oo_vp_q];
+                        for (int var_cnt = 0; var_cnt < cnt_oo_vp_q; ++var_cnt) {
+                            oo_mvp_q[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, o.getName() + "-" + other_o.getName() + "_mvp" + i + "_bVars_" + var_cnt);
+                            executor.addVariable(oo_mvp_q[var_cnt]);
+                        }
+                        other_o_mvp_bVars.put(other_o, oo_mvp_q);
+                    }
+                    vp.oo_mvp_bVars.put(o, other_o_mvp_bVars);
+
+                }
+
+
+            }
 
             /*
              * vp_bVars regarding next vp
@@ -5994,7 +6812,7 @@ public class Processor {
             vp.vp_iVars = vp_iq;
 
 
-            for (Keepout k : uni_keepouts) {
+            for (Keepout o : uni_keepouts) {
 
                 /*
                  * ko_sp_bVars
@@ -6018,10 +6836,10 @@ public class Processor {
                 int cnt_ko_vp_q_aux = 16;
                 GurobiVariable[] ko_vp_q_aux = new GurobiVariable[cnt_ko_vp_q_aux];
                 for (int var_cnt = 0; var_cnt < cnt_ko_vp_q_aux; ++var_cnt) {
-                    ko_vp_q_aux[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + k.getName() + "_ko_vp_bVars_aux_" + var_cnt);
+                    ko_vp_q_aux[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + o.getName() + "_ko_vp_bVars_aux_" + var_cnt);
                     executor.addVariable(ko_vp_q_aux[var_cnt]);
                 }
-                vp.ko_vp_bVars_aux.put(k, ko_vp_q_aux);
+                vp.ko_vp_bVars_aux.put(o, ko_vp_q_aux);
                 /*
                  * ko_vp_bVars_dt
                  * (0) oq(RL)
@@ -6039,10 +6857,10 @@ public class Processor {
                 int cnt_ko_vp_q_dt = 11;
                 GurobiVariable[] ko_vp_q_dt = new GurobiVariable[cnt_ko_vp_q_dt];
                 for (int var_cnt = 0; var_cnt < cnt_ko_vp_q_dt; ++var_cnt) {
-                    ko_vp_q_dt[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + k.getName() + "_ko_vp_bVars_dt_" + var_cnt);
+                    ko_vp_q_dt[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + o.getName() + "_ko_vp_bVars_dt_" + var_cnt);
                     executor.addVariable(ko_vp_q_dt[var_cnt]);
                 }
-                vp.ko_vp_bVars_dt.put(k, ko_vp_q_dt);
+                vp.ko_vp_bVars_dt.put(o, ko_vp_q_dt);
 
                 /*
                  * ko_vp_bVars_dtAux
@@ -6058,10 +6876,10 @@ public class Processor {
                 int cnt_ko_vp_q_dtAux = 8;
                 GurobiVariable[] ko_vp_q_dt_Aux = new GurobiVariable[cnt_ko_vp_q_dtAux];
                 for (int var_cnt = 0; var_cnt < cnt_ko_vp_q_dtAux; ++var_cnt) {
-                    ko_vp_q_dt_Aux[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + k.getName() + "_ko_vp_bVars_dtAux_" + var_cnt);
+                    ko_vp_q_dt_Aux[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + o.getName() + "_ko_vp_bVars_dtAux_" + var_cnt);
                     executor.addVariable(ko_vp_q_dt_Aux[var_cnt]);
                 }
-                vp.ko_vp_bVars_dtAux.put(k, ko_vp_q_dt_Aux);
+                vp.ko_vp_bVars_dtAux.put(o, ko_vp_q_dt_Aux);
 
 
 
@@ -6081,10 +6899,10 @@ public class Processor {
                 int cnt_ko_vp_iq_abs = 10;
                 GurobiVariable[] ko_vp_iVars_abs = new GurobiVariable[cnt_ko_vp_iq_abs];
                 for (int var_cnt = 0; var_cnt < cnt_ko_vp_iq_abs; ++var_cnt) {
-                    ko_vp_iVars_abs[var_cnt] = new GurobiVariable(GRB.INTEGER, +0, ub_abs, "v_" + i + ";" + k.getName() + "_ko_vp_iVars_ABS_" + var_cnt);
+                    ko_vp_iVars_abs[var_cnt] = new GurobiVariable(GRB.INTEGER, +0, ub_abs, "v_" + i + ";" + o.getName() + "_ko_vp_iVars_ABS_" + var_cnt);
                     executor.addVariable(ko_vp_iVars_abs[var_cnt]);
                 }
-                vp.ko_vp_iVars_abs.put(k, ko_vp_iVars_abs);
+                vp.ko_vp_iVars_abs.put(o, ko_vp_iVars_abs);
                 /*
                  * ko_vp_iVars
                  * (0) vx - ox_ll
@@ -6095,10 +6913,10 @@ public class Processor {
                 int cnt_ko_vp_iq = 4;
                 GurobiVariable[] ko_vp_iVars = new GurobiVariable[cnt_ko_vp_iq];
                 for (int var_cnt = 0; var_cnt < cnt_ko_vp_iq; ++var_cnt) {
-                    ko_vp_iVars[var_cnt] = new GurobiVariable(GRB.INTEGER, -ub_abs, ub_abs, "v_" + i + ";" + k.getName() + "_ko_vp_iVars_" + var_cnt);
+                    ko_vp_iVars[var_cnt] = new GurobiVariable(GRB.INTEGER, -ub_abs, ub_abs, "v_" + i + ";" + o.getName() + "_ko_vp_iVars_" + var_cnt);
                     executor.addVariable(ko_vp_iVars[var_cnt]);
                 }
-                vp.ko_vp_iVars.put(k, ko_vp_iVars);
+                vp.ko_vp_iVars.put(o, ko_vp_iVars);
 
 
                 Map<Slave_var, GurobiVariable[]> ko_sl_bVars_aux = new HashMap<>();
@@ -6120,7 +6938,7 @@ public class Processor {
                     int cnt_ko_sl_q_aux = 8;
                     GurobiVariable[] ko_sl_q_aux = new GurobiVariable[cnt_ko_sl_q_aux];
                     for (int var_cnt = 0; var_cnt < cnt_ko_sl_q_aux; ++var_cnt) {
-                        ko_sl_q_aux[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + k.getName() + "_ko_sl_bVars_aux_" + var_cnt);
+                        ko_sl_q_aux[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + o.getName() + "_ko_sl_bVars_aux_" + var_cnt);
                         executor.addVariable(ko_sl_q_aux[var_cnt]);
                     }
                     ko_sl_bVars_aux.put(sv, ko_sl_q_aux);
@@ -6142,7 +6960,7 @@ public class Processor {
                     int cnt_ko_sl_q_dt = 11;
                     GurobiVariable[] ko_sl_q_dt = new GurobiVariable[cnt_ko_sl_q_dt];
                     for (int var_cnt = 0; var_cnt < cnt_ko_sl_q_dt; ++var_cnt) {
-                        ko_sl_q_dt[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + k.getName() + "_ko_sl_bVars_dt_" + var_cnt);
+                        ko_sl_q_dt[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + o.getName() + "_ko_sl_bVars_dt_" + var_cnt);
                         executor.addVariable(ko_sl_q_dt[var_cnt]);
                     }
                     ko_sl_bVars_dt.put(sv, ko_sl_q_dt);
@@ -6161,7 +6979,7 @@ public class Processor {
                     int cnt_ko_sl_q_dtAux = 8;
                     GurobiVariable[] ko_sl_q_dtAux = new GurobiVariable[cnt_ko_sl_q_dtAux];
                     for (int var_cnt = 0; var_cnt < cnt_ko_sl_q_dtAux; ++var_cnt) {
-                        ko_sl_q_dtAux[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + k.getName() + "_ko_sl_bVars_dtAux_" + var_cnt);
+                        ko_sl_q_dtAux[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + o.getName() + "_ko_sl_bVars_dtAux_" + var_cnt);
                         executor.addVariable(ko_sl_q_dtAux[var_cnt]);
                     }
                     ko_sl_bVars_dtAux.put(sv, ko_sl_q_dtAux);
@@ -6174,19 +6992,16 @@ public class Processor {
                     int cnt_ko_sl_iq_dtAux = 8;
                     GurobiVariable[] ko_sl_iq_dtAux = new GurobiVariable[cnt_ko_sl_iq_dtAux];
                     for (int var_cnt = 0; var_cnt < cnt_ko_sl_iq_dtAux; ++var_cnt) {
-                        ko_sl_iq_dtAux[var_cnt] = new GurobiVariable(GRB.INTEGER, 0, ub_abs, "v_" + i + ";" + k.getName() + "_ko_sl_iVars_dtAux_" + var_cnt);
+                        ko_sl_iq_dtAux[var_cnt] = new GurobiVariable(GRB.INTEGER, 0, ub_abs, "v_" + i + ";" + o.getName() + "_ko_sl_iVars_dtAux_" + var_cnt);
                         executor.addVariable(ko_sl_iq_dtAux[var_cnt]);
                     }
                     ko_sl_iVars_dtAux.put(sv, ko_sl_iq_dtAux);
 
                 }
-                vp.ko_sl_bVars_aux.put(k, ko_sl_bVars_aux);
-                vp.ko_sl_bVars_dt.put(k, ko_sl_bVars_dt);
-                vp.ko_sl_bVars_dtAux.put(k, ko_sl_bVars_dtAux);
-                vp.ko_sl_iVars_dtAux.put(k, ko_sl_iVars_dtAux);
-
-
-
+                vp.ko_sl_bVars_aux.put(o, ko_sl_bVars_aux);
+                vp.ko_sl_bVars_dt.put(o, ko_sl_bVars_dt);
+                vp.ko_sl_bVars_dtAux.put(o, ko_sl_bVars_dtAux);
+                vp.ko_sl_iVars_dtAux.put(o, ko_sl_iVars_dtAux);
 
                 /*
                  * oo_vp_bVars
@@ -6197,16 +7012,16 @@ public class Processor {
                  * (4) ooq(d,ur)
                  */
                 Map<Keepout, GurobiVariable[]> oo_vp_bVars = new HashMap<>();
-                for (Keepout otherK : uni_keepouts) {
+                for (Keepout other_o : uni_keepouts) {
                     int cnt_oo_vp_q = 5;
                     GurobiVariable[] oo_vp_q = new GurobiVariable[cnt_oo_vp_q];
                     for (int var_cnt = 0; var_cnt < cnt_oo_vp_q; ++var_cnt) {
-                        oo_vp_q[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, k.getName() + "-" + otherK.getName() + "_vp" + i + "_bVars_" + var_cnt);
+                        oo_vp_q[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, o.getName() + "-" + other_o.getName() + "_vp" + i + "_bVars_" + var_cnt);
                         executor.addVariable(oo_vp_q[var_cnt]);
                     }
-                    oo_vp_bVars.put(otherK, oo_vp_q);
+                    oo_vp_bVars.put(other_o, oo_vp_q);
                 }
-                vp.oo_vp_bVars.put(k, oo_vp_bVars);
+                vp.oo_vp_bVars.put(o, oo_vp_bVars);
             }
 
             /*

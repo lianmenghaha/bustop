@@ -21,7 +21,7 @@ public class Master_var extends Master {
      * 6: Ad
      * 7: Bd
      */
-    public Map<Keepout, int[]> pseudo_bVars; //Left, Right, Above, Below
+    private Map<Keepout, int[]> pseudo_bVars; //Left, Right, Above, Below
 
     /*
      * 0: |ms.x - c^k_1.x|
@@ -29,7 +29,7 @@ public class Master_var extends Master {
      * 2: |ms.x - c^k_2.x|
      * 3: |ms.y - c^k_2.y|
      */
-    public Map<Keepout, int[]> pseudo_iVars;
+    private Map<Keepout, int[]> pseudo_iVars;
 
 
 
@@ -51,5 +51,13 @@ public class Master_var extends Master {
 
     public void addToPsedo_iVars(Keepout k, int[] ints) {
         this.pseudo_iVars.put(k,ints);
+    }
+
+    public Map<Keepout, int[]> getPseudo_bVars() {
+        return pseudo_bVars;
+    }
+
+    public Map<Keepout, int[]> getPseudo_iVars() {
+        return pseudo_iVars;
     }
 }
