@@ -195,13 +195,41 @@ public class Processor {
          * Retrieve from Gurobi
          */
 
-        int cnt = 0;
-        for (VP_var vp : VPvars) {
-            ++cnt;
+
+        for (int cnt = 0; cnt < VPvars.size(); ++cnt) {
+            VP_var vp = VPvars.get(cnt);
+            /*
+            Master
+             */
+            if (cnt == 0) {
+                System.out.println("Master-Relative");
+                GurobiVariable[] mvp_q = vp.mvp_bVars;
+                GurobiVariable[] ms_sp_iq_abs = vp.mvp_iVars_Abs;
+                for (int i = 0; i < mvp_q.length; ++i) {
+                    System.out.print("mvp_q_" + i + "=" + mvp_q[i].getIntResult() + ";");
+                }
+                System.out.println();
+                for (int i = 0; i < ms_sp_iq_abs.length; ++i) {
+                    System.out.print("mvp_iq_Abs" + i + "=" + ms_sp_iq_abs[i].getIntResult() + ";");
+                }
+                System.out.println();
+                for (Keepout o : all_keepouts) {
+                    System.out.println(o);
+                    GurobiVariable[] ko_mvp_q_Aux = vp.ko_mvp_bVars_Aux.get(o);
+                    GurobiVariable[] ko_mvp_q_dt = vp.ko_mvp_bVars_dt.get(o);
+                    for (int i = 0; i < ko_mvp_q_dt.length; ++i) {
+                        System.out.print("ms_mvp_q_dt" + i + "=" + ko_mvp_q_dt[i].getIntResult() + ";");
+                    }
+                    System.out.println();
+
+                }
+            }
+
+
             System.out.println();
-            System.out.println("vp_" + cnt);
+            System.out.println("vp_" + (cnt + 1));
             System.out.println("(" + vp.x.getIntResult() + " , " + vp.y.getIntResult() + ")");
-            GurobiVariable[] vp_iq = vp.vp_iVars_abs;
+            GurobiVariable[] vp_iq = vp.vp_iVars_Abs;
             for (int i = 0; i < vp_iq.length; ++i) {
                 System.out.print("vp_iq_" + i + "=" + vp_iq[i].getIntResult() + "; ");
             }
@@ -213,7 +241,7 @@ public class Processor {
             System.out.println();
             for (Keepout k : uni_keepouts) {
                 System.out.println(k.getName());
-                GurobiVariable[] ko_sp_q_aux = vp.ko_vp_bVars_aux.get(k);
+                GurobiVariable[] ko_sp_q_aux = vp.ko_vp_bVars_Aux.get(k);
                 for (int i = 0; i < ko_sp_q_aux.length; ++i) {
                     System.out.print("ko_vp_q_AUX_" + i + "=" + ko_sp_q_aux[i].getIntResult() + "; ");
                 }
@@ -223,7 +251,7 @@ public class Processor {
                     System.out.print("ko_vp_q_DT_" + i + "=" + ko_sp_q_dt[i].getIntResult() + "; ");
                 }
                 System.out.println();
-                GurobiVariable[] ko_sp_iq_abs = vp.ko_vp_iVars_abs.get(k);
+                GurobiVariable[] ko_sp_iq_abs = vp.ko_vp_iVars_Abs.get(k);
                 for (int i = 0; i < ko_sp_iq_abs.length; ++i) {
                     System.out.print("ko_vp_iVars_ABS" + i + "= " + ko_sp_iq_abs[i].getIntResult() + "; ");
                 }
@@ -253,31 +281,6 @@ public class Processor {
 
             }
 
-//            if (cnt == 1) {
-//                GurobiVariable[] ms_sp_q = vp.ms_vp_bVars;
-//                GurobiVariable[] ms_sp_iq = vp.ms_vp_iVars;
-//                for (int i = 0; i < ms_sp_q.length; ++i) {
-//                    System.out.print("ms_sp_q_" + i + "=" + ms_sp_q[i].getIntResult() + ";");
-//                }
-//                System.out.println();
-//                for (int i = 0; i < ms_sp_iq.length; ++i) {
-//                    System.out.print("ms_sp_iq_" + i + "=" + ms_sp_iq[i].getIntResult() + ";");
-//                }
-//                System.out.println();
-//                for (Keepout k : all_keepouts) {
-//                    System.out.println(k);
-//                    GurobiVariable[] ms_ko_sp_q = vp.ms_ko_vp_bVars.get(k);
-//                    GurobiVariable[] ms_ko_sp_iq = vp.ms_ko_vp_iVars.get(k);
-//                    for (int i = 0; i < ms_ko_sp_q.length; ++i) {
-//                        System.out.print("ms_ko_sp_q_" + i + "=" + ms_ko_sp_q[i].getIntResult() + ";");
-//                    }
-//                    System.out.println();
-//                    for (int i = 0; i < ms_ko_sp_iq.length; ++i) {
-//                        System.out.print("ms_ko_sp_iq_" + i + "=" + ms_ko_sp_iq[i].getIntResult() + ";");
-//                    }
-//                    System.out.println();
-//                }
-//            }
 
             System.out.println();
             System.out.println("SLAVE-Relative:");
@@ -289,7 +292,7 @@ public class Processor {
                         System.out.print("sl_q_" + i + "=" + sl_q[i].getIntResult() + "; ");
                     }
                     System.out.println();
-                    GurobiVariable[] sl_iq = vp.sl_iVars_abs.get(sv);
+                    GurobiVariable[] sl_iq = vp.sl_iVars_Abs.get(sv);
                     for (int i = 0; i < sl_iq.length; ++i) {
                         System.out.print("sl_iq_" + i + "=" + sl_iq[i].getIntResult() + "; ");
                     }
@@ -298,7 +301,7 @@ public class Processor {
                         System.out.println(k.getName());
                         System.out.println(Arrays.toString(sv.getPseudo_bVars().get(k)));
                         System.out.println(Arrays.toString(sv.getPseudo_iVars().get(k)));
-                        GurobiVariable[] ko_sl_q_aux = vp.ko_sl_bVars_aux.get(k).get(sv);
+                        GurobiVariable[] ko_sl_q_aux = vp.ko_sl_bVars_Aux.get(k).get(sv);
                         for (int i = 0; i < ko_sl_q_aux.length; ++i) {
                             System.out.print("ko_sl_q_AUX_" + i + "=" + ko_sl_q_aux[i].getIntResult() + "; ");
                         }
@@ -3001,7 +3004,7 @@ public class Processor {
         {
             VP_var vp1 = VPvars.get(0);
             GurobiVariable[] mvp_q = vp1.mvp_bVars;
-            GurobiVariable[] mvp_iq_abs = vp1.mvp_iVars_abs;
+            GurobiVariable[] mvp_iq_abs = vp1.mvp_iVars_Abs;
             GurobiVariable[] mvp_iq = vp1.mvp_iVars;
 
 
@@ -3123,9 +3126,9 @@ public class Processor {
             dt_rule_mvp_in.setRHSConstant(1.0);
             executor.addConstraint(dt_rule_mvp_in);
 
-            for (Keepout o : uni_keepouts){
-                GurobiVariable[] ko_vp1_iq_abs = vp1.ko_vp_iVars_abs.get(o);
-                GurobiVariable[] ko_mvp_q_aux = vp1.ko_mvp_bVars_aux.get(o);
+            for (Keepout o : uni_keepouts) {
+                GurobiVariable[] ko_vp1_iq_abs = vp1.ko_vp_iVars_Abs.get(o);
+                GurobiVariable[] ko_mvp_q_aux = vp1.ko_mvp_bVars_Aux.get(o);
                 GurobiVariable[] ko_mvp_q_dt = vp1.ko_mvp_bVars_dt.get(o);
                 GurobiVariable[] ko_mvp_q_dtAux = vp1.ko_mvp_bVars_dtAux.get(o);
                 GurobiVariable[] ko_mvp_iq_dtAux = vp1.ko_mvp_iVars_dtAux.get(o);
@@ -3136,7 +3139,7 @@ public class Processor {
                 /*
                 mv_RL-relation: q_mv(RL) = 0
                 */
-                if (o.getLeft_os().size() > 0){
+                if (o.getLeft_os().size() > 0) {
                     /*
                     (mv_RL.1R)
                      */
@@ -3149,8 +3152,8 @@ public class Processor {
                     cGeq.addToRHS(ko_mvp_q_aux[0], 1.0);
                     executor.addConstraint(cGeq);
                     for (Keepout oR : o.getRight_os()) {
-                        cLeq.addToLHS(vp1.ko_vp_bVars_aux.get(oR)[5], 1.0);
-                        cGeq.addToLHS(vp1.ko_vp_bVars_aux.get(oR)[5], 1.0);
+                        cLeq.addToLHS(vp1.ko_vp_bVars_Aux.get(oR)[5], 1.0);
+                        cGeq.addToLHS(vp1.ko_vp_bVars_Aux.get(oR)[5], 1.0);
                     }
 
                     /*
@@ -3193,7 +3196,7 @@ public class Processor {
                     executor.addConstraint(c);
 
 
-                }else {
+                } else {
                     c = new GurobiConstraint();
                     c.addToLHS(ko_mvp_q_dt[0], 1.0);
                     c.setSense('=');
@@ -3204,7 +3207,7 @@ public class Processor {
                 /*
                 mv_LR-relation: q_mv(LR) = 0
                  */
-                if (o.getRight_os().size() > 0){
+                if (o.getRight_os().size() > 0) {
                     /*
                     mv_LR.1L
                      */
@@ -3217,8 +3220,8 @@ public class Processor {
                     cGeq.addToRHS(ko_mvp_q_aux[2], 1.0);
                     executor.addConstraint(cGeq);
                     for (Keepout oL : o.getLeft_os()) {
-                        cLeq.addToLHS(vp1.ko_vp_bVars_aux.get(oL)[4], 1.0);
-                        cGeq.addToLHS(vp1.ko_vp_bVars_aux.get(oL)[4], 1.0);
+                        cLeq.addToLHS(vp1.ko_vp_bVars_Aux.get(oL)[4], 1.0);
+                        cGeq.addToLHS(vp1.ko_vp_bVars_Aux.get(oL)[4], 1.0);
                     }
                     /*
                     mv_LR.1R
@@ -3258,7 +3261,7 @@ public class Processor {
                     c.addToRHS(ko_mvp_q_aux[3], 1.0);
                     c.setRHSConstant(-1.0);
                     executor.addConstraint(c);
-                }else {
+                } else {
                     c = new GurobiConstraint();
                     c.addToLHS(ko_mvp_q_dt[1], 1.0);
                     c.setSense('=');
@@ -3282,8 +3285,8 @@ public class Processor {
                     cGeq.addToRHS(ko_mvp_q_aux[4], 1.0);
                     executor.addConstraint(cGeq);
                     for (Keepout oA : o.getAbove_os()) {
-                        cLeq.addToLHS(vp1.ko_vp_bVars_aux.get(oA)[6], 1.0);
-                        cGeq.addToLHS(vp1.ko_vp_bVars_aux.get(oA)[6], 1.0);
+                        cLeq.addToLHS(vp1.ko_vp_bVars_Aux.get(oA)[6], 1.0);
+                        cGeq.addToLHS(vp1.ko_vp_bVars_Aux.get(oA)[6], 1.0);
                     }
 
                     /*
@@ -3324,7 +3327,7 @@ public class Processor {
                     c.addToRHS(ko_mvp_q_aux[5], 1.0);
                     c.setRHSConstant(-1.0);
                     executor.addConstraint(c);
-                }else {
+                } else {
                     c = new GurobiConstraint();
                     c.addToLHS(ko_mvp_q_dt[2], 1.0);
                     c.setSense('=');
@@ -3348,8 +3351,8 @@ public class Processor {
                     cGeq.addToRHS(ko_mvp_q_aux[6], 1.0);
                     executor.addConstraint(cGeq);
                     for (Keepout oB : o.getBelow_os()) {
-                        cLeq.addToLHS(vp1.ko_vp_bVars_aux.get(oB)[7], 1.0);
-                        cGeq.addToLHS(vp1.ko_vp_bVars_aux.get(oB)[7], 1.0);
+                        cLeq.addToLHS(vp1.ko_vp_bVars_Aux.get(oB)[7], 1.0);
+                        cGeq.addToLHS(vp1.ko_vp_bVars_Aux.get(oB)[7], 1.0);
                     }
                     /*
                     mv_BA.1A
@@ -3388,7 +3391,7 @@ public class Processor {
                     c.addToRHS(ko_mvp_q_aux[7], 1.0);
                     c.setRHSConstant(-1.0);
                     executor.addConstraint(c);
-                }else {
+                } else {
                     c = new GurobiConstraint();
                     c.addToLHS(ko_mvp_q_dt[3], 1.0);
                     c.setSense('=');
@@ -3579,7 +3582,7 @@ public class Processor {
                 /*
                 mv_DT.4/5/6/7
                  */
-                for (Keepout other_o : uni_keepouts){
+                for (Keepout other_o : uni_keepouts) {
                     GurobiVariable[] oo_mvp_q = vp1.oo_mvp_bVars.get(o).get(other_o);
 
                     GurobiVariable other_o_mvp_ll = vp1.ko_mvp_bVars_dt.get(other_o)[5];
@@ -3725,7 +3728,6 @@ public class Processor {
                     d_mvp.addToRHS(oo_mvp_q[4], cnm[3]);
 
 
-
                 }
                 /*
                 mv_DT.7.L1 - L2
@@ -3782,11 +3784,6 @@ public class Processor {
             c.addToRHS(mvp_q[4], -M);
             executor.addConstraint(c);
 
-
-
-
-
-
         }
         /*
          * AAAA
@@ -3806,7 +3803,7 @@ public class Processor {
 
             vp_q = vp.vp_bVars;
             vp_iq = vp.vp_iVars;
-            vp_iq_abs = vp.vp_iVars_abs;
+            vp_iq_abs = vp.vp_iVars_Abs;
 
 
             //add d(v_i, v_i+1) to busLength
@@ -3944,10 +3941,10 @@ public class Processor {
 
 
             for (Keepout o : uni_keepouts) {
-                ko_vp_q_aux = vp.ko_vp_bVars_aux.get(o);
+                ko_vp_q_aux = vp.ko_vp_bVars_Aux.get(o);
                 ko_vp_q_dt = vp.ko_vp_bVars_dt.get(o);
                 ko_vp_q_dtAux = vp.ko_vp_bVars_dtAux.get(o);
-                ko_vp_iq_abs = vp.ko_vp_iVars_abs.get(o);
+                ko_vp_iq_abs = vp.ko_vp_iVars_Abs.get(o);
 
                 //(RL.3)
                 cRL_leq.addToLHS(ko_vp_q_dt[0], 1.0);
@@ -3981,8 +3978,8 @@ public class Processor {
                     cGeq.addToRHS(ko_vp_q_aux[8], 1.0);
                     executor.addConstraint(cGeq);
                     for (Keepout oR : o.getRight_os()) {
-                        cLeq.addToLHS(vp.ko_vp_bVars_aux.get(oR)[5], 1.0);
-                        cGeq.addToLHS(vp.ko_vp_bVars_aux.get(oR)[5], 1.0);
+                        cLeq.addToLHS(vp.ko_vp_bVars_Aux.get(oR)[5], 1.0);
+                        cGeq.addToLHS(vp.ko_vp_bVars_Aux.get(oR)[5], 1.0);
                     }
 
                     /*
@@ -3997,8 +3994,8 @@ public class Processor {
                     cGeq.addToRHS(ko_vp_q_aux[9], 1.0);
                     executor.addConstraint(cGeq);
                     for (Keepout oL : o.getLeft_os()) {
-                        cLeq.addToLHS(vpNext.ko_vp_bVars_aux.get(oL)[4], 1.0);
-                        cGeq.addToLHS(vpNext.ko_vp_bVars_aux.get(oL)[4], 1.0);
+                        cLeq.addToLHS(vpNext.ko_vp_bVars_Aux.get(oL)[4], 1.0);
+                        cGeq.addToLHS(vpNext.ko_vp_bVars_Aux.get(oL)[4], 1.0);
                     }
 
                     /*
@@ -4046,8 +4043,8 @@ public class Processor {
                     cGeq.addToRHS(ko_vp_q_aux[10], 1.0);
                     executor.addConstraint(cGeq);
                     for (Keepout oL : o.getLeft_os()) {
-                        cLeq.addToLHS(vp.ko_vp_bVars_aux.get(oL)[4], 1.0);
-                        cGeq.addToLHS(vp.ko_vp_bVars_aux.get(oL)[4], 1.0);
+                        cLeq.addToLHS(vp.ko_vp_bVars_Aux.get(oL)[4], 1.0);
+                        cGeq.addToLHS(vp.ko_vp_bVars_Aux.get(oL)[4], 1.0);
                     }
                     /*
                     LR.1R
@@ -4061,8 +4058,8 @@ public class Processor {
                     cGeq.addToRHS(ko_vp_q_aux[11], 1.0);
                     executor.addConstraint(cGeq);
                     for (Keepout oR : o.getRight_os()) {
-                        cLeq.addToLHS(vpNext.ko_vp_bVars_aux.get(oR)[5], 1.0);
-                        cGeq.addToLHS(vpNext.ko_vp_bVars_aux.get(oR)[5], 1.0);
+                        cLeq.addToLHS(vpNext.ko_vp_bVars_Aux.get(oR)[5], 1.0);
+                        cGeq.addToLHS(vpNext.ko_vp_bVars_Aux.get(oR)[5], 1.0);
                     }
 
                     /*
@@ -4111,8 +4108,8 @@ public class Processor {
                     cGeq.addToRHS(ko_vp_q_aux[12], 1.0);
                     executor.addConstraint(cGeq);
                     for (Keepout oA : o.getAbove_os()) {
-                        cLeq.addToLHS(vp.ko_vp_bVars_aux.get(oA)[6], 1.0);
-                        cGeq.addToLHS(vp.ko_vp_bVars_aux.get(oA)[6], 1.0);
+                        cLeq.addToLHS(vp.ko_vp_bVars_Aux.get(oA)[6], 1.0);
+                        cGeq.addToLHS(vp.ko_vp_bVars_Aux.get(oA)[6], 1.0);
                     }
                     /*
                     AB.1B
@@ -4126,8 +4123,8 @@ public class Processor {
                     cGeq.addToRHS(ko_vp_q_aux[13], 1.0);
                     executor.addConstraint(cGeq);
                     for (Keepout oB : o.getBelow_os()) {
-                        cLeq.addToLHS(vpNext.ko_vp_bVars_aux.get(oB)[7], 1.0);
-                        cGeq.addToLHS(vpNext.ko_vp_bVars_aux.get(oB)[7], 1.0);
+                        cLeq.addToLHS(vpNext.ko_vp_bVars_Aux.get(oB)[7], 1.0);
+                        cGeq.addToLHS(vpNext.ko_vp_bVars_Aux.get(oB)[7], 1.0);
                     }
                     /*
                     AB.2
@@ -4174,8 +4171,8 @@ public class Processor {
                     cGeq.addToRHS(ko_vp_q_aux[14], 1.0);
                     executor.addConstraint(cGeq);
                     for (Keepout oB : o.getBelow_os()) {
-                        cLeq.addToLHS(vp.ko_vp_bVars_aux.get(oB)[7], 1.0);
-                        cGeq.addToLHS(vp.ko_vp_bVars_aux.get(oB)[7], 1.0);
+                        cLeq.addToLHS(vp.ko_vp_bVars_Aux.get(oB)[7], 1.0);
+                        cGeq.addToLHS(vp.ko_vp_bVars_Aux.get(oB)[7], 1.0);
                     }
 
                     /*
@@ -4190,8 +4187,8 @@ public class Processor {
                     cGeq.addToRHS(ko_vp_q_aux[15], 1.0);
                     executor.addConstraint(cGeq);
                     for (Keepout oA : o.getAbove_os()) {
-                        cLeq.addToLHS(vpNext.ko_vp_bVars_aux.get(oA)[6], 1.0);
-                        cGeq.addToLHS(vpNext.ko_vp_bVars_aux.get(oA)[6], 1.0);
+                        cLeq.addToLHS(vpNext.ko_vp_bVars_Aux.get(oA)[6], 1.0);
+                        cGeq.addToLHS(vpNext.ko_vp_bVars_Aux.get(oA)[6], 1.0);
                     }
                     /*
                     BA.2
@@ -4259,7 +4256,7 @@ public class Processor {
                 c.addToLHS(ko_vp_q_dt[6], M);
                 c.setSense('>');
                 c.addToRHS(ko_vp_q_dt[8], 1.0);
-                c.addToRHS(ko_vp_q_dt[10],1.0);
+                c.addToRHS(ko_vp_q_dt[10], 1.0);
                 executor.addConstraint(c);
                 c = new GurobiConstraint();
                 c.addToLHS(ko_vp_q_dt[5], 1.0);
@@ -4426,8 +4423,8 @@ public class Processor {
                  DT.7.L3 - L4
                   */
                 {
-                    GurobiVariable vo_ll_Nxt = vpNext.ko_vp_iVars_abs.get(o)[4];
-                    GurobiVariable vo_ur_Nxt = vpNext.ko_vp_iVars_abs.get(o)[5];
+                    GurobiVariable vo_ll_Nxt = vpNext.ko_vp_iVars_Abs.get(o)[4];
+                    GurobiVariable vo_ur_Nxt = vpNext.ko_vp_iVars_Abs.get(o)[5];
                     /*
                     DT.7.L3
                      */
@@ -4656,7 +4653,7 @@ public class Processor {
          */
 
         for (VP_var vp : VPvars) {
-            vp_iq_abs = vp.vp_iVars_abs;
+            vp_iq_abs = vp.vp_iVars_Abs;
 
             /*
             Each steiner point connects only one slave (vs_connecting_c): sum_j q_i_sj = 1
@@ -4675,8 +4672,8 @@ public class Processor {
              * VVVV
              */
             for (Keepout o : uni_keepouts) {
-                ko_vp_q_aux = vp.ko_vp_bVars_aux.get(o);
-                ko_vp_iq_abs = vp.ko_vp_iVars_abs.get(o);
+                ko_vp_q_aux = vp.ko_vp_bVars_Aux.get(o);
+                ko_vp_iq_abs = vp.ko_vp_iVars_Abs.get(o);
                 ko_vp_iq = vp.ko_vp_iVars.get(o);
 
                 /*
@@ -4918,7 +4915,7 @@ public class Processor {
 
             for (Slave_var sv : slaveVars) {
                 sl_q = vp.sl_bVars.get(sv);
-                sl_iq_abs = vp.sl_iVars_abs.get(sv);
+                sl_iq_abs = vp.sl_iVars_Abs.get(sv);
                 sl_iq = vp.sl_iVars.get(sv);
                 vs_connecting_c.addToLHS(sl_q[5], 1.0);
 
@@ -5076,8 +5073,8 @@ public class Processor {
 
                 for (Keepout o : uni_keepouts) {
 
-                    ko_vp_iq_abs = vp.ko_vp_iVars_abs.get(o);
-                    ko_sl_q_aux = vp.ko_sl_bVars_aux.get(o).get(sv);
+                    ko_vp_iq_abs = vp.ko_vp_iVars_Abs.get(o);
+                    ko_sl_q_aux = vp.ko_sl_bVars_Aux.get(o).get(sv);
                     ko_sl_q_dt = vp.ko_sl_bVars_dt.get(o).get(sv);
                     ko_sl_q_dtAux = vp.ko_sl_bVars_dtAux.get(o).get(sv);
                     ko_sl_iq_dtAux = vp.ko_sl_iVars_dtAux.get(o).get(sv);
@@ -5102,8 +5099,8 @@ public class Processor {
                         cGeq.addToRHS(ko_sl_q_aux[0], 1.0);
                         executor.addConstraint(cGeq);
                         for (Keepout oR : o.getRight_os()) {
-                            cLeq.addToLHS(vp.ko_vp_bVars_aux.get(oR)[5], 1.0);
-                            cGeq.addToLHS(vp.ko_vp_bVars_aux.get(oR)[5], 1.0);
+                            cLeq.addToLHS(vp.ko_vp_bVars_Aux.get(oR)[5], 1.0);
+                            cGeq.addToLHS(vp.ko_vp_bVars_Aux.get(oR)[5], 1.0);
                         }
 
                         /*
@@ -5169,8 +5166,8 @@ public class Processor {
                         cGeq.addToRHS(ko_sl_q_aux[2], 1.0);
                         executor.addConstraint(cGeq);
                         for (Keepout oL : o.getLeft_os()) {
-                            cLeq.addToLHS(vp.ko_vp_bVars_aux.get(oL)[4], 1.0);
-                            cGeq.addToLHS(vp.ko_vp_bVars_aux.get(oL)[4], 1.0);
+                            cLeq.addToLHS(vp.ko_vp_bVars_Aux.get(oL)[4], 1.0);
+                            cGeq.addToLHS(vp.ko_vp_bVars_Aux.get(oL)[4], 1.0);
                         }
                         /*
                         vsLR.1R
@@ -5236,8 +5233,8 @@ public class Processor {
                         cGeq.addToRHS(ko_sl_q_aux[4], 1.0);
                         executor.addConstraint(cGeq);
                         for (Keepout oA : o.getAbove_os()) {
-                            cLeq.addToLHS(vp.ko_vp_bVars_aux.get(oA)[6], 1.0);
-                            cGeq.addToLHS(vp.ko_vp_bVars_aux.get(oA)[6], 1.0);
+                            cLeq.addToLHS(vp.ko_vp_bVars_Aux.get(oA)[6], 1.0);
+                            cGeq.addToLHS(vp.ko_vp_bVars_Aux.get(oA)[6], 1.0);
                         }
 
                         /*
@@ -5303,8 +5300,8 @@ public class Processor {
                         cGeq.addToRHS(ko_sl_q_aux[6], 1.0);
                         executor.addConstraint(cGeq);
                         for (Keepout oB : o.getBelow_os()) {
-                            cLeq.addToLHS(vp.ko_vp_bVars_aux.get(oB)[7], 1.0);
-                            cGeq.addToLHS(vp.ko_vp_bVars_aux.get(oB)[7], 1.0);
+                            cLeq.addToLHS(vp.ko_vp_bVars_Aux.get(oB)[7], 1.0);
+                            cGeq.addToLHS(vp.ko_vp_bVars_Aux.get(oB)[7], 1.0);
                         }
                         /*
                         vsBA.1A
@@ -6664,7 +6661,7 @@ public class Processor {
                     mvp_iq_Abs[var_cnt] = new GurobiVariable(GRB.INTEGER, 0, ub_abs, i + "_mvp_iVars_abs_" + var_cnt);
                     executor.addVariable(mvp_iq_Abs[var_cnt]);
                 }
-                vp.mvp_iVars_abs = mvp_iq_Abs;
+                vp.mvp_iVars_Abs = mvp_iq_Abs;
 
                 /*
                  * ONLY for v1 <-> ms
@@ -6699,7 +6696,7 @@ public class Processor {
                         ko_vp_q_Aux[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + o.getName() + "_ko_mvp_bVars_aux_" + var_cnt);
                         executor.addVariable(ko_vp_q_Aux[var_cnt]);
                     }
-                    vp.ko_mvp_bVars_aux.put(o, ko_vp_q_Aux);
+                    vp.ko_mvp_bVars_Aux.put(o, ko_vp_q_Aux);
 
                     /*
                      * ONLY for v1 <-> ms
@@ -6817,7 +6814,7 @@ public class Processor {
                 vp_iq_abs[var_cnt] = new GurobiVariable(GRB.INTEGER, 0, ub_abs, i + "_vp_iVars_ABS_" + var_cnt);
                 executor.addVariable(vp_iq_abs[var_cnt]);
             }
-            vp.vp_iVars_abs = vp_iq_abs;
+            vp.vp_iVars_Abs = vp_iq_abs;
 
             /*
              * vp_iVars
@@ -6860,7 +6857,7 @@ public class Processor {
                     ko_vp_q_aux[var_cnt] = new GurobiVariable(GRB.BINARY, 0, 1, "v_" + i + ";" + o.getName() + "_ko_vp_bVars_aux_" + var_cnt);
                     executor.addVariable(ko_vp_q_aux[var_cnt]);
                 }
-                vp.ko_vp_bVars_aux.put(o, ko_vp_q_aux);
+                vp.ko_vp_bVars_Aux.put(o, ko_vp_q_aux);
                 /*
                  * ko_vp_bVars_dt
                  * (0) oq(RL)
@@ -6923,7 +6920,7 @@ public class Processor {
                     ko_vp_iVars_abs[var_cnt] = new GurobiVariable(GRB.INTEGER, +0, ub_abs, "v_" + i + ";" + o.getName() + "_ko_vp_iVars_ABS_" + var_cnt);
                     executor.addVariable(ko_vp_iVars_abs[var_cnt]);
                 }
-                vp.ko_vp_iVars_abs.put(o, ko_vp_iVars_abs);
+                vp.ko_vp_iVars_Abs.put(o, ko_vp_iVars_abs);
                 /*
                  * ko_vp_iVars
                  * (0) vx - ox_ll
@@ -7019,7 +7016,7 @@ public class Processor {
                     ko_sl_iVars_dtAux.put(sv, ko_sl_iq_dtAux);
 
                 }
-                vp.ko_sl_bVars_aux.put(o, ko_sl_bVars_aux);
+                vp.ko_sl_bVars_Aux.put(o, ko_sl_bVars_aux);
                 vp.ko_sl_bVars_dt.put(o, ko_sl_bVars_dt);
                 vp.ko_sl_bVars_dtAux.put(o, ko_sl_bVars_dtAux);
                 vp.ko_sl_iVars_dtAux.put(o, ko_sl_iVars_dtAux);
@@ -7081,7 +7078,7 @@ public class Processor {
                     sl_iq_abs[var_cnt] = new GurobiVariable(GRB.INTEGER, 0, ub_abs, "v_" + i + ";" + sv.getName() + "_sl_iVars_ABS_" + var_cnt);
                     executor.addVariable(sl_iq_abs[var_cnt]);
                 }
-                vp.sl_iVars_abs.put(sv, sl_iq_abs);
+                vp.sl_iVars_Abs.put(sv, sl_iq_abs);
                 /*
                  * sl_iVars
                  * (0) v_i.x - s_j.x

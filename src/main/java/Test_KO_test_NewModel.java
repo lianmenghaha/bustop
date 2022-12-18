@@ -48,7 +48,7 @@ public class Test_KO_test_NewModel {
         slaves.add(s2);
         //slaves.add(s3);
 
-        Master master = new Master(14,8 );
+        Master master = new Master(0,0 );
         ArrayList<Poly_Keepout> poly_keepouts = new ArrayList<>();
 
 

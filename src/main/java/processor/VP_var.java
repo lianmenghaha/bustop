@@ -31,7 +31,7 @@ public class VP_var {
      * (2) |v_1.y - ms.y|
      * (3) d_mv(d)
      */
-    public GurobiVariable[] mvp_iVars_abs;
+    public GurobiVariable[] mvp_iVars_Abs;
 
     /*
      * ONLY for v1 <-> ms
@@ -54,7 +54,7 @@ public class VP_var {
      * (7) oq_mv(BA.A)
      *
      */
-    public Map<Keepout, GurobiVariable[]> ko_mvp_bVars_aux;
+    public Map<Keepout, GurobiVariable[]> ko_mvp_bVars_Aux;
 
 
     /*
@@ -116,7 +116,7 @@ public class VP_var {
      * (4) d_v_S(d)
      *
      */
-    public GurobiVariable[] vp_iVars_abs;
+    public GurobiVariable[] vp_iVars_Abs;
 
     /*
      * vp_iVars
@@ -146,7 +146,7 @@ public class VP_var {
      * (15) oq(BA.A)
      *
      */
-    public Map<Keepout, GurobiVariable[]> ko_vp_bVars_aux;
+    public Map<Keepout, GurobiVariable[]> ko_vp_bVars_Aux;
 
     /*
      * ko_vp_bVars_dt
@@ -191,7 +191,7 @@ public class VP_var {
      * (8) _vo_ll_in
      * (9) _vo_ur_in
      */
-    public Map<Keepout, GurobiVariable[]> ko_vp_iVars_abs;
+    public Map<Keepout, GurobiVariable[]> ko_vp_iVars_Abs;
 
 
     /*
@@ -224,7 +224,7 @@ public class VP_var {
      * (2) |v_i.y - s_j.y|
      * (3) d_vs(d)
      */
-    public Map<Slave_var, GurobiVariable[]> sl_iVars_abs;
+    public Map<Slave_var, GurobiVariable[]> sl_iVars_Abs;
 
     /*
      * sl_iVars
@@ -246,7 +246,7 @@ public class VP_var {
      * (6) oq_vs(BA.B)
      * (7) oq_vs(BA.A)
      */
-    public Map<Keepout, Map<Slave_var, GurobiVariable[]>> ko_sl_bVars_aux;
+    public Map<Keepout, Map<Slave_var, GurobiVariable[]>> ko_sl_bVars_Aux;
 
     /*
      * ko_sl_bVars_dt
@@ -320,24 +320,24 @@ public class VP_var {
 
     public VP_var(){
 
-        this.ko_mvp_bVars_aux = new HashMap<>();
+        this.ko_mvp_bVars_Aux = new HashMap<>();
         this.ko_mvp_bVars_dt = new HashMap<>();
         this.ko_mvp_bVars_dtAux = new HashMap<>();
         this.ko_mvp_iVars_dtAux = new HashMap<>();
 
 
 
-        this.ko_vp_bVars_aux = new HashMap<>();
+        this.ko_vp_bVars_Aux = new HashMap<>();
         this.ko_vp_bVars_dt = new HashMap<>();
         this.ko_vp_bVars_dtAux = new HashMap<>();
-        this.ko_vp_iVars_abs = new HashMap<>();
+        this.ko_vp_iVars_Abs = new HashMap<>();
         this.ko_vp_iVars = new HashMap<>();
 
         this.sl_bVars = new HashMap<>();
-        this.sl_iVars_abs = new HashMap<>();
+        this.sl_iVars_Abs = new HashMap<>();
         this.sl_iVars = new HashMap<>();
 
-        this.ko_sl_bVars_aux = new HashMap<>();
+        this.ko_sl_bVars_Aux = new HashMap<>();
         this.ko_sl_bVars_dt = new HashMap<>();
         this.ko_sl_bVars_dtAux =new HashMap<>();
         this.ko_sl_iVars_dtAux = new HashMap<>();
