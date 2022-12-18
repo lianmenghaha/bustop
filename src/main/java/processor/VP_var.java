@@ -29,6 +29,7 @@ public class VP_var {
      * (0) d_mv
      * (1) |v_1.x - ms.x|
      * (2) |v_1.y - ms.y|
+     * (3) d_mv(d)
      */
     public GurobiVariable[] mvp_iVars_abs;
 
