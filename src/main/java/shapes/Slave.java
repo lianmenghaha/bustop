@@ -21,7 +21,8 @@
 package shapes;
 
 public class Slave extends Shape {
-    public ShapeType type = ShapeType.Slave;
+    private final ShapeType type = ShapeType.Slave;
+    private VirtualPoint vp;
 
 
     public Slave(double x_ct, double y_ct)  {
@@ -30,14 +31,21 @@ public class Slave extends Shape {
         this.y_ct = y_ct;
     }
 
+    public VirtualPoint getVp() {
+        return vp;
+    }
 
+    public void setVp(VirtualPoint vp) {
+        this.vp = vp;
+    }
 
     @Override
     public String toString() {
         return "Spiral{" +
-                "x_ct=" + x_ct +
-                ", y_ct=" + y_ct +
-                ", name='" + name + '\'' +
+
+                "name='" + name +
+                ", x_ct=" + x_ct +
+                ", y_ct=" + y_ct + '\'' +
                 '}';
     }
 }

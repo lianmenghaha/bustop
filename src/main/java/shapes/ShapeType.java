@@ -21,5 +21,5 @@
 package shapes;
 
 public enum ShapeType {
-    Master, Slave, UNKNOWN
+    Master, Slave, VirtualPoint, UNKNOWN
 }

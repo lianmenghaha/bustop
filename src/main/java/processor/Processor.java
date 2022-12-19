@@ -3,6 +3,8 @@ package processor;
 import grb.*;
 import gurobi.GRB;
 import gurobi.GRBException;
+import parser.OutputDoc;
+import shapeVar.*;
 import shapes.*;
 
 import java.math.BigDecimal;
@@ -12,6 +14,7 @@ public class Processor {
 
     private GurobiExecutor executor;
     private final static int M = 999999;
+    private OutputDoc outputDoc;
 
     /**
      * The ILP Model to solve I2C connection without Keepout
@@ -119,13 +122,14 @@ public class Processor {
      * @throws GRBException GRBException
      */
 
-    public void processToOutput_w_multiKO(Master master, ArrayList<Slave> slaves, ArrayList<Keepout> uni_keepouts, ArrayList<Poly_Keepout> poly_keepouts, double busC, double slaveC) throws GRBException {
+    public OutputDoc processToOutput_w_multiKO(Master master, ArrayList<Slave> slaves, ArrayList<Keepout> uni_keepouts, ArrayList<Poly_Keepout> poly_keepouts, double busC, double slaveC) throws GRBException {
 
-        ArrayList<Keepout> all_keepouts = new ArrayList<>();
-        all_keepouts.addAll(uni_keepouts);
-        all_keepouts.addAll(poly_keepouts);
+//        ArrayList<Keepout> all_keepouts = new ArrayList<>();
+//        all_keepouts.addAll(uni_keepouts);
+//        all_keepouts.addAll(poly_keepouts);
+
         update_LRAB_keepouts(uni_keepouts);
-        System.out.println(all_keepouts);
+        System.out.println(uni_keepouts);
         for (Keepout o : uni_keepouts) {
             System.out.println(o.getName());
             for (Keepout other_o : uni_keepouts) {
@@ -133,6 +137,8 @@ public class Processor {
                 System.out.println(Arrays.toString(o.getMap_oo_dist().get(other_o)));
             }
         }
+        outputDoc = new OutputDoc("I2C", uni_keepouts, master, slaves);
+
 
 
         int s_cnt = slaves.size();
@@ -147,13 +153,13 @@ public class Processor {
         /*
          * setLBR_Vars
          */
-        ArrayList<VP_var> VPvars = new ArrayList<>();
+        ArrayList<VP_var> vpVars = new ArrayList<>();
         Master_var mv = new Master_var(master.getX_ct(), master.getY_ct());
         ArrayList<Slave_var> slaveVars_ko = new ArrayList<>();
 
 
         //buildVars
-        buildVars_w_multiKO(mv, slaves, slaveVars_ko, s_cnt, VPvars, uni_keepouts, poly_keepouts);
+        buildVars_w_multiKO(mv, slaves, slaveVars_ko, s_cnt, vpVars, uni_keepouts, poly_keepouts);
         //build global GurobiVariables
         GurobiVariable busLength, sideBusLength;
         busLength = new GurobiVariable(GRB.INTEGER, 0, M, "bus_length");
@@ -166,7 +172,7 @@ public class Processor {
         /*
          * addConsToLBR
          */
-        buildCons_w_multiKO(mv, slaveVars_ko, VPvars, uni_keepouts, poly_keepouts, all_keepouts, busLength, sideBusLength);
+        buildCons_w_multiKO(mv, slaveVars_ko, vpVars, uni_keepouts, poly_keepouts, busLength, sideBusLength);
 
         executor.updateModelWithCons();
         //System.out.println("C426" + executor.getConstraintByIndex(426));
@@ -194,14 +200,212 @@ public class Processor {
         /*
          * Retrieve from Gurobi
          */
+        for (int cnt = 0; cnt < vpVars.size(); ++cnt){
+            VP_var vpVar = vpVars.get(cnt);
+            VirtualPoint vp = new VirtualPoint(vpVar.x.getIntResult(), vpVar.y.getIntResult(), "vp" + (cnt + 1));
+            outputDoc.addToVirtualPoints(vp);
+        }
 
 
-        for (int cnt = 0; cnt < VPvars.size(); ++cnt) {
-            VP_var vp = VPvars.get(cnt);
+        for (int cnt = 0; cnt < vpVars.size(); ++cnt){
+            VP_var vpVar = vpVars.get(cnt);
+            VirtualPoint vp = outputDoc.getVirtualPoints().get(cnt);
+            /*
+            Master-Relative
+             */
+            if (cnt == 0){
+                GurobiVariable detour_mvp = vpVar.mvp_bVars[4];
+                if (detour_mvp.getIntResult() == 0){//detour
+                    System.out.println("Detour: Master -> VP1");
+                    for (Keepout o : uni_keepouts){
+                        GurobiVariable[] ko_mvp_q_dt = vpVar.ko_mvp_bVars_dt.get(o);
+                        if (ko_mvp_q_dt[4].getIntResult() == 1){//relative Obstacle
+                            if (ko_mvp_q_dt[7].getIntResult() == 1){//oq_mv(d,ll,in)
+                                ObObC in = new ObObC(o, master, ConnectionType.LLtoMS);
+                                vp.addToRel_mv_Obs(in);
+                            } else if (ko_mvp_q_dt[8].getIntResult() == 1){//oq_mv(d,ur,in)
+                                ObObC in = new ObObC(o, master, ConnectionType.URtoMS);
+                                vp.addToRel_mv_Obs(in);
+                            }
+                            if (ko_mvp_q_dt[9].getIntResult() == 1){//oq_mv(d,ll,out)
+                                ObObC out = new ObObC(vp, o, ConnectionType.VPtoLL);
+                                vp.addToRel_mv_Obs(out);
+                            } else if (ko_mvp_q_dt[10].getIntResult() == 1){//oq_mv(d,ur,out)
+                                ObObC out = new ObObC(vp, o, ConnectionType.VPtoUR);
+                                vp.addToRel_mv_Obs(out);
+                            }
+
+
+                        }
+                        for (Keepout other_o : uni_keepouts){
+                            GurobiVariable[] oo_mvp_q = vpVar.oo_mvp_bVars.get(o).get(other_o);
+                            if (oo_mvp_q[0].getIntResult() == 1){
+                                if (oo_mvp_q[1].getIntResult() == 1){//ooq_mv(d,ll)
+                                    ObObC LLtoLL = new ObObC(o, other_o, ConnectionType.LLtoLL);
+                                    vp.addToRel_mv_Obs(LLtoLL);
+                                }else if (oo_mvp_q[2].getIntResult() == 1){//ooq_mv(d,ll,ur)
+                                    ObObC LLtoUR = new ObObC(o, other_o, ConnectionType.LLtoUR);
+                                    vp.addToRel_mv_Obs(LLtoUR);
+                                }else if (oo_mvp_q[3].getIntResult() == 1){//ooq_mv(d,ur,ll)
+                                    ObObC URtoLL = new ObObC(o, other_o, ConnectionType.URtoLL);
+                                    vp.addToRel_mv_Obs(URtoLL);
+                                }else if (oo_mvp_q[4].getIntResult() == 1){//ooq_mv(d,ur)
+                                    ObObC URtoUR = new ObObC(o, other_o, ConnectionType.URtoUR);
+                                    vp.addToRel_mv_Obs(URtoUR);
+                                }else {
+                                    System.err.println("There must be some Errors: oo_mvp_q");
+                                }
+
+                            }
+                        }
+                    }
+
+                }else {
+                    System.out.println("NO detour: Master -> VP1");
+                    vp.addToRel_mv_Obs(new ObObC(vp, master, ConnectionType.NoDetour));
+                }
+            }
+
+            /*
+            NextVp-Relative
+             */
+            if (cnt < vpVars.size() - 1) {
+
+                VirtualPoint vpNext = outputDoc.getVirtualPoints().get(cnt + 1);
+                vp.setDis_vp(vpVar.vp_iVars_Abs[0].getIntResult());
+                GurobiVariable detour_vp = vpVar.vp_bVars[4];
+                if (detour_vp.getIntResult() == 0) {//detour
+                    System.out.println("Detour: VP" + (cnt + 1) + "-> VP" + (cnt + 2));
+                    for (Keepout o : uni_keepouts) {
+                        GurobiVariable[] ko_vp_q_dt = vpVar.ko_vp_bVars_dt.get(o);
+                        if (ko_vp_q_dt[4].getIntResult() == 1) {//relative Obstacle
+                            if (ko_vp_q_dt[7].getIntResult() == 1) {//oq(d,ll,out)
+                                ObObC in = new ObObC(vp, o, ConnectionType.VPtoLL);
+                                vp.addToRel_vp_Obs(in);
+                            } else if (ko_vp_q_dt[8].getIntResult() == 1) {//oq(d,ur,out)
+                                ObObC in = new ObObC(vp, o, ConnectionType.VPtoUR);
+                                vp.addToRel_vp_Obs(in);
+                            }
+                            if (ko_vp_q_dt[9].getIntResult() == 1) {//oq(d,ll,in)
+                                ObObC out = new ObObC(o, vpNext, ConnectionType.VPtoLL);
+                                vp.addToRel_vp_Obs(out);
+                            } else if (ko_vp_q_dt[10].getIntResult() == 1) {//oq(d,ur,in)
+                                ObObC out = new ObObC(o, vpNext, ConnectionType.VPtoUR);
+                                vp.addToRel_vp_Obs(out);
+                            }
+
+
+                        }
+                        for (Keepout other_o : uni_keepouts) {
+                            GurobiVariable[] oo_vp_q = vpVar.oo_vp_bVars.get(o).get(other_o);
+                            if (oo_vp_q[0].getIntResult() == 1) {
+                                if (oo_vp_q[1].getIntResult() == 1) {//ooq(d,ll)
+                                    ObObC LLtoLL = new ObObC(o, other_o, ConnectionType.LLtoLL);
+                                    vp.addToRel_vp_Obs(LLtoLL);
+                                } else if (oo_vp_q[2].getIntResult() == 1) {//ooq(d,ll,ur)
+                                    ObObC LLtoUR = new ObObC(o, other_o, ConnectionType.LLtoUR);
+                                    vp.addToRel_vp_Obs(LLtoUR);
+                                } else if (oo_vp_q[3].getIntResult() == 1) {//ooq(d,ur,ll)
+                                    ObObC URtoLL = new ObObC(o, other_o, ConnectionType.URtoLL);
+                                    vp.addToRel_vp_Obs(URtoLL);
+                                } else if (oo_vp_q[4].getIntResult() == 1) {//ooq(d,ur)
+                                    ObObC URtoUR = new ObObC(o, other_o, ConnectionType.URtoUR);
+                                    vp.addToRel_vp_Obs(URtoUR);
+                                } else {
+                                    System.err.println("There must be some Errors: oo_vp_q");
+                                }
+
+                            }
+                        }
+                    }
+
+
+                } else {
+                    System.out.println("No detour: VP" + (cnt + 1) + "-> VP" + (cnt + 2));
+                    vp.addToRel_vp_Obs(new ObObC(vp, vpNext, ConnectionType.NoDetour));
+                }
+            }
+
+            /*
+            Slave-Relative
+             */
+            for (Slave_var slaveVar : slaveVars_ko) {
+                GurobiVariable connectSlave = vpVar.sl_bVars.get(slaveVar)[5];
+                if (connectSlave.getIntResult() == 1) {
+                    //set dis_sl
+                    vp.setDis_sl(vpVar.sl_iVars_Abs.get(slaveVar)[0].getIntResult());
+                    for (Slave sv : slaves) {
+                        if (!sv.getName().equals(slaveVar.getName()))
+                            continue;
+                        vp.setSlave(sv);
+                        sv.setVp(vp);
+                    }
+                    Slave cor_slave = vp.getSlave();
+                    GurobiVariable detour_sl = vpVar.sl_bVars.get(slaveVar)[4];
+                    if (detour_sl.getIntResult() == 0){//detour
+                        System.out.println("Detour VP" + (cnt + 1) + "->" + slaveVar.getName());
+                        for (Keepout o : uni_keepouts){
+                            GurobiVariable[] ko_sl_q_dt = vpVar.ko_sl_bVars_dt.get(o).get(slaveVar);
+                            if (ko_sl_q_dt[4].getIntResult() == 1){//relative Obstacle
+                                if (ko_sl_q_dt[7].getIntResult() == 1){//oq_vs(d,ll,in)
+                                    ObObC in = new ObObC(o, cor_slave, ConnectionType.LLtoSL);
+                                    vp.addToRel_sl_Obs(in);
+                                } else if (ko_sl_q_dt[8].getIntResult() == 1){//oq_vs(d,ur,in)
+                                    ObObC in = new ObObC(o, cor_slave, ConnectionType.URtoSL);
+                                    vp.addToRel_sl_Obs(in);
+                                }
+                                if (ko_sl_q_dt[9].getIntResult() == 1){//oq_vs(d,ll,out)
+                                    ObObC out = new ObObC(vp, o, ConnectionType.VPtoLL);
+                                    vp.addToRel_sl_Obs(out);
+                                } else if (ko_sl_q_dt[10].getIntResult() == 1) {//oq_vs(d,ur,out)
+                                    ObObC out = new ObObC(vp, o, ConnectionType.VPtoUR);
+                                    vp.addToRel_sl_Obs(out);
+                                }
+                            }
+
+                            for (Keepout other_o : uni_keepouts){
+                                GurobiVariable[] oo_sl_q = vpVar.oo_sl_bVars.get(slaveVar).get(o).get(other_o);
+                                if (oo_sl_q[0].getIntResult() == 1){
+                                    if (oo_sl_q[1].getIntResult() == 1){//ooq_vs(d,ll)
+                                        ObObC LLtoLL = new ObObC(o, other_o, ConnectionType.LLtoLL);
+                                        vp.addToRel_sl_Obs(LLtoLL);
+                                    }else if (oo_sl_q[2].getIntResult() == 1){//ooq_vs(d,ll,ur)
+                                        ObObC LLtoUR = new ObObC(o, other_o, ConnectionType.LLtoUR);
+                                        vp.addToRel_sl_Obs(LLtoUR);
+                                    }else if (oo_sl_q[3].getIntResult() == 1){//ooq_vs(d,ur,ll)
+                                        ObObC URtoLL = new ObObC(o, other_o, ConnectionType.URtoLL);
+                                        vp.addToRel_sl_Obs(URtoLL);
+                                    }else if (oo_sl_q[4].getIntResult() == 1){//ooq_vs(d,ur)
+                                        ObObC URtoUR = new ObObC(o, other_o, ConnectionType.URtoUR);
+                                        vp.addToRel_sl_Obs(URtoUR);
+                                    }else {
+                                        System.err.println("There must be some Errors: oo_sl_q");
+                                    }
+
+                                }
+                            }
+                        }
+
+                    }else {
+                        System.out.println("No detour VP" + (cnt + 1) + "->" + slaveVar.getName());
+                        vp.addToRel_sl_Obs(new ObObC(vp, cor_slave, ConnectionType.NoDetour));
+                    }
+
+
+
+                }
+
+            }
+        }
+
+
+        for (int cnt = 0; cnt < vpVars.size(); ++cnt) {
+            VP_var vp = vpVars.get(cnt);
             /*
             Master
              */
             if (cnt == 0) {
+                System.out.println();
                 System.out.println("Master-Relative");
                 GurobiVariable[] mvp_q = vp.mvp_bVars;
                 GurobiVariable[] ms_sp_iq_abs = vp.mvp_iVars_Abs;
@@ -213,8 +417,8 @@ public class Processor {
                     System.out.print("mvp_iq_Abs" + i + "=" + ms_sp_iq_abs[i].getIntResult() + ";");
                 }
                 System.out.println();
-                for (Keepout o : all_keepouts) {
-                    System.out.println(o);
+                for (Keepout o : uni_keepouts) {
+                    System.out.println(o.getName());
                     GurobiVariable[] ko_mvp_q_Aux = vp.ko_mvp_bVars_Aux.get(o);
                     GurobiVariable[] ko_mvp_q_dt = vp.ko_mvp_bVars_dt.get(o);
                     for (int i = 0; i < ko_mvp_q_dt.length; ++i) {
@@ -330,15 +534,8 @@ public class Processor {
 
 
         }
-        //debug
-//        gurobi.GRBVar[] vars = executor.getModel().getVars();
-//        for (int i = 0; i < vars.length; ++i) {
-//            double vars_i = vars[i].get(GRB.DoubleAttr.X);
-//            //System.out.println(vars[i].get(GRB.StringAttr.VarName));
-//            System.out.print("var[" + i + "]= " + vars_i + "; lb= " + vars[i].get(GRB.DoubleAttr.LB) + "; rb= " + vars[i].get(GRB.DoubleAttr.UB));
-//            System.out.println();
-//        }
 
+        return outputDoc;
 
     }
 
@@ -2950,7 +3147,7 @@ public class Processor {
 
     }
 
-    private void buildCons_w_multiKO(Master_var mv, ArrayList<Slave_var> slaveVars, ArrayList<VP_var> VPvars, ArrayList<Keepout> uni_keepouts, ArrayList<Poly_Keepout> poly_keepouts, ArrayList<Keepout> all_keepouts, GurobiVariable busLength, GurobiVariable sideBusLength) throws GRBException {
+    private void buildCons_w_multiKO(Master_var mv, ArrayList<Slave_var> slaveVars, ArrayList<VP_var> VPvars, ArrayList<Keepout> uni_keepouts, ArrayList<Poly_Keepout> poly_keepouts, GurobiVariable busLength, GurobiVariable sideBusLength) throws GRBException {
         double eps = 1;
 
         GurobiConstraint c;

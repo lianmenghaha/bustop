@@ -1,6 +1,7 @@
-package processor;
+package shapeVar;
 
 import grb.GurobiVariable;
+import shapeVar.Slave_var;
 import shapes.Keepout;
 
 import java.util.HashMap;

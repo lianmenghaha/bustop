@@ -1,4 +1,4 @@
-package processor;
+package shapeVar;
 
 import grb.GurobiVariable;
 import shapes.Keepout;

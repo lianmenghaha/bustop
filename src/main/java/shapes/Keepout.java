@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * A representation of a keepout on the pcb.
  */
-public class Keepout {
+public class Keepout extends Shape{
     private String name;
 
     private final int minX, maxX, minY, maxY;

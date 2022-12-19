@@ -1,4 +1,4 @@
-package processor;
+package shapeVar;
 
 import shapes.Keepout;
 import shapes.Slave;
