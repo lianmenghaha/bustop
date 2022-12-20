@@ -1,10 +1,13 @@
 import gurobi.GRBException;
+import parser.OutputDoc;
+import parser.OutputDocProcess;
 import processor.Processor;
 import shapes.Keepout;
 import shapes.Master;
 import shapes.Poly_Keepout;
 import shapes.Slave;
 
+import java.io.FileNotFoundException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -54,25 +57,24 @@ public class Test_KO_hw_test {
 
         Keepout v_ko1 = new Keepout("o1",-451,-39,1455,1992);
         Keepout v_ko2 = new Keepout("o2", -39,461,1455,2352);
-        ArrayList<Keepout> keepouts = new ArrayList<>();
-        keepouts.add(v_ko1);
-        keepouts.add(v_ko2);
-
-
         ArrayList<Keepout> uni_keepouts = new ArrayList<>();
+        uni_keepouts.add(v_ko1);
+        uni_keepouts.add(v_ko2);
+
 
 
 
 
 
         try {
-            processor.processToOutput_w_multiKO(master, slaves, keepouts, poly_keepouts,1, 1);
+            OutputDoc outputDoc = processor.processToOutput_w_multiKO(master, slaves, uni_keepouts, poly_keepouts,1, 1);
             LocalDateTime end = LocalDateTime.now();
+            OutputDocProcess finOutput = new OutputDocProcess(outputDoc, "Result/test_hw", start);
             Duration duration = Duration.between(start,end);
             LocalDateTime duration_formated = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(duration.toMillis()), ZoneId.of("UTC"));
             System.out.println("Program Ends at: "+ DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(end));
             System.out.println("Program Run Time is: "+ DateTimeFormatter.ofPattern("HH:mm:ss.SSS").format(duration_formated));
-        } catch (GRBException e) {
+        } catch (GRBException | FileNotFoundException e) {
             e.printStackTrace();
         }
     }

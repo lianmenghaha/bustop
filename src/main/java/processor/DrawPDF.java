@@ -2,17 +2,20 @@ package processor;
 
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.geom.Rectangle;
+import com.itextpdf.layout.Document;
 import parser.OutputDoc;
 import shapes.*;
 
 import java.awt.*;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static com.itextpdf.kernel.colors.Color.convertRgbToCmyk;
 
@@ -26,24 +29,64 @@ public class DrawPDF {
     }
 
     public void outputToPdf() throws FileNotFoundException {
-        String pdfPath = this.path + "_" +outputDoc.getI2Cname();
-        PdfDocument pdfDoc = new PdfDocument(new PdfWriter(pdfPath));
+
 
         ArrayList<VirtualPoint> virtualPoints = outputDoc.getVirtualPoints();
         ArrayList<Slave> slaves = outputDoc.getSlaves();
         ArrayList<Keepout> uni_keepouts = outputDoc.getKeepouts();
         Master master = outputDoc.getMaster();
+        /*
+        Process the PDFsize
+         */
+        ArrayList<Integer> xs = new ArrayList<>();
+        ArrayList<Integer> ys = new ArrayList<>();
+        xs.add(master.getX_ct());
+        ys.add(master.getY_ct());
+        for (VirtualPoint vp : virtualPoints){
+            xs.add(vp.getX_ct());
+            ys.add(vp.getY_ct());
+        }
+        for (Slave sv : slaves){
+            xs.add(sv.getX_ct());
+            ys.add(sv.getY_ct());
+        }
+        for (Keepout o : uni_keepouts){
+            xs.add(o.getMinX());
+            xs.add(o.getMaxX());
+            ys.add(o.getMinY());
+            ys.add(o.getMaxY());
+        }
+        int lb_x = Collections.min(xs);
+        int ub_x = Collections.max(xs);
+        int lb_y = Collections.min(ys);
+        int ub_y = Collections.max(ys);
+        lb_x -= 20;
+        ub_x += 20;
+        lb_y -= 20;
+        ub_y += 20;
+        int width = ub_x - lb_x;
+        int height = ub_y - lb_y;
+
+        int master_r = 5;
+        int vp_r = 4;
+        int sl_r = 3;
+
+
+
+        String pdfPath = this.path + "_" +outputDoc.getI2Cname();
+        Rectangle rectangle = new Rectangle(lb_x, lb_y, width, height);
+        PdfDocument pdfDoc = new PdfDocument(new PdfWriter(pdfPath));
+        Document document = new Document(pdfDoc, new PageSize(rectangle));
 
 
         PdfCanvas canvas = new PdfCanvas(pdfDoc.addNewPage());
-        canvas.setLineWidth((float) 0.2);
+        canvas.setLineWidth((float) 1);
 
         /*
         draw Keepouts
          */
-        int bias = 200;
         for (Keepout o : uni_keepouts){
-            Rectangle rect = new Rectangle(o.getMinX() + bias, o.getMinY() + bias, o.getMaxX() - o.getMinX(), o.getMaxY() - o.getMinY());
+            Rectangle rect = new Rectangle(o.getMinX(), o.getMinY(), o.getMaxX() - o.getMinX(), o.getMaxY() - o.getMinY());
             Color Blue = convertRgbToCmyk(new DeviceRgb(0,0,255));
             canvas.setColor(Blue, true)
                     .rectangle(rect)
@@ -54,8 +97,9 @@ public class DrawPDF {
         draw Master
          */
         Color PINK = convertRgbToCmyk(new DeviceRgb(255,182,193));
-        canvas.setColor(PINK, false)
-                .circle(master.getX_ct() + bias, master.getY_ct() + bias, 0.2)
+        canvas.setColor(PINK, true)
+                .circle(master.getX_ct(), master.getY_ct(), master_r)
+                .fill()
                 .stroke();
 
 
@@ -65,7 +109,7 @@ public class DrawPDF {
              */
             Color CYAN = convertRgbToCmyk(new DeviceRgb(0,255,255));
             canvas.setColor(CYAN, false)
-                    .circle(vp.getX_ct()+ bias, vp.getY_ct()+ bias, 0.15)
+                    .circle(vp.getX_ct(), vp.getY_ct(), vp_r)
                     .stroke();
             ArrayList<ObObC> rel_mv_obs = vp.getRel_mv_Obs();
             ArrayList<ObObC> rel_vp_obs = vp.getRel_vp_Obs();
@@ -76,53 +120,53 @@ public class DrawPDF {
                 for (ObObC connect : rel_mv_obs){
                     if (connect.type == ConnectionType.URtoLL){
 
-                        canvas.moveTo(((Keepout)connect.start).getMaxX() + bias, ((Keepout)connect.start).getMaxY() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMinX() + bias, ((Keepout)connect.end).getMinY() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMaxX(), ((Keepout)connect.start).getMaxY());
+                        canvas.lineTo(((Keepout)connect.end).getMinX(), ((Keepout)connect.end).getMinY());
 
                     }
                     if (connect.type == ConnectionType.URtoUR){
 
-                        canvas.moveTo(((Keepout)connect.start).getMaxX() + bias, ((Keepout)connect.start).getMaxY() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMaxX() + bias, ((Keepout)connect.end).getMaxY() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMaxX(), ((Keepout)connect.start).getMaxY());
+                        canvas.lineTo(((Keepout)connect.end).getMaxX(), ((Keepout)connect.end).getMaxY());
 
                     }
                     if (connect.type == ConnectionType.LLtoUR){
 
-                        canvas.moveTo(((Keepout)connect.start).getMinX() + bias, ((Keepout)connect.start).getMinY() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMaxX() + bias, ((Keepout)connect.end).getMaxY() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMinX(), ((Keepout)connect.start).getMinY());
+                        canvas.lineTo(((Keepout)connect.end).getMaxX(), ((Keepout)connect.end).getMaxY());
 
                     }
                     if (connect.type == ConnectionType.LLtoLL){
 
-                        canvas.moveTo(((Keepout)connect.start).getMinX() + bias, ((Keepout)connect.start).getMinY() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMinX() + bias, ((Keepout)connect.end).getMinY() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMinX(), ((Keepout)connect.start).getMinY());
+                        canvas.lineTo(((Keepout)connect.end).getMinX(), ((Keepout)connect.end).getMinY());
 
                     }
                     if (connect.type == ConnectionType.VPtoLL){
 
-                        canvas.moveTo(connect.start.getX_ct() + bias, connect.start.getY_ct() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMinX() + bias, ((Keepout)connect.end).getMinY() + bias);
+                        canvas.moveTo(connect.start.getX_ct(), connect.start.getY_ct());
+                        canvas.lineTo(((Keepout)connect.end).getMinX(), ((Keepout)connect.end).getMinY());
 
                     }
                     if (connect.type == ConnectionType.VPtoUR){
 
-                        canvas.moveTo(connect.start.getX_ct() + bias, connect.start.getY_ct() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMaxX() + bias, ((Keepout)connect.end).getMaxY() + bias);
+                        canvas.moveTo(connect.start.getX_ct(), connect.start.getY_ct());
+                        canvas.lineTo(((Keepout)connect.end).getMaxX(), ((Keepout)connect.end).getMaxY());
 
                     }
                     if (connect.type == ConnectionType.URtoMS){
-                        canvas.moveTo(((Keepout)connect.start).getMaxX() + bias, ((Keepout)connect.start).getMaxY() + bias);
-                        canvas.lineTo(master.getX_ct() + bias, master.getY_ct() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMaxX(), ((Keepout)connect.start).getMaxY());
+                        canvas.lineTo(master.getX_ct(), master.getY_ct());
 
                     }
                     if (connect.type == ConnectionType.LLtoMS){
 
-                        canvas.moveTo(((Keepout)connect.start).getMinX() + bias, ((Keepout)connect.start).getMinY() + bias);
-                        canvas.lineTo(master.getX_ct() + bias, master.getY_ct() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMinX(), ((Keepout)connect.start).getMinY());
+                        canvas.lineTo(master.getX_ct(), master.getY_ct());
                     }
                     if (connect.type == ConnectionType.NoDetour){
-                        canvas.moveTo(connect.start.getX_ct() + bias, connect.end.getY_ct() + bias);
-                        canvas.lineTo(connect.end.getX_ct() + bias, connect.end.getY_ct() + bias);
+                        canvas.moveTo(connect.start.getX_ct(), connect.start.getY_ct());
+                        canvas.lineTo(connect.end.getX_ct(), connect.end.getY_ct());
                     }
                     canvas.closePathStroke();
 
@@ -136,53 +180,53 @@ public class DrawPDF {
                 for (ObObC connect : rel_vp_obs){
                     if (connect.type == ConnectionType.URtoLL){
 
-                        canvas.moveTo(((Keepout)connect.start).getMaxX() + bias, ((Keepout)connect.start).getMaxY() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMinX() + bias, ((Keepout)connect.end).getMinY() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMaxX(), ((Keepout)connect.start).getMaxY());
+                        canvas.lineTo(((Keepout)connect.end).getMinX(), ((Keepout)connect.end).getMinY());
 
                     }
                     if (connect.type == ConnectionType.URtoUR){
 
-                        canvas.moveTo(((Keepout)connect.start).getMaxX() + bias, ((Keepout)connect.start).getMaxY() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMaxX() + bias, ((Keepout)connect.end).getMaxY() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMaxX(), ((Keepout)connect.start).getMaxY());
+                        canvas.lineTo(((Keepout)connect.end).getMaxX(), ((Keepout)connect.end).getMaxY());
 
                     }
                     if (connect.type == ConnectionType.LLtoUR){
 
-                        canvas.moveTo(((Keepout)connect.start).getMinX() + bias, ((Keepout)connect.start).getMinY() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMaxX() + bias, ((Keepout)connect.end).getMaxY() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMinX(), ((Keepout)connect.start).getMinY());
+                        canvas.lineTo(((Keepout)connect.end).getMaxX(), ((Keepout)connect.end).getMaxY());
 
                     }
                     if (connect.type == ConnectionType.LLtoLL){
 
-                        canvas.moveTo(((Keepout)connect.start).getMinX() + bias, ((Keepout)connect.start).getMinY() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMinX() + bias, ((Keepout)connect.end).getMinY() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMinX(), ((Keepout)connect.start).getMinY());
+                        canvas.lineTo(((Keepout)connect.end).getMinX(), ((Keepout)connect.end).getMinY());
 
                     }
                     if (connect.type == ConnectionType.VPtoLL){
 
-                        canvas.moveTo(connect.start.getX_ct() + bias, connect.start.getY_ct() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMinX() + bias, ((Keepout)connect.end).getMinY() + bias);
+                        canvas.moveTo(connect.start.getX_ct(), connect.start.getY_ct());
+                        canvas.lineTo(((Keepout)connect.end).getMinX(), ((Keepout)connect.end).getMinY());
 
                     }
                     if (connect.type == ConnectionType.VPtoUR){
 
-                        canvas.moveTo(connect.start.getX_ct() + bias, connect.start.getY_ct() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMaxX() + bias, ((Keepout)connect.end).getMaxY() + bias);
+                        canvas.moveTo(connect.start.getX_ct(), connect.start.getY_ct());
+                        canvas.lineTo(((Keepout)connect.end).getMaxX(), ((Keepout)connect.end).getMaxY());
 
                     }
                     if (connect.type == ConnectionType.LLtoVP){
-                        canvas.moveTo(((Keepout)connect.start).getMaxX() + bias, ((Keepout)connect.start).getMaxY() + bias);
-                        canvas.lineTo(connect.end.getX_ct() + bias, connect.end.getY_ct() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMaxX(), ((Keepout)connect.start).getMaxY());
+                        canvas.lineTo(connect.end.getX_ct(), connect.end.getY_ct());
 
                     }
                     if (connect.type == ConnectionType.URtoVP){
 
-                        canvas.moveTo(((Keepout)connect.start).getMinX() + bias, ((Keepout)connect.start).getMinY() + bias);
-                        canvas.lineTo(connect.end.getX_ct() + bias, connect.end.getY_ct() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMinX(), ((Keepout)connect.start).getMinY());
+                        canvas.lineTo(connect.end.getX_ct(), connect.end.getY_ct());
                     }
                     if (connect.type == ConnectionType.NoDetour){
-                        canvas.moveTo(connect.start.getX_ct() + bias, connect.end.getY_ct() + bias);
-                        canvas.lineTo(connect.end.getX_ct() + bias, connect.end.getY_ct() + bias);
+                        canvas.moveTo(connect.start.getX_ct(), connect.start.getY_ct());
+                        canvas.lineTo(connect.end.getX_ct(), connect.end.getY_ct());
                     }
 
                     canvas.closePathStroke();
@@ -198,53 +242,53 @@ public class DrawPDF {
                     System.out.println(connect);
                     if (connect.type == ConnectionType.URtoLL){
 
-                        canvas.moveTo(((Keepout)connect.start).getMaxX() + bias, ((Keepout)connect.start).getMaxY() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMinX() + bias, ((Keepout)connect.end).getMinY() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMaxX(), ((Keepout)connect.start).getMaxY());
+                        canvas.lineTo(((Keepout)connect.end).getMinX(), ((Keepout)connect.end).getMinY());
 
                     }
                     if (connect.type == ConnectionType.URtoUR){
 
-                        canvas.moveTo(((Keepout)connect.start).getMaxX() + bias, ((Keepout)connect.start).getMaxY() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMaxX() + bias, ((Keepout)connect.end).getMaxY() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMaxX(), ((Keepout)connect.start).getMaxY());
+                        canvas.lineTo(((Keepout)connect.end).getMaxX(), ((Keepout)connect.end).getMaxY());
 
                     }
                     if (connect.type == ConnectionType.LLtoUR){
 
-                        canvas.moveTo(((Keepout)connect.start).getMinX() + bias, ((Keepout)connect.start).getMinY() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMaxX() + bias, ((Keepout)connect.end).getMaxY() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMinX(), ((Keepout)connect.start).getMinY());
+                        canvas.lineTo(((Keepout)connect.end).getMaxX(), ((Keepout)connect.end).getMaxY());
 
                     }
                     if (connect.type == ConnectionType.LLtoLL){
 
-                        canvas.moveTo(((Keepout)connect.start).getMinX() + bias, ((Keepout)connect.start).getMinY() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMinX() + bias, ((Keepout)connect.end).getMinY() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMinX(), ((Keepout)connect.start).getMinY());
+                        canvas.lineTo(((Keepout)connect.end).getMinX(), ((Keepout)connect.end).getMinY());
 
                     }
                     if (connect.type == ConnectionType.VPtoLL){
 
-                        canvas.moveTo(connect.start.getX_ct() + bias, connect.start.getY_ct() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMinX() + bias, ((Keepout)connect.end).getMinY() + bias);
+                        canvas.moveTo(connect.start.getX_ct(), connect.start.getY_ct());
+                        canvas.lineTo(((Keepout)connect.end).getMinX(), ((Keepout)connect.end).getMinY());
 
                     }
                     if (connect.type == ConnectionType.VPtoUR){
 
-                        canvas.moveTo(connect.start.getX_ct() + bias, connect.start.getY_ct() + bias);
-                        canvas.lineTo(((Keepout)connect.end).getMaxX() + bias, ((Keepout)connect.end).getMaxY() + bias);
+                        canvas.moveTo(connect.start.getX_ct(), connect.start.getY_ct());
+                        canvas.lineTo(((Keepout)connect.end).getMaxX(), ((Keepout)connect.end).getMaxY());
 
                     }
                     if (connect.type == ConnectionType.URtoSL){
-                        canvas.moveTo(((Keepout)connect.start).getMaxX() + bias, ((Keepout)connect.start).getMaxY() + bias);
-                        canvas.lineTo(connect.end.getX_ct() + bias, connect.end.getY_ct() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMaxX(), ((Keepout)connect.start).getMaxY());
+                        canvas.lineTo(connect.end.getX_ct(), connect.end.getY_ct());
 
                     }
                     if (connect.type == ConnectionType.LLtoSL){
 
-                        canvas.moveTo(((Keepout)connect.start).getMinX() + bias, ((Keepout)connect.start).getMinY() + bias);
-                        canvas.lineTo(connect.end.getX_ct() + bias, connect.end.getY_ct() + bias);
+                        canvas.moveTo(((Keepout)connect.start).getMinX(), ((Keepout)connect.start).getMinY());
+                        canvas.lineTo(connect.end.getX_ct(), connect.end.getY_ct());
                     }
                     if (connect.type == ConnectionType.NoDetour){
-                        canvas.moveTo(connect.start.getX_ct() + bias, connect.start.getY_ct() + bias);
-                        canvas.lineTo(connect.end.getX_ct() + bias, connect.end.getY_ct() + bias);
+                        canvas.moveTo(connect.start.getX_ct(), connect.start.getY_ct());
+                        canvas.lineTo(connect.end.getX_ct(), connect.end.getY_ct());
                     }
 
                     canvas.closePathStroke();
@@ -261,8 +305,9 @@ public class DrawPDF {
          */
         for (Slave sv : slaves){
             Color RED = convertRgbToCmyk(new DeviceRgb(255,0,0));
-            canvas.setColor(RED, false)
-                    .circle(sv.getX_ct()+ bias, sv.getY_ct()+ bias, 0.15)
+            canvas.setColor(RED, true)
+                    .circle(sv.getX_ct(), sv.getY_ct(), sl_r)
+                    .fill()
                     .stroke();
         }
 
