@@ -67,7 +67,7 @@ public class Test_KO_hw_test {
 
 
         try {
-            OutputDoc outputDoc = processor.processToOutput_w_multiKO(master, slaves, uni_keepouts, poly_keepouts,1, 1);
+            OutputDoc outputDoc = processor.processToOutput_w_multiKO("hwTest",master, slaves, uni_keepouts, poly_keepouts,1, 1);
             LocalDateTime end = LocalDateTime.now();
             OutputDocProcess finOutput = new OutputDocProcess(outputDoc, "Result/test_hw", start);
             Duration duration = Duration.between(start,end);

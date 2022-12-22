@@ -59,7 +59,7 @@ public class Test_KO_test_NewModel {
 
 
 
-            OutputDoc outputDoc = processor.processToOutput_w_multiKO(master, slaves, uni_keepouts, poly_keepouts,1, 1);
+            OutputDoc outputDoc = processor.processToOutput_w_multiKO("newModel", master, slaves, uni_keepouts, poly_keepouts,1, 1);
             LocalDateTime end = LocalDateTime.now();
             OutputDocProcess finOutput = new OutputDocProcess(outputDoc, "Result/test_NewModel", start);
             Duration duration = Duration.between(start,end);

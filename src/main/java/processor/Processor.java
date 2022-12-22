@@ -3,6 +3,8 @@ package processor;
 import grb.*;
 import gurobi.GRB;
 import gurobi.GRBException;
+import parser.DocParser;
+import parser.Document;
 import parser.OutputDoc;
 import shapeVar.*;
 import shapes.*;
@@ -13,8 +15,13 @@ import java.util.*;
 public class Processor {
 
     private GurobiExecutor executor;
+    private final DocParser parser;
     private final static int M = 999999;
     private OutputDoc outputDoc;
+
+    public Processor() {
+        this.parser = new DocParser();
+    }
 
     /**
      * The ILP Model to solve I2C connection without Keepout
@@ -112,21 +119,16 @@ public class Processor {
 
     }
 
-    /**
-     * The QP Model to solve I2C connection with Keepout
-     * The coordinates are Int Type
-     * Absolute values are presented by GRB.GenConstraints
-     *
-     * @param master MasterIC
-     * @param slaves ArrayList of slaves
-     * @throws GRBException GRBException
-     */
 
-    public OutputDoc processToOutput_w_multiKO(Master master, ArrayList<Slave> slaves, ArrayList<Keepout> uni_keepouts, ArrayList<Poly_Keepout> poly_keepouts, double busC, double slaveC) throws GRBException {
+    public OutputDoc processToOutput_w_multiKO(String path) throws GRBException {
+        parser.parseInputToDocument(path);
+        Document input = parser.getParseDoc();
+        String[] names = path.split("/");
+        input.setName(names[names.length - 1]);
+        return processToOutput_w_multiKO(input.getName(), input.getMaster(), input.getSlaves(), input.getUni_keepouts(), input.getPoly_keepouts(), input.getBusC(), input.getSlaveC());
+    }
 
-//        ArrayList<Keepout> all_keepouts = new ArrayList<>();
-//        all_keepouts.addAll(uni_keepouts);
-//        all_keepouts.addAll(poly_keepouts);
+    public OutputDoc processToOutput_w_multiKO(String i2CName, Master master, ArrayList<Slave> slaves, ArrayList<Keepout> uni_keepouts, ArrayList<Poly_Keepout> poly_keepouts, double busC, double slaveC) throws GRBException {
 
         update_LRAB_keepouts(uni_keepouts);
         System.out.println(uni_keepouts);
@@ -137,7 +139,7 @@ public class Processor {
                 System.out.println(Arrays.toString(o.getMap_oo_dist().get(other_o)));
             }
         }
-        outputDoc = new OutputDoc("I2C", uni_keepouts, master, slaves);
+        outputDoc = new OutputDoc(i2CName, uni_keepouts, master, slaves);
 
 
 

@@ -9,6 +9,7 @@ import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
 import parser.OutputDoc;
 import shapes.*;
 
@@ -60,27 +61,28 @@ public class DrawPDF {
         int ub_x = Collections.max(xs);
         int lb_y = Collections.min(ys);
         int ub_y = Collections.max(ys);
-        lb_x -= 20;
-        ub_x += 20;
-        lb_y -= 20;
-        ub_y += 20;
+        lb_x -= 100;
+        ub_x += 100;
+        lb_y -= 100;
+        ub_y += 100;
         int width = ub_x - lb_x;
         int height = ub_y - lb_y;
 
-        int master_r = 5;
-        int vp_r = 4;
-        int sl_r = 3;
+        double master_r = 5;
+        double vp_r = 4;
+        double sl_r = 3;
+        float lineWidth = 2;
 
 
 
-        String pdfPath = this.path + "_" +outputDoc.getI2Cname();
+        String pdfPath = this.path + "_" + outputDoc.getI2Cname();
         Rectangle rectangle = new Rectangle(lb_x, lb_y, width, height);
         PdfDocument pdfDoc = new PdfDocument(new PdfWriter(pdfPath));
         Document document = new Document(pdfDoc, new PageSize(rectangle));
 
 
         PdfCanvas canvas = new PdfCanvas(pdfDoc.addNewPage());
-        canvas.setLineWidth((float) 1);
+        canvas.setLineWidth(lineWidth);
 
         /*
         draw Keepouts
@@ -96,21 +98,29 @@ public class DrawPDF {
         /*
         draw Master
          */
+        float p_bias = 0.2F;
         Color PINK = convertRgbToCmyk(new DeviceRgb(255,182,193));
         canvas.setColor(PINK, true)
                 .circle(master.getX_ct(), master.getY_ct(), master_r)
                 .fill()
                 .stroke();
+        Paragraph pMaster = new Paragraph("Master (" + master.getX_ct() + ", " + master.getY_ct() + ")").setFontSize(20);
+        pMaster.setFixedPosition(master.getX_ct() , master.getY_ct() + p_bias, 200);
+        document.add(pMaster);
 
-
+        int vp_cnt = 0;
         for (VirtualPoint vp : virtualPoints){
             /*
             draw Vp
              */
+            vp_cnt++;
             Color CYAN = convertRgbToCmyk(new DeviceRgb(0,255,255));
             canvas.setColor(CYAN, false)
                     .circle(vp.getX_ct(), vp.getY_ct(), vp_r)
                     .stroke();
+            Paragraph pVP = new Paragraph("VP" + vp_cnt +" (" + vp.getX_ct() + ", " + vp.getY_ct() + ")").setFontSize(20);
+            pVP.setFixedPosition(vp.getX_ct() , vp.getY_ct() - p_bias, 2000);
+            document.add(pVP);
             ArrayList<ObObC> rel_mv_obs = vp.getRel_mv_Obs();
             ArrayList<ObObC> rel_vp_obs = vp.getRel_vp_Obs();
             ArrayList<ObObC> rel_sl_obs = vp.getRel_sl_Obs();
@@ -303,12 +313,17 @@ public class DrawPDF {
         /*
         draw Slaves
          */
+
         for (Slave sv : slaves){
             Color RED = convertRgbToCmyk(new DeviceRgb(255,0,0));
             canvas.setColor(RED, true)
                     .circle(sv.getX_ct(), sv.getY_ct(), sl_r)
                     .fill()
                     .stroke();
+
+            Paragraph pSV = new Paragraph(sv.getName() +" (" + sv.getX_ct() + ", " + sv.getY_ct() + ")").setFontSize(20);
+            pSV.setFixedPosition(sv.getX_ct() , sv.getY_ct() - p_bias, 2000);
+            document.add(pSV);
         }
 
 

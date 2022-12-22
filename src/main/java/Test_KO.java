@@ -74,7 +74,7 @@ public class Test_KO {
 
 
         try {
-            processor.processToOutput_w_multiKO(master, slaves, keepouts, poly_keepouts,1, 1);
+            processor.processToOutput_w_multiKO("no", master, slaves, keepouts, poly_keepouts,1, 1);
             LocalDateTime end = LocalDateTime.now();
             Duration duration = Duration.between(start,end);
             LocalDateTime duration_formated = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(duration.toMillis()), ZoneId.of("UTC"));
