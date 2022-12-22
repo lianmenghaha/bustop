@@ -10,6 +10,9 @@ public class VirtualPoint extends Shape{
     private ArrayList<ObObC> rel_mv_Obs;
     private int dis_vp;
     private int dis_sl;
+    private boolean isDetour_vp;
+    private boolean isDetour_sl;
+    private boolean isDetour_mv;
 
 
     public VirtualPoint(double x_ct, double y_ct, String name) {
@@ -20,6 +23,9 @@ public class VirtualPoint extends Shape{
         this.rel_sl_Obs = new ArrayList<>();
         this.rel_vp_Obs = new ArrayList<>();
         this.rel_mv_Obs = new ArrayList<>();
+        this.isDetour_mv = false;
+        this.isDetour_vp = false;
+        this.isDetour_sl = false;
     }
 
     public Slave getSlave() {
@@ -68,6 +74,30 @@ public class VirtualPoint extends Shape{
 
     public void setDis_vp(int dis_vp) {
         this.dis_vp = dis_vp;
+    }
+
+    public boolean isDetour_vp() {
+        return isDetour_vp;
+    }
+
+    public void setDetour_vp(boolean detour_vp) {
+        isDetour_vp = detour_vp;
+    }
+
+    public boolean isDetour_sl() {
+        return isDetour_sl;
+    }
+
+    public void setDetour_sl(boolean detour_sl) {
+        isDetour_sl = detour_sl;
+    }
+
+    public boolean isDetour_mv() {
+        return isDetour_mv;
+    }
+
+    public void setDetour_mv(boolean detour_mv) {
+        isDetour_mv = detour_mv;
     }
 
     @Override

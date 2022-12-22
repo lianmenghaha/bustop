@@ -67,11 +67,12 @@ public class DrawPDF {
         ub_y += 100;
         int width = ub_x - lb_x;
         int height = ub_y - lb_y;
+        int sum_wh = width + height;
 
-        double master_r = 5;
-        double vp_r = 4;
-        double sl_r = 3;
-        float lineWidth = 2;
+        double master_r = sum_wh/200;
+        double vp_r = sum_wh/300;
+        double sl_r = sum_wh/350;
+        float lineWidth = sum_wh/1000;
 
 
 
@@ -87,24 +88,32 @@ public class DrawPDF {
         /*
         draw Keepouts
          */
+        float p_bias = 2;
         for (Keepout o : uni_keepouts){
             Rectangle rect = new Rectangle(o.getMinX(), o.getMinY(), o.getMaxX() - o.getMinX(), o.getMaxY() - o.getMinY());
-            Color Blue = convertRgbToCmyk(new DeviceRgb(0,0,255));
-            canvas.setColor(Blue, true)
+            Color LightBlue = convertRgbToCmyk(new DeviceRgb(173,216,230));
+            canvas.setColor(LightBlue, true)
                     .rectangle(rect)
                     .fill()
                     .stroke();
+            Color BLACK = convertRgbToCmyk(new DeviceRgb(0,0,0));
+            canvas.setColor(BLACK, false)
+                    .rectangle(rect)
+                    .stroke();
+            Paragraph pO = new Paragraph("[" + o.getMinX() + ", " + o.getMaxX() + "]*[" + o.getMinY() + ", " + o.getMaxY() + "]").setFontSize(20).setFontColor(convertRgbToCmyk(new DeviceRgb(0,0,0)));
+            pO.setFixedPosition(o.getMinX() + p_bias, (float) ((o.getMinY() + o.getMaxY())*0.5), 2000);
+            document.add(pO);
         }
         /*
         draw Master
          */
-        float p_bias = 0.2F;
+
         Color PINK = convertRgbToCmyk(new DeviceRgb(255,182,193));
         canvas.setColor(PINK, true)
                 .circle(master.getX_ct(), master.getY_ct(), master_r)
                 .fill()
                 .stroke();
-        Paragraph pMaster = new Paragraph("Master (" + master.getX_ct() + ", " + master.getY_ct() + ")").setFontSize(20);
+        Paragraph pMaster = new Paragraph(master.getName() + " (" + master.getX_ct() + ", " + master.getY_ct() + ")").setFontSize(20).setFontColor(convertRgbToCmyk(new DeviceRgb(0,0,0)));
         pMaster.setFixedPosition(master.getX_ct() , master.getY_ct() + p_bias, 200);
         document.add(pMaster);
 
@@ -118,8 +127,9 @@ public class DrawPDF {
             canvas.setColor(CYAN, false)
                     .circle(vp.getX_ct(), vp.getY_ct(), vp_r)
                     .stroke();
-            Paragraph pVP = new Paragraph("VP" + vp_cnt +" (" + vp.getX_ct() + ", " + vp.getY_ct() + ")").setFontSize(20);
-            pVP.setFixedPosition(vp.getX_ct() , vp.getY_ct() - p_bias, 2000);
+            //Paragraph pVP = new Paragraph("VP" + vp_cnt +" (" + vp.getX_ct() + ", " + vp.getY_ct() + ")").setFontSize(20).setFontColor(convertRgbToCmyk(new DeviceRgb(0,0,0)));
+            Paragraph pVP = new Paragraph("VP" + vp_cnt).setFontSize(20).setFontColor(convertRgbToCmyk(new DeviceRgb(0,0,0)));
+            pVP.setFixedPosition(vp.getX_ct(), vp.getY_ct() + 4 * p_bias, 2000);
             document.add(pVP);
             ArrayList<ObObC> rel_mv_obs = vp.getRel_mv_Obs();
             ArrayList<ObObC> rel_vp_obs = vp.getRel_vp_Obs();
@@ -249,7 +259,6 @@ public class DrawPDF {
                 Color ORANGE = convertRgbToCmyk(new DeviceRgb(255,165,0));
                 canvas.setColor(ORANGE, false);
                 for (ObObC connect : rel_sl_obs){
-                    System.out.println(connect);
                     if (connect.type == ConnectionType.URtoLL){
 
                         canvas.moveTo(((Keepout)connect.start).getMaxX(), ((Keepout)connect.start).getMaxY());
@@ -321,7 +330,8 @@ public class DrawPDF {
                     .fill()
                     .stroke();
 
-            Paragraph pSV = new Paragraph(sv.getName() +" (" + sv.getX_ct() + ", " + sv.getY_ct() + ")").setFontSize(20);
+            //Paragraph pSV = new Paragraph(sv.getName() +" (" + sv.getX_ct() + ", " + sv.getY_ct() + ")").setFontSize(20).setFontColor(convertRgbToCmyk(new DeviceRgb(0,0,0)));
+            Paragraph pSV = new Paragraph(sv.getName()).setFontSize(20).setFontColor(convertRgbToCmyk(new DeviceRgb(0,0,0)));
             pSV.setFixedPosition(sv.getX_ct() , sv.getY_ct() - p_bias, 2000);
             document.add(pSV);
         }

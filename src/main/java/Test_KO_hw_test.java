@@ -69,7 +69,7 @@ public class Test_KO_hw_test {
         try {
             OutputDoc outputDoc = processor.processToOutput_w_multiKO("hwTest",master, slaves, uni_keepouts, poly_keepouts,1, 1);
             LocalDateTime end = LocalDateTime.now();
-            OutputDocProcess finOutput = new OutputDocProcess(outputDoc, "Result/test_hw", start);
+            OutputDocProcess finOutput = new OutputDocProcess(outputDoc, "Result/test_hw");
             Duration duration = Duration.between(start,end);
             LocalDateTime duration_formated = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(duration.toMillis()), ZoneId.of("UTC"));
             System.out.println("Program Ends at: "+ DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(end));

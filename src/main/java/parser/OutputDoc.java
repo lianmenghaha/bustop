@@ -15,6 +15,8 @@ public class OutputDoc {
     private Master master;
     private ArrayList<VirtualPoint> virtualPoints;
     private ArrayList<Slave> slaves;
+    private int BusLength;
+    private int SideBusLength;
 
     public OutputDoc(String i2Cname, ArrayList<Keepout> keepouts, Master master, ArrayList<Slave> slaves) {
         I2Cname = i2Cname;
@@ -46,5 +48,21 @@ public class OutputDoc {
 
     public String getI2Cname() {
         return I2Cname;
+    }
+
+    public int getBusLength() {
+        return BusLength;
+    }
+
+    public void setBusLength(int busLength) {
+        BusLength = busLength;
+    }
+
+    public int getSideBusLength() {
+        return SideBusLength;
+    }
+
+    public void setSideBusLength(int sideBusLength) {
+        SideBusLength = sideBusLength;
     }
 }

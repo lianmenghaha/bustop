@@ -61,7 +61,7 @@ public class Test_KO_test_NewModel {
 
             OutputDoc outputDoc = processor.processToOutput_w_multiKO("newModel", master, slaves, uni_keepouts, poly_keepouts,1, 1);
             LocalDateTime end = LocalDateTime.now();
-            OutputDocProcess finOutput = new OutputDocProcess(outputDoc, "Result/test_NewModel", start);
+            OutputDocProcess finOutput = new OutputDocProcess(outputDoc, "Result/test_NewModel");
             Duration duration = Duration.between(start,end);
             LocalDateTime duration_formated = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(duration.toMillis()), ZoneId.of("UTC"));
             System.out.println("Program Ends at: "+ DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(end));
