@@ -293,10 +293,10 @@ public class Processor {
                                 vp.addToRel_vp_Obs(in);
                             }
                             if (ko_vp_q_dt[9].getIntResult() == 1) {//oq(d,ll,in)
-                                ObObC out = new ObObC(o, vpNext, ConnectionType.VPtoLL);
+                                ObObC out = new ObObC(o, vpNext, ConnectionType.LLtoVP);
                                 vp.addToRel_vp_Obs(out);
                             } else if (ko_vp_q_dt[10].getIntResult() == 1) {//oq(d,ur,in)
-                                ObObC out = new ObObC(o, vpNext, ConnectionType.VPtoUR);
+                                ObObC out = new ObObC(o, vpNext, ConnectionType.URtoVP);
                                 vp.addToRel_vp_Obs(out);
                             }
 

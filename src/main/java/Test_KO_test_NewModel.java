@@ -8,6 +8,7 @@ import shapes.Poly_Keepout;
 import shapes.Slave;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 
 public class Test_KO_test_NewModel {
 
-    public static void main(String[] args) throws GRBException, FileNotFoundException {
+    public static void main(String[] args) throws GRBException, IOException {
         LocalDateTime start = LocalDateTime.now();
         System.out.println("Program Starts at: " + DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(start));
 

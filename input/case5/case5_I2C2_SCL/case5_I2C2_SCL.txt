@@ -1,0 +1,14 @@
+Uni_Keepouts
+-576 223 1961 2429
+FIN
+Poly_Keepouts
+Fin
+Master
+U300.AM46 611 1713
+Slave
+J1701.3 506 1205
+R711.2 323 1245
+C1718.1 365 1277
+FIN
+slaveC 1
+busC 1

@@ -76,7 +76,8 @@ public class DrawPDF {
 
 
 
-        String pdfPath = this.path + "_" + outputDoc.getI2Cname();
+        //String pdfPath = this.path + "_" + outputDoc.getI2Cname() + ".pdf";
+        String pdfPath = this.path + ".pdf";
         Rectangle rectangle = new Rectangle(lb_x, lb_y, width, height);
         PdfDocument pdfDoc = new PdfDocument(new PdfWriter(pdfPath));
         Document document = new Document(pdfDoc, new PageSize(rectangle));
@@ -235,13 +236,13 @@ public class DrawPDF {
 
                     }
                     if (connect.type == ConnectionType.LLtoVP){
-                        canvas.moveTo(((Keepout)connect.start).getMaxX(), ((Keepout)connect.start).getMaxY());
+                        canvas.moveTo(((Keepout)connect.start).getMinX(), ((Keepout)connect.start).getMinY());
                         canvas.lineTo(connect.end.getX_ct(), connect.end.getY_ct());
 
                     }
                     if (connect.type == ConnectionType.URtoVP){
 
-                        canvas.moveTo(((Keepout)connect.start).getMinX(), ((Keepout)connect.start).getMinY());
+                        canvas.moveTo(((Keepout)connect.start).getMaxX(), ((Keepout)connect.start).getMaxY());
                         canvas.lineTo(connect.end.getX_ct(), connect.end.getY_ct());
                     }
                     if (connect.type == ConnectionType.NoDetour){

@@ -1,0 +1,16 @@
+Uni_Keepouts
+-196 169 2557 2680
+-224 174 2332 2557
+-224 65 2228 2332
+FIN
+Poly_Keepouts
+Fin
+Master
+U300.BJ24 -525 1435
+Slave
+U2603.C6 -128 1631
+U2601.J8 0 0
+R707.2 -98 1107
+FIN
+slaveC 1
+busC 1
