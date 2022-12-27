@@ -17,9 +17,9 @@ public class Test_KO_hw_test_PATH {
         System.out.println("Program Starts at: " + DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(start));
         Processor processor = new Processor();
 
-        OutputDoc outputDoc = processor.processToOutput_w_multiKO("Input/case6/case6_I2C0_SDA");
+        OutputDoc outputDoc = processor.processToOutput_w_multiKO("input_busTop/case6/case6_I2C0_SDA");
         LocalDateTime end = LocalDateTime.now();
-        OutputDocProcess finOutput = new OutputDocProcess(outputDoc, "Result/test_case6_I2C0_SDA");
+        OutputDocProcess finOutput = new OutputDocProcess(outputDoc, "result_busTop/test_case6_I2C0_SDA");
         Duration duration = Duration.between(start, end);
         LocalDateTime duration_formated = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(duration.toMillis()), ZoneId.of("UTC"));
         System.out.println("Program Ends at: " + DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(end));
