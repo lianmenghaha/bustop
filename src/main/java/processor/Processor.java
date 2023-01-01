@@ -3156,7 +3156,7 @@ public class Processor {
     }
 
     private void buildCons_w_multiKO(Master_var mv, ArrayList<Slave_var> slaveVars, ArrayList<VP_var> VPvars, ArrayList<Keepout> uni_keepouts, ArrayList<Poly_Keepout> poly_keepouts, GurobiVariable busLength, GurobiVariable sideBusLength) throws GRBException {
-        double eps = 1;
+        double eps = 3;
 
         GurobiConstraint c;
         GurobiQuadConstraint qc;
