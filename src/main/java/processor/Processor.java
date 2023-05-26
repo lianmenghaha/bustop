@@ -130,6 +130,7 @@ public class Processor {
 
     public OutputDoc processToOutput_w_multiKO(String i2CName, Master master, ArrayList<Slave> slaves, ArrayList<Keepout> uni_keepouts, ArrayList<Poly_Keepout> poly_keepouts, double busC, double slaveC) throws GRBException {
 
+
         update_LRAB_keepouts(uni_keepouts);
         System.out.println(uni_keepouts);
         for (Keepout o : uni_keepouts) {
@@ -214,6 +215,14 @@ public class Processor {
         for (int cnt = 0; cnt < vpVars.size(); ++cnt){
             VP_var vpVar = vpVars.get(cnt);
             VirtualPoint vp = outputDoc.getVirtualPoints().get(cnt);
+
+            System.out.println("vp" + (cnt + 1));
+            for (Keepout ko : uni_keepouts){
+                System.out.println(ko.getName());
+                System.out.println("ko_vp_bVars_Aux = " + convertGrbIntArrayToString(vpVar.ko_vp_bVars_Aux.get(ko)));
+            }
+
+
             /*
             Master-Relative
              */
@@ -7365,6 +7374,16 @@ public class Processor {
         BigDecimal b1 = new BigDecimal(Double.toString(value1));
         BigDecimal b2 = new BigDecimal(Double.toString(value2));
         return b1.multiply(b2).doubleValue();
+    }
+
+
+    public String convertGrbIntArrayToString(GurobiVariable[] grbIntArray) throws GRBException {
+        StringBuilder grbAsString = new StringBuilder("[");
+        for (GurobiVariable v : grbIntArray) {
+            grbAsString.append(v.getIntResult() + " ");
+        }
+        grbAsString.delete(grbAsString.length() - 1, grbAsString.length()).append("]");
+        return grbAsString.toString();
     }
 
 
